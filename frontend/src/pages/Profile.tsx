@@ -9,6 +9,12 @@ export default function Profile() {
   const [showQrCode, setShowQrCode] = useState(false);
   const [totpInput, setTotpInput] = useState("");
   const [mfaMessage, setMfaMessage] = useState("");
+  const [accountMessage, setAccountMessage] = useState("");
+
+  const handleSaveAccount = () => {
+    setAccountMessage("Account details saved successfully.");
+    window.setTimeout(() => setAccountMessage(""), 3200);
+  };
 
   const s: Record<string, React.CSSProperties> = {
     shell: { display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 1100, margin: "0 auto" },
@@ -21,7 +27,7 @@ export default function Profile() {
     label: { fontSize: 10, fontWeight: 600, color: "#6B7280", letterSpacing: 0.7, textTransform: "uppercase" as const, marginBottom: 8, display: "block" },
     input: { width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 13, outline: "none" },
     btn: { width: "100%", padding: 12, background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontWeight: 600, fontSize: 13, cursor: "pointer", transition: "all 0.2s" },
-    btnSecondary: { padding: "10px 16px", background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer", fontSize: 13 },
+    btnSecondary: { padding: "10px 16px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer", fontSize: 13 },
     mfaBox: { background: "#111827", border: "1px solid #1F2937", borderRadius: 10, padding: 16, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 },
     mfaText: { flex: 1, display: "flex", flexDirection: "column" as const, gap: 4 },
     mfaLabel: { display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#F9FAFB" },
@@ -103,7 +109,8 @@ export default function Profile() {
               <span style={s.label}>Edit Full Name</span>
               <input type="text" style={s.input} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
-            <button style={s.btn} onMouseOver={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")} onMouseOut={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}>Save Account Details</button>
+            <button type="button" style={s.btn} onClick={handleSaveAccount} onMouseOver={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")} onMouseOut={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}>Save Account Details</button>
+            {accountMessage && <div style={{ marginTop: 12, fontSize: 12, color: "#10B981" }}>{accountMessage}</div>}
           </div>
         </div>
 

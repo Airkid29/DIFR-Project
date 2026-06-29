@@ -1,8 +1,15 @@
 // REPORT PAGE
 import React from "react";
-import { FileText, Download, AlertTriangle, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { FileText, Download, AlertTriangle, CheckCircle, ShieldCheck } from "lucide-react";
+import { exportForensicPdf } from "../utils/pdfExport";
 
 export default function Report() {
+  const navigate = useNavigate();
+
+  const handleBackToScanner = () => navigate('/analysis');
+  const handleAddToEvidence = () => navigate('/evidence');
+
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 900, margin: "0 auto" },
     backLink: { display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "#9CA3AF", cursor: "pointer", marginBottom: 12 },
@@ -14,7 +21,7 @@ export default function Report() {
     headerSub: { fontSize: 10, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace", marginTop: 4 },
     headerButtons: { display: "flex", gap: 12 },
     btn: { padding: "10px 16px", background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontWeight: 600, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
-    btnPrimary: { background: "linear-gradient(135deg, #3B82F6, #10B981)", color: "#0A0E1A", border: "none" },
+    btnPrimary: { background: "#FFFFFF", color: "#0A0E1A", border: "none" },
     metricsGrid: { display: "grid", gridTemplateColumns: "1fr 2fr", gap: 16 },
     card: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" as const, gap: 12 },
     cardTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 14, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 12, marginBottom: 16 },
@@ -26,9 +33,31 @@ export default function Report() {
     hashBox: { background: "#0A0E1A", border: "1px solid #1F2937", padding: 12, borderRadius: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#9CA3AF", wordBreak: "break-all" as const, marginTop: 4 }
   };
 
+  const handleExportPdf = () => {
+    exportForensicPdf({
+      title: "Forensic Investigation Report",
+      fileName: "suspicious_payload.exe",
+      fileSize: "420 KB",
+      threatScore: 85,
+      severity: "Malicious Artifact",
+      hashes: {
+        md5: "3a42d9f86d081884c7d659a2feaa0c55",
+        sha1: "fa328b9d0b8db2d128ea73e823b8db2d128ee5d0",
+        sha256: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+      },
+      signatures: ["Malware_Suspicious_Strings", "Packing_Detected"],
+      notes: ["Suspicious strings matched in the artifact preview.", "Execution chain indicates possible lateral movement behavior."],
+      custody: [
+        "2026-06-29 09:15 - Analyst A collected the artifact from endpoint E-17",
+        "2026-06-29 09:22 - Hash values generated and documented",
+        "2026-06-29 09:30 - Report exported and attached to the evidence package"
+      ]
+    });
+  };
+
   return (
     <div style={s.container}>
-      <a style={s.backLink}>← Back to Scanner</a>
+      <button type="button" style={{ ...s.backLink, background: 'none', border: 'none' }} onClick={handleBackToScanner}>← Back to Scanner</button>
 
       <div style={s.header}>
         <div style={s.headerLeft}>
@@ -41,11 +70,11 @@ export default function Report() {
           </div>
         </div>
         <div style={s.headerButtons}>
-          <button style={s.btn}>
+          <button style={s.btn} onClick={handleExportPdf}>
             <Download size={14} />
             <span>Download PDF</span>
           </button>
-          <button style={{ ...s.btn, ...s.btnPrimary }}>
+          <button style={{ ...s.btn, ...s.btnPrimary }} onClick={handleAddToEvidence}>
             <span>Add to Evidence</span>
           </button>
         </div>
@@ -92,6 +121,23 @@ export default function Report() {
               <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444", marginBottom: 8 }}>{rule}</div>
               <p style={{ fontSize: 10, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>Source: local_ruleset.yar | Matched strings at offset 0x2f14, 0x3d0c</p>
             </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={s.card}>
+        <h3 style={s.cardTitle}>Digital Chain of Custody</h3>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <ShieldCheck size={16} style={{ color: "#10B981" }} />
+          <span style={{ fontSize: 12, color: "#F9FAFB", fontWeight: 600 }}>Evidence package verified and sealed</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
+          {[
+            "Collected by Analyst A on endpoint E-17",
+            "Hash values archived and signed",
+            "Report attached to chain-of-custody record"
+          ].map((item) => (
+            <div key={item} style={{ background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, padding: 10, fontSize: 11, color: "#9CA3AF" }}>{item}</div>
           ))}
         </div>
       </div>

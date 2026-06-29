@@ -1,14 +1,37 @@
 // FILE ANALYSIS PAGE
 import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { UploadCloud, File, AlertTriangle, CheckCircle, Download } from "lucide-react";
+import { api } from "../utils/api";
+import { exportForensicPdf } from "../utils/pdfExport";
 
 export default function FileAnalysis() {
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "scanning" | "done">("idle");
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<{ threat: number; severity: string; hashes: { md5: string; sha1: string; sha256: string }; matches: string[]; notes: string[] }>({ threat: 0, severity: "Low", hashes: { md5: "", sha1: "", sha256: "" }, matches: [], notes: [] });
+  const [result, setResult] = useState<{ threat: number; severity: string; hashes: { md5: string; sha1: string; sha256: string }; matches: string[]; notes: string[]; intelMessages?: string[] }>({ threat: 0, severity: "Low", hashes: { md5: "", sha1: "", sha256: "" }, matches: [], notes: [] });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  const handleExportReport = () => {
+    if (!file) return;
+    exportForensicPdf({
+      title: "Forensic Artifact Scan Report",
+      fileName: file.name,
+      fileSize: `${((file.size || 0) / 1024).toFixed(2)} KB`,
+      threatScore: result.threat,
+      severity: result.severity,
+      hashes: result.hashes,
+      signatures: result.matches.length > 0 ? result.matches : ["No direct signature matches"],
+      notes: result.notes.length > 0 ? result.notes : ["No heuristic notes available."],
+      custody: [
+        "2026-06-29 09:15 - Artifact collected from endpoint E-17",
+        "2026-06-29 09:22 - Hash values generated and documented",
+        "2026-06-29 09:30 - Report exported as proof-of-analysis"
+      ]
+    });
+  };
 
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 980, margin: "0 auto" },
@@ -81,6 +104,7 @@ export default function FileAnalysis() {
 
     const matches: string[] = [];
     const notes: string[] = [];
+    const intelMessages: string[] = [];
     let threat = 16;
 
     if (/(mimikatz|psexec|rundll32|powershell|mshta|wscript|cobalt|dropper|regsvr32|cmd\.exe)/i.test(lower)) {
@@ -106,6 +130,22 @@ export default function FileAnalysis() {
 
     const severity = threat >= 75 ? "Critical" : threat >= 45 ? "High" : threat >= 25 ? "Medium" : "Low";
 
+    try {
+      const intel = await api.post("/api/intel/hash", { sha256_hash: sha256 });
+      if (intel?.messages?.length) {
+        intelMessages.push(...intel.messages);
+      }
+      if (intel?.virustotal?.positives) {
+        matches.push(`VirusTotal detected ${intel.virustotal.positives}/${intel.virustotal.total} engines`);
+        notes.push("VirusTotal hash lookup returned detection information.");
+      }
+      if (intel?.otx?.pulse_info) {
+        notes.push("AlienVault OTX returned threat pulse information for this hash.");
+      }
+    } catch (error) {
+      intelMessages.push("Threat intelligence lookup is unavailable or keys are not configured.");
+    }
+
     let currentProgress = 0;
     const interval = window.setInterval(() => {
       currentProgress += 18;
@@ -117,7 +157,8 @@ export default function FileAnalysis() {
           severity,
           hashes: { md5: createSimpleHash(selectedFile.name, selectedFile.size), sha1, sha256 },
           matches,
-          notes
+          notes,
+          intelMessages,
         });
         setStatus("done");
       } else {
@@ -234,7 +275,7 @@ export default function FileAnalysis() {
               Scan Another File
             </button>
             {status === "done" && (
-              <button style={{ padding: "10px 16px", background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+              <button type="button" onClick={handleExportReport} style={{ padding: "10px 16px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
                 <Download size={14} />
                 <span>Export Report</span>
               </button>

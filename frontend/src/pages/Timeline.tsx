@@ -43,7 +43,7 @@ export default function Timeline() {
     header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" },
     title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 28, color: "#F9FAFB", letterSpacing: -1, marginBottom: 8 },
     desc: { fontSize: 11, color: "#9CA3AF" },
-    btn: { padding: "10px 16px", background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
+    btn: { padding: "10px 16px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
     controlBar: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16, display: "flex", gap: 12, alignItems: "center" },
     filterPill: { padding: "6px 12px", borderRadius: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, border: "1px solid", cursor: "pointer", transition: "all 0.2s" },
     timelineTrack: { position: "relative" as const, paddingLeft: 24, borderLeft: "2px solid #1F2937" },
@@ -196,7 +196,7 @@ export default function Timeline() {
                 <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Details</label>
                 <textarea style={{ width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", outline: "none", minHeight: 80 }} placeholder="Event details..." />
               </div>
-              <button style={{ padding: 12, background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
+              <button style={{ padding: 12, background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
                 Add Event
               </button>
             </form>

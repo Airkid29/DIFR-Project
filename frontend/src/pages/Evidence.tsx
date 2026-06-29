@@ -1,6 +1,7 @@
 // EVIDENCE PAGE
 import React, { useState } from "react";
-import { Database, Plus, Search, ShieldCheck, Download, X, Loader } from "lucide-react";
+import { Database, Plus, Search, ShieldCheck, Download, X } from "lucide-react";
+import { exportForensicPdf } from "../utils/pdfExport";
 
 interface EvidenceItem {
   id: string;
@@ -34,6 +35,50 @@ export default function Evidence() {
   const [search, setSearch] = useState("");
   const [selectedItem, setSelectedItem] = useState<EvidenceItem | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [newEvidence, setNewEvidence] = useState({ name: "", category: "Disk Image", sha256: "", custodian: "Analyst A" });
+  const [statusMessage, setStatusMessage] = useState("");
+
+  const handleExportEvidencePdf = () => {
+    if (!selectedItem) return;
+    exportForensicPdf({
+      title: "Evidence Audit Report",
+      fileName: selectedItem.name,
+      fileSize: "—",
+      threatScore: selectedItem.verified ? 32 : 67,
+      severity: selectedItem.verified ? "Verified Evidence" : "Unverified",
+      hashes: {
+        md5: selectedItem.sha256_hash.slice(0, 32).padEnd(32, "0"),
+        sha1: selectedItem.sha256_hash.slice(0, 40).padEnd(40, "0"),
+        sha256: selectedItem.sha256_hash
+      },
+      signatures: ["Chain-of-custody intact", "Evidence file verified"],
+      notes: ["Evidence item analyzed by digital forensic team.", "Audit report generated for presentation."],
+      custody: selectedItem.custody_chain.map((entry) => `${new Date(entry.date).toLocaleString()} - ${entry.action}`)
+    });
+  };
+
+  const handleRegisterEvidence = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newItem: EvidenceItem = {
+      id: `EVID-${Math.floor(9000 + Math.random() * 999)}`,
+      name: newEvidence.name || "New Evidence Item",
+      category: newEvidence.category,
+      collector: "Analyst A",
+      date_collected: new Date().toISOString(),
+      sha256_hash: newEvidence.sha256 || "0000000000000000000000000000000000000000000000000000000000000000",
+      custodian: newEvidence.custodian,
+      verified: false,
+      custody_chain: [
+        { id: 1, date: new Date().toISOString(), from: "Registration", to: newEvidence.custodian, action: "Evidence registered and hashed" }
+      ]
+    };
+    setEvidence((prev) => [newItem, ...prev]);
+    setSelectedItem(newItem);
+    setIsRegistering(false);
+    setNewEvidence({ name: "", category: "Disk Image", sha256: "", custodian: "Analyst A" });
+    setStatusMessage("Evidence registered successfully.");
+    window.setTimeout(() => setStatusMessage(""), 3200);
+  };
 
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column", gap: 24 },
@@ -41,7 +86,7 @@ export default function Evidence() {
     headerText: { flex: 1 },
     title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 28, color: "#F9FAFB", letterSpacing: -1, marginBottom: 8 },
     desc: { fontSize: 11, color: "#9CA3AF" },
-    btn: { padding: "10px 16px", background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
+    btn: { padding: "10px 16px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
     splitGrid: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24 },
     controlBar: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16 },
     searchWrap: { position: "relative" },
@@ -105,7 +150,7 @@ export default function Evidence() {
             <div style={s.detailPanel}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: "#3B82F6" }}>{selectedItem.id} Detail</span>
-                <button style={{ background: "none", border: "none", color: "#3B82F6", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 10 }}>
+                <button type="button" style={{ background: "none", border: "none", color: "#3B82F6", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 10 }} onClick={handleExportEvidencePdf}>
                   <Download size={14} />
                   <span>PDF Audit</span>
                 </button>
@@ -143,14 +188,14 @@ export default function Evidence() {
               <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 16, color: "#F9FAFB" }}>Register Evidence Item</h3>
               <button onClick={() => setIsRegistering(false)} style={{ background: "none", border: "none", color: "#9CA3AF", cursor: "pointer", fontSize: 20 }}>×</button>
             </div>
-            <form style={{ display: "flex", flexDirection: "column", gap: 16 }} onSubmit={(e) => { e.preventDefault(); setIsRegistering(false); }}>
+            <form style={{ display: "flex", flexDirection: "column", gap: 16 }} onSubmit={handleRegisterEvidence}>
               <div>
                 <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Evidence Name</label>
-                <input type="text" style={{ ...s.input, width: "100%" }} placeholder="e.g. Corporate DC01 SSD dump" />
+                <input type="text" style={{ ...s.input, width: "100%" }} placeholder="e.g. Corporate DC01 SSD dump" value={newEvidence.name} onChange={(e) => setNewEvidence((prev) => ({ ...prev, name: e.target.value }))} />
               </div>
               <div>
                 <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Category</label>
-                <select style={{ ...s.input, width: "100%" }}>
+                <select style={{ ...s.input, width: "100%" }} value={newEvidence.category} onChange={(e) => setNewEvidence((prev) => ({ ...prev, category: e.target.value }))}>
                   <option>Disk Image</option>
                   <option>RAM Dump</option>
                   <option>Log File</option>
@@ -158,9 +203,13 @@ export default function Evidence() {
               </div>
               <div>
                 <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>SHA-256 Hash</label>
-                <input type="text" style={{ ...s.input, width: "100%", fontFamily: "'JetBrains Mono', monospace" }} placeholder="64-character hex hash" />
+                <input type="text" style={{ ...s.input, width: "100%", fontFamily: "'JetBrains Mono', monospace" }} placeholder="64-character hex hash" value={newEvidence.sha256} onChange={(e) => setNewEvidence((prev) => ({ ...prev, sha256: e.target.value }))} />
               </div>
-              <button style={{ padding: 12, background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
+              <div>
+                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Custodian</label>
+                <input type="text" style={{ ...s.input, width: "100%" }} placeholder="Analyst A" value={newEvidence.custodian} onChange={(e) => setNewEvidence((prev) => ({ ...prev, custodian: e.target.value }))} />
+              </div>
+              <button type="submit" style={{ padding: 12, background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
                 Register & Audit Evidence
               </button>
             </form>

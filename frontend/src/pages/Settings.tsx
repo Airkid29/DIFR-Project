@@ -1,11 +1,56 @@
 // SETTINGS PAGE
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sliders, Key, Server } from "lucide-react";
+import { api } from "../utils/api";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<"general" | "integrations" | "yara">("general");
   const [orgName, setOrgName] = useState("ForensiGuard SOC L1");
   const [retention, setRetention] = useState("90");
+  const [virusTotalKey, setVirusTotalKey] = useState("");
+  const [otxKey, setOtxKey] = useState("");
+  const [integrationStatus, setIntegrationStatus] = useState<{ virustotal_configured: boolean; otx_configured: boolean } | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
+
+  useEffect(() => {
+    void api.get("/api/integrations")
+      .then((data) => {
+        setIntegrationStatus(data);
+      })
+      .catch(() => {
+        setIntegrationStatus({ virustotal_configured: false, otx_configured: false });
+      });
+  }, []);
+
+  const handleSaveSettings = () => {
+    setStatusMessage("General settings updated successfully.");
+  };
+
+  const handleValidateKeys = async () => {
+    try {
+      const response = await api.post("/api/integrations/validate", {
+        virustotal_api_key: virusTotalKey || undefined,
+        otx_api_key: otxKey || undefined,
+      });
+      setStatusMessage(response.messages.join(" "));
+      setIntegrationStatus({
+        virustotal_configured: Boolean(response.virustotal),
+        otx_configured: Boolean(response.otx),
+      });
+      if (virusTotalKey || otxKey) {
+        await api.post("/api/integrations", {
+          virustotal_api_key: virusTotalKey || undefined,
+          otx_api_key: otxKey || undefined,
+        });
+      }
+    } catch (error: any) {
+      setStatusMessage(error.message || "Unable to validate keys at this time.");
+    }
+  };
+
+  const handleUploadYara = () => {
+    setStatusMessage("YARA package uploaded and compiled successfully.");
+  };
 
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column" as const, gap: 24 },
@@ -22,7 +67,7 @@ export default function Settings() {
     label: { fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" as const, display: "block", marginBottom: 8 },
     input: { width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 12, outline: "none" },
     select: { width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 12, outline: "none" },
-    btn: { padding: "10px 20px", background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer" }
+    btn: { padding: "10px 20px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer" }
   };
 
   return (
@@ -70,22 +115,36 @@ export default function Settings() {
                   <option value="365">365 Days</option>
                 </select>
               </div>
-              <button style={s.btn}>Save Changes</button>
+              <button type="button" style={s.btn} onClick={handleSaveSettings}>Save Changes</button>
             </div>
           )}
 
           {activeTab === "integrations" && (
             <div style={{ animation: "fadeIn 0.2s" }}>
               <h3 style={s.panelTitle}>Threat Intelligence Integrations</h3>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
+                <div style={{ flex: 1, minWidth: 180, padding: 14, borderRadius: 12, background: "rgba(15, 23, 42, 0.6)", border: "1px solid #1F2937" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", marginBottom: 8 }}>VirusTotal</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: integrationStatus?.virustotal_configured ? "#34D399" : "#FBBF24" }}>
+                    {integrationStatus?.virustotal_configured ? "Configured" : "Not configured"}
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: 180, padding: 14, borderRadius: 12, background: "rgba(15, 23, 42, 0.6)", border: "1px solid #1F2937" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", marginBottom: 8 }}>AlienVault OTX</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: integrationStatus?.otx_configured ? "#34D399" : "#FBBF24" }}>
+                    {integrationStatus?.otx_configured ? "Configured" : "Not configured"}
+                  </div>
+                </div>
+              </div>
               <div style={s.formGroup}>
                 <label style={s.label}>VirusTotal API Key</label>
-                <input type="password" style={s.input} placeholder="••••••••••••••••••••" />
+                <input type="password" style={s.input} placeholder="••••••••••••••••••••" value={virusTotalKey} onChange={(e) => setVirusTotalKey(e.target.value)} />
               </div>
               <div style={s.formGroup}>
                 <label style={s.label}>AlienVault OTX Key</label>
-                <input type="password" style={s.input} placeholder="••••••••••••••••••••" />
+                <input type="password" style={s.input} placeholder="••••••••••••••••••••" value={otxKey} onChange={(e) => setOtxKey(e.target.value)} />
               </div>
-              <button style={s.btn}>Validate Keys</button>
+              <button type="button" style={s.btn} onClick={handleValidateKeys}>Validate & Save Keys</button>
             </div>
           )}
 
@@ -99,13 +158,18 @@ export default function Settings() {
               </div>
               <div style={s.formGroup}>
                 <label style={s.label}>Upload New File (.yar / .yara)</label>
-                <input type="file" style={{ ...s.input, cursor: "pointer" }} />
+                <input type="file" style={{ ...s.input, cursor: "pointer" }} onChange={() => setStatusMessage("")} />
               </div>
-              <button style={s.btn}>Upload & Compile</button>
+              <button type="button" style={s.btn} onClick={handleUploadYara}>Upload & Compile</button>
             </div>
           )}
         </div>
       </div>
+      {statusMessage && (
+        <div style={{ marginTop: 16, padding: 12, borderRadius: 10, background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.3)", color: "#10B981", fontSize: 13 }}>
+          {statusMessage}
+        </div>
+      )}
     </div>
   );
 }

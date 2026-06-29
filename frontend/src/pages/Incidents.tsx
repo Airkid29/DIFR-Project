@@ -33,7 +33,7 @@ export default function Incidents() {
     headerText: { flex: 1 },
     title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 32, color: "#F9FAFB", letterSpacing: -1, marginBottom: 8 },
     desc: { fontSize: 14, color: "#9CA3AF", lineHeight: 1.6 },
-    btn: { padding: "12px 20px", background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
+    btn: { padding: "12px 20px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
     controlBar: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" },
     searchWrap: { position: "relative", flex: 1, minWidth: 240, maxWidth: 360 },
     input: { width: "100%", padding: "10px 12px 10px 40px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, fontSize: 13, color: "#F9FAFB", outline: "none" },
@@ -159,7 +159,7 @@ export default function Incidents() {
                   <option value="critical">Critical</option>
                 </select>
               </div>
-              <button style={{ padding: 12, background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
+              <button style={{ padding: 12, background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
                 Create Incident
               </button>
             </form>

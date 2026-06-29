@@ -47,6 +47,21 @@ export default function AuditLog() {
     badgeFailure: { background: "rgba(239, 68, 68, 0.1)", color: "#EF4444", border: "1px solid rgba(239, 68, 68, 0.2)" }
   };
 
+  const handleExportCsv = () => {
+    const csvRows = [
+      ["Audit ID", "Time", "User", "Action", "Resource", "IP", "Status"],
+      ...logs.map((log) => [log.id, log.time, log.user, log.action, log.resource, log.ip, log.status])
+    ];
+    const csvContent = csvRows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "audit_logs.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filtered = logs.filter(l =>
     l.user.toLowerCase().includes(search.toLowerCase()) ||
     l.action.toLowerCase().includes(search.toLowerCase()) ||
@@ -61,7 +76,7 @@ export default function AuditLog() {
           <p style={s.bannerDesc}>Immutable historical ledger logging all operational activities on security cases.</p>
         </div>
         <div style={s.topBar}>
-          <button style={s.exportBtn} onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,0.05)"} onMouseOut={e => e.currentTarget.style.background = "transparent"}>
+          <button style={s.exportBtn} onClick={handleExportCsv} onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,0.05)"} onMouseOut={e => e.currentTarget.style.background = "transparent"}>
             <Download size={16} />
             <span>Export Logs (CSV)</span>
           </button>

@@ -1,20 +1,21 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShieldCheck, Play, ArrowRight, Activity, Database, Cpu } from "lucide-react";
 
 export default function Landing() {
+  const navigate = useNavigate();
   const s: Record<string, React.CSSProperties> = {
     shell: { minHeight: "100vh", background: "#0A0E1A", color: "#F9FAFB", fontFamily: "'Inter', system-ui, sans-serif" },
     header: { height: 80, borderBottom: "1px solid #1F2937", background: "rgba(10, 14, 26, 0.8)", backdropFilter: "blur(10px)", position: "sticky", top: 0, zIndex: 50 },
     headerInner: { maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" },
     logo: { display: "flex", alignItems: "center", gap: 12 },
-    logoIcon: { padding: 8, background: "linear-gradient(135deg, #3B82F6, #10B981)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" },
+    logoIcon: { padding: 8, background: "#FFFFFF", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" },
     logoText: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, letterSpacing: 0.5 },
     nav: { display: "flex", gap: 40, fontSize: 13, fontWeight: 600, color: "#9CA3AF" },
     navLink: { cursor: "pointer", transition: "color 0.2s", color: "#9CA3AF" },
     header_right: { display: "flex", gap: 16, alignItems: "center" },
     loginLink: { fontSize: 13, fontWeight: 600, color: "#9CA3AF", cursor: "pointer", textDecoration: "none" },
-    trialBtn: { padding: "10px 20px", background: "linear-gradient(135deg, #3B82F6, #10B981)", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#0A0E1A", border: "none", cursor: "pointer", boxShadow: "0 10px 25px rgba(59, 130, 246, 0.2)" },
+    trialBtn: { padding: "10px 20px", background: "#FFFFFF", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#0A0E1A", border: "none", cursor: "pointer", boxShadow: "0 10px 25px rgba(59, 130, 246, 0.2)" },
     
     heroSection: { position: "relative", paddingTop: 120, paddingBottom: 160, overflow: "hidden" },
     heroInner: { maxWidth: 1280, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 10 },
@@ -25,7 +26,7 @@ export default function Landing() {
     heroTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 64, color: "#fff", lineHeight: 1.1, letterSpacing: -1.5, marginBottom: 24 },
     heroDesc: { fontSize: 18, color: "#9CA3AF", lineHeight: 1.6, maxWidth: 500, marginBottom: 32, fontWeight: 300 },
     heroButtons: { display: "flex", gap: 16, flexWrap: "wrap" },
-    btnPrimary: { display: "flex", alignItems: "center", gap: 8, padding: "14px 28px", background: "linear-gradient(135deg, #3B82F6, #10B981)", borderRadius: 8, color: "#0A0E1A", border: "none", fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: "0 10px 30px rgba(59, 130, 246, 0.3)", transition: "all 0.2s", textDecoration: "none" },
+    btnPrimary: { display: "flex", alignItems: "center", gap: 8, padding: "14px 28px", background: "#FFFFFF", borderRadius: 8, color: "#0A0E1A", border: "none", fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: "0 10px 30px rgba(59, 130, 246, 0.3)", transition: "all 0.2s", textDecoration: "none" },
     btnSecondary: { display: "flex", alignItems: "center", gap: 8, padding: "14px 28px", background: "rgba(255, 255, 255, 0.05)", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontWeight: 600, fontSize: 15, cursor: "pointer", transition: "all 0.2s", textDecoration: "none" },
     
     terminalBox: { background: "#0A0E1A", borderRadius: 12, border: "1px solid #1F2937", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.7)" },
@@ -69,7 +70,7 @@ export default function Landing() {
     priceBullet: { width: 6, height: 6, background: "#3B82F6", borderRadius: "50%", flexShrink: 0 },
     priceBtn: { width: "100%", padding: 14, borderRadius: 8, fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer", transition: "all 0.2s", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center" },
     priceBtnSecondary: { background: "rgba(255, 255, 255, 0.05)", border: "1px solid #1F2937", color: "#F9FAFB" },
-    priceBtnPrimary: { background: "linear-gradient(135deg, #3B82F6, #10B981)", color: "#0A0E1A", boxShadow: "0 10px 30px rgba(59, 130, 246, 0.3)" },
+    priceBtnPrimary: { background: "#FFFFFF", color: "#0A0E1A", boxShadow: "0 10px 30px rgba(59, 130, 246, 0.3)" },
     
     ctaSection: { paddingTop: 128, paddingBottom: 128, borderTop: "1px solid #1F2937", background: "linear-gradient(to bottom, rgba(59, 130, 246, 0.05), transparent)", textAlign: "center" as const },
     ctaInner: { maxWidth: 800, margin: "0 auto", padding: "0 24px" },
@@ -108,7 +109,7 @@ export default function Landing() {
 
           <div style={s.header_right}>
             <Link to="/login" style={s.loginLink}>Login</Link>
-            <button style={s.trialBtn}>Start Free Trial</button>
+            <button type="button" style={s.trialBtn} onClick={() => navigate('/login')}>Start Free Trial</button>
           </div>
         </div>
       </header>

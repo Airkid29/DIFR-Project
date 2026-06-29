@@ -132,6 +132,30 @@ class AuditLogResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
+class IntegrationSettingsResponse(BaseModel):
+    virustotal_configured: bool
+    otx_configured: bool
+
+
+class IntegrationSettingsUpdate(BaseModel):
+    virustotal_api_key: Optional[str] = None
+    otx_api_key: Optional[str] = None
+
+
+class ThreatIntelHashLookup(BaseModel):
+    sha256_hash: str
+
+
+class ThreatIntelResponse(BaseModel):
+    virustotal: Optional[Dict[str, Any]] = None
+    otx: Optional[Dict[str, Any]] = None
+    messages: List[str] = []
+
+    class Config:
+        from_attributes = True
+
+
 # YARA Job Schemas
 class YaraJobResponse(BaseModel):
     id: str

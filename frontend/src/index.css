@@ -188,7 +188,7 @@ body {
   font-weight: 500;
   font-size: 0.8125rem;
   color: #ffffff;
-  background: var(--brand-cyan);
+  background: white;
   border-radius: 6px;
   border: none;
   cursor: pointer;

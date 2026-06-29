@@ -105,3 +105,12 @@ class YaraJob(Base):
     sha256 = Column(String(64), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     finished_at = Column(DateTime, nullable=True)
+
+
+class IntegrationSetting(Base):
+    __tablename__ = "integration_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), unique=True, nullable=False)
+    api_key = Column(String(512), nullable=True)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

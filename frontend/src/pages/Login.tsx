@@ -64,7 +64,7 @@ export default function Login() {
     fieldLabel: { fontSize: 10, fontWeight: 600, color: "#6B7280", letterSpacing: "0.7px", textTransform: "uppercase" as const },
     fieldWrap: { position: "relative" as const, marginTop: 6, marginBottom: 16 },
     fieldInput: { width: "100%", padding: "10px 12px 10px 38px", background: "#111827", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 13, fontFamily: "'JetBrains Mono', monospace", outline: "none" },
-    btnPrimary: { width: "100%", padding: 11, background: "linear-gradient(135deg, #3B82F6, #2563EB)", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 16 },
+    btnPrimary: { width: "100%", padding: 11, background: "#FFFFFF", color: "#0A0E1A", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 16 },
     dividerRow: { display: "flex", alignItems: "center", gap: 12, marginBottom: 16 },
     dividerLine: { flex: 1, height: 1, background: "#1F2937" },
     dividerText: { fontSize: 10, fontWeight: 600, color: "#4B5563", textTransform: "uppercase" as const, letterSpacing: "0.8px" },

@@ -1,24 +1,22 @@
 # Render Blueprint — free-tier stack for ForensiGuard API
 # Docs: https://render.com/docs/blueprint-spec
+#
+# Free tier: API only (no Redis/Celery). File scans run in background threads.
+# Local Docker uses docker-compose.yml with Redis + Celery enabled.
 
 databases:
   - name: forensiguard-db
     databaseName: forensiguard
     user: forensiguard
     plan: free
+    region: oregon
 
 services:
-  - type: keyvalue
-    name: forensiguard-redis
-    plan: free
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []
-
   - type: web
     name: forensiguard-api
     runtime: docker
     plan: free
-    region: frankfurt
+    region: oregon
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /health
@@ -27,12 +25,11 @@ services:
         fromDatabase:
           name: forensiguard-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: forensiguard-redis
-          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: UPLOAD_DIR
         value: /app/uploads
+      - key: RENDER_POSTGRES_REGION
+        value: oregon
+      - key: ENABLE_CELERY_WORKER
+        value: "false"

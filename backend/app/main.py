@@ -1,6 +1,7 @@
 import os
 import uuid
 import datetime
+import threading
 from typing import List
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -86,6 +87,23 @@ def require_role(allowed_roles: List[str]):
             )
         return current_user
     return dependency
+
+def _dispatch_yara_scan(job_id: str, filepath: str) -> None:
+    """Queue a scan via Celery when enabled, otherwise run in a daemon thread."""
+    def run_scan() -> None:
+        try:
+            tasks.compute_hashes_and_yara_scan(job_id, filepath)
+        except Exception as exc:
+            print(f"[!] Background scan failed for job {job_id}: {exc}")
+
+    if settings.ENABLE_CELERY_WORKER and tasks.celery_app is not None:
+        try:
+            tasks.compute_hashes_and_yara_scan.delay(job_id, filepath)
+            return
+        except Exception as exc:
+            print(f"[!] Celery dispatch failed, using background thread: {exc}")
+
+    threading.Thread(target=run_scan, daemon=True).start()
 
 # --- AUTH ENDPOINTS ---
 
@@ -389,15 +407,7 @@ def trigger_yara_scan(file: UploadFile = File(...), db: Session = Depends(get_db
     db.commit()
     db.refresh(job)
 
-    # Trigger Celery task, or run synchronously if the broker is unavailable
-    try:
-        if tasks.celery_app is not None:
-            tasks.compute_hashes_and_yara_scan.delay(job_id, filepath)
-        else:
-            tasks.compute_hashes_and_yara_scan(job_id, filepath)
-    except Exception as exc:
-        print(f"[!] Celery dispatch failed, running scan synchronously: {exc}")
-        tasks.compute_hashes_and_yara_scan(job_id, filepath)
+    _dispatch_yara_scan(job_id, filepath)
 
     # Log audit entry
     audit = models.AuditLog(

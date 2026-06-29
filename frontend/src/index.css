@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Premium Slate/Zinc Color System */
+  --brand-abyssal: hsl(240, 10%, 3.9%); /* zinc-950 */
+  --brand-card: hsl(240, 10%, 6%); /* zinc-900 with transparency potential */
+  --brand-border: hsl(240, 6%, 15%); /* zinc-800 */
+  --brand-text-primary: hsl(0, 0%, 98%); /* zinc-50 */
+  --brand-text-secondary: hsl(240, 5%, 65%); /* zinc-400 */
+  
+  /* Accent colors - Professional tones */
+  --brand-cyan: hsl(221.2, 83.2%, 53.3%); /* Cobalt Blue */
+  --brand-emerald: hsl(142.1, 70.6%, 45.3%); /* Emerald */
+  --brand-amber: hsl(47.9, 95.8%, 51.2%); /* Amber */
+  --brand-crimson: hsl(346.8, 77.2%, 49.8%); /* Crimson */
+  --brand-info: hsl(217.2, 91.2%, 59.8%); /* Blue */
+  
+  --glass-bg: rgba(9, 9, 11, 0.85); /* zinc-950 with opacity */
+  --glass-border: var(--brand-border);
+  --theme-text-title: #ffffff;
+  --theme-white-bg-tint: rgba(255, 255, 255, 0.04);
+  --theme-subtle-bg: rgba(255, 255, 255, 0.015);
+  
+  /* Subtle, soft shadows for premium look */
+  --glow-cyan-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.15);
+  --glow-emerald-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.1);
+  --glow-crimson-shadow: 0 4px 20px -2px rgba(239, 68, 68, 0.1);
+}
+
+:root[data-theme="light"] {
+  --brand-abyssal: hsl(240, 5%, 96%); /* zinc-100 */
+  --brand-card: hsl(0, 0%, 100%); /* white */
+  --brand-border: hsl(240, 6%, 90%); /* zinc-200 */
+  --brand-text-primary: hsl(240, 10%, 3.9%); /* zinc-950 */
+  --brand-text-secondary: hsl(240, 4%, 46%); /* zinc-500 */
+  
+  --brand-cyan: hsl(221.2, 83.2%, 53.3%); /* Cobalt Blue */
+  --brand-emerald: hsl(142.1, 76%, 36%); /* Refined green */
+  --brand-amber: hsl(35.4, 91.7%, 32.9%); /* Refined amber */
+  --brand-crimson: hsl(346.8, 84%, 44%); /* Refined crimson */
+  --brand-info: hsl(217.2, 85%, 45%);
+  
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: var(--brand-border);
+  --theme-text-title: hsl(240, 10%, 3.9%);
+  --theme-white-bg-tint: rgba(0, 0, 0, 0.02);
+  --theme-subtle-bg: rgba(0, 0, 0, 0.005);
+  
+  --glow-cyan-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  --glow-emerald-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  --glow-crimson-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+@theme {
+  --color-brand-abyssal: var(--brand-abyssal);
+  --color-brand-card: var(--brand-card);
+  --color-brand-border: var(--brand-border);
+  --color-brand-text-primary: var(--brand-text-primary);
+  --color-brand-text-secondary: var(--brand-text-secondary);
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-emerald: var(--brand-emerald);
+  --color-brand-amber: var(--brand-amber);
+  --color-brand-crimson: var(--brand-crimson);
+  --color-brand-info: var(--brand-info);
+  --color-theme-tint: var(--theme-white-bg-tint);
+  --color-theme-subtle: var(--theme-subtle-bg);
+
+  --font-outfit: "Outfit", "Inter", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --animate-fade-in-up: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-shake: shake 0.3s ease-in-out;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Global Reset & Styling */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--brand-abyssal);
+  color: var(--brand-text-primary);
+  font-family: var(--font-inter);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle app background (non-distracting) */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  background-color: transparent;
+  background-image: radial-gradient(rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-border);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-cyan);
+}
+
+/* Glassmorphism/Flat Panels */
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--brand-border);
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  border-color: rgba(59, 130, 246, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Form inputs styling (modern, accessible) */
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--brand-card);
+  border: 1px solid var(--brand-border);
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  color: var(--brand-text-primary);
+  outline: none;
+  transition: box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.form-input:focus {
+  border-color: var(--brand-cyan);
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.06);
+}
+
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: #ffffff;
+  background: var(--brand-cyan);
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--brand-text-primary);
+  background: var(--theme-white-bg-tint);
+  border: 1px solid var(--brand-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}

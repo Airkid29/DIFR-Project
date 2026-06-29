@@ -37,14 +37,26 @@ from .database import SessionLocal
 from .models import YaraJob, AuditLog, Evidence, CustodyHistory
 from .threat_intel import lookup_hash_intel, intel_threat_boost, intel_rule_entries
 
-# Initialize Celery only when a worker process is enabled (local Docker).
-# On Render free tier, scans run in a background thread inside the API instead.
-celery_app = None
-if Celery is not None and settings.ENABLE_CELERY_WORKER:
-    try:
-        celery_app = Celery("forensiguard_tasks", broker=settings.REDIS_URL, backend=settings.REDIS_URL)
-    except Exception:
-        celery_app = None
+
+class _CeleryStub:
+    """Allows @celery_app.task decorators when Celery is unavailable."""
+
+    def task(self, *args, **kwargs):
+        def decorator(fn):
+            return fn
+
+        if args and callable(args[0]):
+            return args[0]
+        return decorator
+
+
+# Always expose a task registry object so module import succeeds on Render
+# (worker process is optional; scans can run in API background threads).
+if Celery is not None:
+    broker_url = settings.REDIS_URL if settings.ENABLE_CELERY_WORKER else "memory://"
+    celery_app = Celery("forensiguard_tasks", broker=broker_url, backend=broker_url)
+else:
+    celery_app = _CeleryStub()
 
 DEFAULT_YARA_RULES = """
 rule CobaltStrike_Beacon_HTTPS {

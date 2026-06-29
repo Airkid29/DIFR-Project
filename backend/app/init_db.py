@@ -12,7 +12,7 @@ def init_db():
     from .database import SessionLocal
     db = SessionLocal()
     try:
-        admin_email = "r.jenkins@forensiguard.com"
+        admin_email = "rachcode@forensiguard.com"
         admin = db.query(User).filter(User.email == admin_email).first()
         if not admin:
             hashed_pw = pwd_context.hash("securepassword123")

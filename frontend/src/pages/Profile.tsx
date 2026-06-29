@@ -4,8 +4,8 @@ import { User, Smartphone, ShieldCheck, Clock3 } from "lucide-react";
 
 export default function Profile() {
   const [mfaActive, setMfaActive] = useState(true);
-  const [name, setName] = useState("R. Jenkins");
-  const [email] = useState("r.jenkins@forensiguard.com");
+  const [name, setName] = useState("Rachid BAWA");
+  const [email] = useState("rachcode@forensiguard.com");
   const [showQrCode, setShowQrCode] = useState(false);
   const [totpInput, setTotpInput] = useState("");
   const [mfaMessage, setMfaMessage] = useState("");

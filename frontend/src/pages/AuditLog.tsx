@@ -15,7 +15,7 @@ interface AuditEntry {
 export default function AuditLog() {
   const [search, setSearch] = useState("");
   const [logs] = useState<AuditEntry[]>([
-    { id: "AUD-1002", time: "2026-06-27 03:10:02.415", user: "r.jenkins@forensiguard.com", action: "MFA_LOGIN_SUCCESS", resource: "Session Token", ip: "192.168.1.15", status: "success" },
+    { id: "AUD-1002", time: "2026-06-27 03:10:02.415", user: "rachcode@forensiguard.com", action: "MFA_LOGIN_SUCCESS", resource: "Session Token", ip: "192.168.1.15", status: "success" },
     { id: "AUD-1001", time: "2026-06-27 02:52:18.910", user: "s.vance@forensiguard.com", action: "EVIDENCE_REGISTER", resource: "EVID-9022 (RAM Dump)", ip: "192.168.1.28", status: "success" },
     { id: "AUD-1000", time: "2026-06-27 02:46:04.112", user: "s.vance@forensiguard.com", action: "YARA_SCAN_TRIGGER", resource: "cobalt_strike_beacon.dll", ip: "192.168.1.28", status: "success" },
     { id: "AUD-0999", time: "2026-06-27 01:32:00.825", user: "a.jenkins@forensiguard.com", action: "EVIDENCE_TRANSFER", resource: "EVID-9021", ip: "192.168.1.42", status: "success" },

@@ -250,14 +250,14 @@ export default function Layout() {
             {isSidebarOpen && (
               <div className="flex-1 text-left overflow-hidden">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-brand-text-primary truncate">{user?.name || "R. Jenkins"}</p>
+                  <p className="text-xs font-semibold text-brand-text-primary truncate">{user?.name || "RachCode"}</p>
                   {user?.role && (
                     <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/15 uppercase">
                       {user.role}
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-brand-text-secondary truncate">{user?.email || "r.jenkins@forensiguard.com"}</p>
+                <p className="text-[10px] text-brand-text-secondary truncate">{user?.email || "rachcode@forensiguard.com"}</p>
               </div>
             )}
           </Link>

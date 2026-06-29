@@ -14,7 +14,7 @@ interface TeamMember {
 export default function Users() {
   const [search, setSearch] = useState("");
   const [members] = useState<TeamMember[]>([
-    { id: 1, name: "R. Jenkins", email: "r.jenkins@forensiguard.com", role: "Admin", mfa_enabled: true, lastLogin: "2026-06-27 03:10" },
+    { id: 1, name: "RachCode", email: "rachcode@forensiguard.com", role: "Admin", mfa_enabled: true, lastLogin: "2026-06-27 03:10" },
     { id: 2, name: "Sarah Vance", email: "s.vance@forensiguard.com", role: "Responder L3", mfa_enabled: true, lastLogin: "2026-06-27 02:44" },
     { id: 3, name: "Alex Jenkins", email: "a.jenkins@forensiguard.com", role: "Analyst L2", mfa_enabled: false, lastLogin: "2026-06-27 01:05" }
   ]);

@@ -27,7 +27,7 @@ export default function Evidence() {
       custodian: "Inspector Sarah Vance",
       verified: true,
       custody_chain: [
-        { id: 1, date: "2026-06-27T02:50:00.000Z", from: "Acquisition", to: "R. Jenkins", action: "Initial acquisition & cryptographic hashing" }
+        { id: 1, date: "2026-06-27T02:50:00.000Z", from: "Acquisition", to: "RachCode", action: "Initial acquisition & cryptographic hashing" }
       ]
     }
   ]);

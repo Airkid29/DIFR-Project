@@ -35,6 +35,7 @@ except Exception:
 from .config import settings
 from .database import SessionLocal
 from .models import YaraJob, AuditLog, Evidence, CustodyHistory
+from .threat_intel import lookup_hash_intel, intel_threat_boost, intel_rule_entries
 
 # Initialize Celery app when Celery is available
 if Celery is not None:
@@ -115,20 +116,24 @@ def compute_hashes_and_yara_scan(job_id: str, filepath: str):
             # Malicious match increases score
             threat_score += 45
 
-        job.matched_rules = matched_details
-        
-        # 3. Simulated Threat Intelligence query
-        # Mimic lookup against reputation lists
-        if len(matched_details) > 0:
-            job.score = min(threat_score, 100)
-        else:
-            # Check if filename is suspicious
+        yara_score = min(threat_score, 100) if matched_details else 0
+
+        virustotal_result, otx_result, _ = lookup_hash_intel(db, job.sha256)
+        matched_details.extend(intel_rule_entries(virustotal_result, otx_result))
+        intel_boost = intel_threat_boost(virustotal_result, otx_result)
+
+        filename_score = 0
+        if yara_score == 0 and intel_boost == 0:
             filename = os.path.basename(filepath).lower()
             if "malware" in filename or "mimikatz" in filename or "cs_beacon" in filename:
-                job.score = 90
-                job.matched_rules = [{"rule": "Filename_Threat_Heuristics", "meta": {"description": "Suspicious filenames flagged by intelligence list"}}]
-            else:
-                job.score = 0
+                filename_score = 90
+                matched_details.append({
+                    "rule": "Filename_Threat_Heuristics",
+                    "meta": {"description": "Suspicious filenames flagged by intelligence list"},
+                })
+
+        job.matched_rules = matched_details
+        job.score = min(yara_score + intel_boost + filename_score, 100)
 
         job.status = "completed"
         job.finished_at = datetime.datetime.utcnow()

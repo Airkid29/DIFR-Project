@@ -65,6 +65,17 @@ class EvidenceCreate(BaseModel):
     sha256_hash: str
     location: str
 
+class CustodyHistoryResponse(BaseModel):
+    id: int
+    evidence_id: str
+    date: datetime
+    transfer_from: str
+    transfer_to: str
+    action_taken: str
+
+    class Config:
+        from_attributes = True
+
 class EvidenceResponse(BaseModel):
     id: str
     name: str
@@ -83,14 +94,6 @@ class EvidenceResponse(BaseModel):
         from_attributes = True
 
 class CustodyTransfer(BaseModel):
-    transfer_to: str
-    action_taken: str
-
-class CustodyHistoryResponse(BaseModel):
-    id: int
-    evidence_id: str
-    date: datetime
-    transfer_from: str
     transfer_to: str
     action_taken: str
 

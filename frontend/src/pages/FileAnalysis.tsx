@@ -1,18 +1,107 @@
 // FILE ANALYSIS PAGE
 import React, { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { UploadCloud, File, AlertTriangle, CheckCircle, Download } from "lucide-react";
 import { api } from "../utils/api";
 import { exportForensicPdf } from "../utils/pdfExport";
 
+type YaraJob = {
+  id: string;
+  status: string;
+  score: number;
+  matched_rules: Array<{ rule?: string; meta?: Record<string, unknown> }>;
+  md5?: string;
+  sha1?: string;
+  sha256?: string;
+};
+
+type ScanResult = {
+  threat: number;
+  severity: string;
+  hashes: { md5: string; sha1: string; sha256: string };
+  matches: string[];
+  notes: string[];
+  intelMessages: string[];
+};
+
+const severityFromScore = (score: number) =>
+  score >= 75 ? "Critical" : score >= 45 ? "High" : score >= 25 ? "Medium" : "Low";
+
+const buildResultFromJob = (job: YaraJob): ScanResult => {
+  const matches: string[] = [];
+  const notes: string[] = [];
+  const intelMessages: string[] = [];
+
+  for (const entry of job.matched_rules || []) {
+    const rule = entry.rule || "Unknown rule";
+    if (rule === "ThreatIntel_VirusTotal") {
+      const positives = Number(entry.meta?.positives ?? 0);
+      const total = Number(entry.meta?.total ?? 0);
+      const found = Boolean(entry.meta?.found);
+      if (found && positives > 0) {
+        matches.push(`VirusTotal: ${positives}/${total} engines flagged this hash`);
+        const permalink = entry.meta?.permalink;
+        if (typeof permalink === "string" && permalink) {
+          notes.push(`VirusTotal report: ${permalink}`);
+        }
+      } else if (found) {
+        notes.push(`VirusTotal: hash known, ${positives}/${total} detections (clean sample).`);
+      } else {
+        notes.push("VirusTotal: hash not found — this file has not been submitted to VT before.");
+      }
+      continue;
+    }
+
+    if (rule === "ThreatIntel_OTX") {
+      const pulseCount = Number(entry.meta?.pulse_count ?? 0);
+      if (pulseCount > 0) {
+        matches.push(`AlienVault OTX: ${pulseCount} threat pulse(s) reference this hash`);
+        notes.push("This hash appears in OTX community threat intelligence feeds.");
+      } else {
+        notes.push("AlienVault OTX: no threat pulses found for this hash.");
+      }
+      continue;
+    }
+
+    matches.push(`YARA match: ${rule}`);
+    const description = entry.meta?.description;
+    if (typeof description === "string" && description) {
+      notes.push(description);
+    }
+  }
+
+  if (matches.length === 0) {
+    notes.push("No YARA rule matches or threat intelligence hits for this sample.");
+  }
+
+  return {
+    threat: job.score ?? 0,
+    severity: severityFromScore(job.score ?? 0),
+    hashes: {
+      md5: job.md5 || "",
+      sha1: job.sha1 || "",
+      sha256: job.sha256 || "",
+    },
+    matches,
+    notes,
+    intelMessages,
+  };
+};
+
 export default function FileAnalysis() {
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<"idle" | "scanning" | "done">("idle");
+  const [status, setStatus] = useState<"idle" | "scanning" | "done" | "error">("idle");
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<{ threat: number; severity: string; hashes: { md5: string; sha1: string; sha256: string }; matches: string[]; notes: string[]; intelMessages?: string[] }>({ threat: 0, severity: "Low", hashes: { md5: "", sha1: "", sha256: "" }, matches: [], notes: [] });
+  const [errorMessage, setErrorMessage] = useState("");
+  const [result, setResult] = useState<ScanResult>({
+    threat: 0,
+    severity: "Low",
+    hashes: { md5: "", sha1: "", sha256: "" },
+    matches: [],
+    notes: [],
+    intelMessages: [],
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
 
   const handleExportReport = () => {
     if (!file) return;
@@ -26,10 +115,10 @@ export default function FileAnalysis() {
       signatures: result.matches.length > 0 ? result.matches : ["No direct signature matches"],
       notes: result.notes.length > 0 ? result.notes : ["No heuristic notes available."],
       custody: [
-        "2026-06-29 09:15 - Artifact collected from endpoint E-17",
-        "2026-06-29 09:22 - Hash values generated and documented",
-        "2026-06-29 09:30 - Report exported as proof-of-analysis"
-      ]
+        "Artifact collected and submitted for automated triage",
+        "Cryptographic hashes computed server-side (MD5, SHA-1, SHA-256)",
+        "YARA rules and threat intelligence lookups executed",
+      ],
     });
   };
 
@@ -53,141 +142,84 @@ export default function FileAnalysis() {
     badge: { display: "inline-block", padding: "4px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const },
     badgeMalicious: { background: "rgba(239, 68, 68, 0.1)", color: "#EF4444", border: "1px solid rgba(239, 68, 68, 0.2)" },
     badgeClean: { background: "rgba(16, 185, 129, 0.1)", color: "#10B981", border: "1px solid rgba(16, 185, 129, 0.2)" },
-    hashBox: { background: "#0A0E1A", border: "1px solid #1F2937", padding: 12, borderRadius: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#9CA3AF", wordBreak: "break-all" as const, marginTop: 4 }
+    hashBox: { background: "#0A0E1A", border: "1px solid #1F2937", padding: 12, borderRadius: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#9CA3AF", wordBreak: "break-all" as const, marginTop: 4 },
   };
 
-  const bufferToHex = (buffer: ArrayBuffer) => Array.from(new Uint8Array(buffer), (byte) => byte.toString(16).padStart(2, "0")).join("");
-
-  const createSimpleHash = (name: string, size: number) => {
-    let hash = 0;
-    for (let i = 0; i < name.length; i += 1) hash = (hash << 5) - hash + name.charCodeAt(i);
-    return `${Math.abs(hash).toString(16).padStart(8, "0")}${size.toString(16).padStart(6, "0")}`;
-  };
-
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(false);
-    if (e.dataTransfer.files[0]) {
-      void processFile(e.dataTransfer.files[0]);
+  const pollYaraJob = async (jobId: string): Promise<YaraJob> => {
+    for (let attempt = 0; attempt < 90; attempt += 1) {
+      const job = (await api.get(`/api/yara/job/${jobId}`)) as YaraJob;
+      if (job.status === "completed" || job.status === "failed") {
+        return job;
+      }
+      setProgress((current) => Math.min(current + 4, 90));
+      await new Promise((resolve) => window.setTimeout(resolve, 700));
     }
+    throw new Error("Scan timed out. The background worker may still be processing this file.");
   };
 
   const processFile = async (selectedFile: File) => {
     setFile(selectedFile);
     setStatus("scanning");
-    setProgress(0);
-
-    const reader = new FileReader();
-    const bytes = await new Promise<ArrayBuffer>((resolve, reject) => {
-      reader.onload = () => resolve(reader.result as ArrayBuffer);
-      reader.onerror = () => reject(new Error("Unable to read file"));
-      reader.readAsArrayBuffer(selectedFile);
-    });
-
-    const content = new TextDecoder("utf-8").decode(bytes.slice(0, 24000));
-    const lower = `${selectedFile.name} ${content}`.toLowerCase();
-
-    const [sha256, sha1] = await Promise.all([
-      crypto.subtle.digest("SHA-256", bytes).then(bufferToHex),
-      crypto.subtle.digest("SHA-1", bytes).then(bufferToHex)
-    ]);
-
-    const matches: string[] = [];
-    const notes: string[] = [];
-    const intelMessages: string[] = [];
-    let threat = 16;
-
-    if (/(mimikatz|psexec|rundll32|powershell|mshta|wscript|cobalt|dropper|regsvr32|cmd\.exe)/i.test(lower)) {
-      threat += 42;
-      matches.push("Suspicious execution pattern detected");
-      notes.push("The file name or content references known offensive tooling.");
-    }
-    if (/(http|https|curl|wget|base64|xor)/i.test(lower)) {
-      threat += 14;
-      notes.push("Network or encoded payload patterns were observed.");
-    }
-    if (selectedFile.size > 20_000_000) {
-      threat += 8;
-      notes.push("The artifact is relatively large for a standard document or log file.");
-    }
-    if (/\.(exe|dll|scr|bat|ps1|vbs|js|jar)$/i.test(selectedFile.name)) {
-      threat += 12;
-      notes.push("The extension is commonly associated with executable automation.");
-    }
-    if (matches.length === 0) {
-      notes.push("No high-confidence malware signature hit was found in the sample preview.");
-    }
-
-    const severity = threat >= 75 ? "Critical" : threat >= 45 ? "High" : threat >= 25 ? "Medium" : "Low";
+    setProgress(8);
+    setErrorMessage("");
 
     try {
-      const intel = await api.post("/api/intel/hash", { sha256_hash: sha256 });
-      if (intel?.messages?.length) {
-        intelMessages.push(...intel.messages);
-      }
-      if (intel?.virustotal?.positives) {
-        matches.push(`VirusTotal detected ${intel.virustotal.positives}/${intel.virustotal.total} engines`);
-        notes.push("VirusTotal hash lookup returned detection information.");
-      }
-      if (intel?.otx?.pulse_info) {
-        notes.push("AlienVault OTX returned threat pulse information for this hash.");
-      }
-    } catch (error) {
-      intelMessages.push("Threat intelligence lookup is unavailable or keys are not configured.");
-    }
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      const createdJob = (await api.post("/api/yara/scan", formData)) as YaraJob;
+      setProgress(20);
 
-    let currentProgress = 0;
-    const interval = window.setInterval(() => {
-      currentProgress += 18;
-      if (currentProgress >= 100) {
-        window.clearInterval(interval);
-        setProgress(100);
-        setResult({
-          threat: Math.min(100, threat),
-          severity,
-          hashes: { md5: createSimpleHash(selectedFile.name, selectedFile.size), sha1, sha256 },
-          matches,
-          notes,
-          intelMessages,
-        });
-        setStatus("done");
-      } else {
-        setProgress(currentProgress);
+      const completedJob = await pollYaraJob(createdJob.id);
+      if (completedJob.status === "failed") {
+        throw new Error("Server-side scan failed. Check that the Celery worker is running.");
       }
-    }, 180);
+
+      setProgress(100);
+      setResult(buildResultFromJob(completedJob));
+      setStatus("done");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to analyze this file.";
+      setErrorMessage(message);
+      setStatus("error");
+      setProgress(0);
+    }
   };
 
   const handleReset = () => {
     setFile(null);
     setStatus("idle");
     setProgress(0);
-    setResult({ threat: 0, severity: "Low", hashes: { md5: "", sha1: "", sha256: "" }, matches: [], notes: [] });
+    setErrorMessage("");
+    setResult({
+      threat: 0,
+      severity: "Low",
+      hashes: { md5: "", sha1: "", sha256: "" },
+      matches: [],
+      notes: [],
+      intelMessages: [],
+    });
   };
 
   return (
     <div style={s.container}>
       <div style={s.header}>
         <h1 style={s.title}>Forensic Artifact Scanner</h1>
-        <p style={s.desc}>Upload a sample artifact to generate a realistic triage report with file fingerprinting, heuristic indicators, and suspicious pattern detection for presentations and demos.</p>
+        <p style={s.desc}>
+          Upload a file to run server-side cryptographic hashing, YARA rule matching, and live VirusTotal / AlienVault OTX lookups. Each file is analyzed from its real content and hash.
+        </p>
       </div>
 
       {status === "idle" ? (
         <div
           style={{ ...s.uploadZone, ...(dragActive ? s.uploadZoneActive : {}) }}
-          onDragEnter={handleDragEnter}
-          onDragOver={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          onDragEnter={(e) => { e.preventDefault(); setDragActive(true); }}
+          onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+          onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragActive(false);
+            if (e.dataTransfer.files[0]) void processFile(e.dataTransfer.files[0]);
+          }}
           onClick={() => fileInputRef.current?.click()}
         >
           <input ref={fileInputRef} type="file" hidden onChange={(e) => e.target.files && void processFile(e.target.files[0])} />
@@ -210,11 +242,21 @@ export default function FileAnalysis() {
                 <div style={{ ...s.progressFill, width: `${progress}%` }} />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#9CA3AF", marginTop: 8 }}>
-                <span>{status === "scanning" ? "Scanning file..." : "Scan complete"}</span>
+                <span>
+                  {status === "scanning" && "Running YARA scan and threat intelligence lookups..."}
+                  {status === "done" && "Scan complete"}
+                  {status === "error" && "Scan failed"}
+                </span>
                 <span>{progress}%</span>
               </div>
             </div>
           </div>
+
+          {status === "error" && (
+            <div style={{ padding: 12, borderRadius: 8, background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", color: "#FCA5A5", fontSize: 13 }}>
+              {errorMessage}
+            </div>
+          )}
 
           {status === "done" && (
             <div style={s.resultsGrid}>
@@ -228,7 +270,7 @@ export default function FileAnalysis() {
                         <div style={{ ...s.threatBig, color: "#EF4444" }}>{result.threat}/100</div>
                         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                           <span style={{ ...s.badge, ...s.badgeMalicious }}>{result.severity}</span>
-                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>Heuristic scan</span>
+                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>YARA + Intel</span>
                         </div>
                       </div>
                     </>
@@ -239,7 +281,7 @@ export default function FileAnalysis() {
                         <div style={{ ...s.threatBig, color: "#10B981" }}>{result.threat}/100</div>
                         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                           <span style={{ ...s.badge, ...s.badgeClean }}>{result.severity}</span>
-                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>Heuristic scan</span>
+                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>YARA + Intel</span>
                         </div>
                       </div>
                     </>
@@ -255,15 +297,15 @@ export default function FileAnalysis() {
                 <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
                   <div>
                     <span style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>MD5</span>
-                    <div style={s.hashBox}>{result.hashes.md5}</div>
+                    <div style={s.hashBox}>{result.hashes.md5 || "—"}</div>
                   </div>
                   <div>
                     <span style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>SHA-1</span>
-                    <div style={s.hashBox}>{result.hashes.sha1}</div>
+                    <div style={s.hashBox}>{result.hashes.sha1 || "—"}</div>
                   </div>
                   <div>
                     <span style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>SHA-256</span>
-                    <div style={s.hashBox}>{result.hashes.sha256}</div>
+                    <div style={s.hashBox}>{result.hashes.sha256 || "—"}</div>
                   </div>
                 </div>
               </div>

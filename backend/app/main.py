@@ -10,12 +10,17 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from typing import Any, Dict, List, Optional
-import requests
 
 from .config import settings
 from .database import get_db
 from .init_db import init_db
 from . import models, schemas, tasks
+from .threat_intel import (
+    get_integration_setting,
+    validate_virustotal_api_key,
+    validate_otx_api_key,
+    lookup_hash_intel,
+)
 
 # Auth Context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -277,10 +282,6 @@ def get_audit_logs(db: Session = Depends(get_db), current_user: models.User = De
 
 # --- THREAT INTEL INTEGRATIONS ---
 
-def get_integration_setting(db: Session, name: str) -> Optional[models.IntegrationSetting]:
-    return db.query(models.IntegrationSetting).filter(models.IntegrationSetting.name == name).first()
-
-
 def upsert_integration_setting(db: Session, name: str, api_key: Optional[str]):
     setting = get_integration_setting(db, name)
     if setting is None:
@@ -291,61 +292,6 @@ def upsert_integration_setting(db: Session, name: str, api_key: Optional[str]):
     db.commit()
     db.refresh(setting)
     return setting
-
-
-def validate_virustotal_api_key(api_key: str) -> Dict[str, Any]:
-    url = "https://www.virustotal.com/vtapi/v2/file/report"
-    params = {
-        "apikey": api_key,
-        "resource": "44d88612fea8a8f36de82e1278abb02f",
-    }
-    response = requests.get(url, params=params, timeout=15)
-    response.raise_for_status()
-    data = response.json()
-    return {
-        "valid": data.get("response_code") in (0, 1),
-        "response_code": data.get("response_code"),
-        "verbose_msg": data.get("verbose_msg"),
-    }
-
-
-def validate_otx_api_key(api_key: str) -> Dict[str, Any]:
-    url = "https://otx.alienvault.com/api/v1/users/me"
-    response = requests.get(url, headers={"X-OTX-API-KEY": api_key}, timeout=15)
-    response.raise_for_status()
-    data = response.json()
-    return {
-        "valid": bool(data.get("username") or data.get("email")),
-        "username": data.get("username"),
-        "email": data.get("email"),
-    }
-
-
-def fetch_virustotal_hash_data(sha256_hash: str, api_key: str) -> Dict[str, Any]:
-    url = "https://www.virustotal.com/vtapi/v2/file/report"
-    params = {"apikey": api_key, "resource": sha256_hash}
-    response = requests.get(url, params=params, timeout=20)
-    response.raise_for_status()
-    data = response.json()
-    return {
-        "positives": data.get("positives"),
-        "total": data.get("total"),
-        "permalink": data.get("permalink"),
-        "verbose_msg": data.get("verbose_msg"),
-        "response_code": data.get("response_code"),
-    }
-
-
-def fetch_otx_hash_data(sha256_hash: str, api_key: str) -> Dict[str, Any]:
-    url = f"https://otx.alienvault.com/api/v1/indicators/file/{sha256_hash}/analysis"
-    response = requests.get(url, headers={"X-OTX-API-KEY": api_key}, timeout=20)
-    response.raise_for_status()
-    data = response.json()
-    return {
-        "pulse_info": data.get("pulse_info"),
-        "analysis": data.get("analysis"),
-        "query": url,
-    }
 
 
 def get_integration_flags(db: Session) -> Dict[str, bool]:
@@ -406,31 +352,8 @@ def validate_integration_keys(request: schemas.IntegrationSettingsUpdate, db: Se
 
 
 @app.post("/api/intel/hash", response_model=schemas.ThreatIntelResponse)
-def lookup_hash_intel(request: schemas.ThreatIntelHashLookup, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    messages: List[str] = []
-    virustotal_result = None
-    otx_result = None
-
-    vt_setting = get_integration_setting(db, "virustotal")
-    otx_setting = get_integration_setting(db, "otx")
-
-    if vt_setting and vt_setting.api_key:
-        try:
-            virustotal_result = fetch_virustotal_hash_data(request.sha256_hash, vt_setting.api_key)
-            messages.append("VirusTotal lookup complete.")
-        except Exception as exc:
-            messages.append(f"VirusTotal lookup failed: {str(exc)}")
-
-    if otx_setting and otx_setting.api_key:
-        try:
-            otx_result = fetch_otx_hash_data(request.sha256_hash, otx_setting.api_key)
-            messages.append("AlienVault OTX lookup complete.")
-        except Exception as exc:
-            messages.append(f"OTX lookup failed: {str(exc)}")
-
-    if not virustotal_result and not otx_result:
-        messages.append("No threat intelligence integrations are configured.")
-
+def lookup_hash_intel_endpoint(request: schemas.ThreatIntelHashLookup, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    virustotal_result, otx_result, messages = lookup_hash_intel(db, request.sha256_hash)
     return {
         "virustotal": virustotal_result,
         "otx": otx_result,

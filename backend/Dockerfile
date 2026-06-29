@@ -24,4 +24,8 @@ COPY . .
 # Create uploads folder for storage of forensic items
 RUN mkdir -p /app/uploads
 
+RUN chmod +x /app/start.sh
+
 EXPOSE 8000
+
+CMD ["/app/start.sh"]

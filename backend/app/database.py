@@ -6,6 +6,8 @@ import sys
 
 # Determine DB URL; fall back to in-memory SQLite when psycopg2 is unavailable
 db_url = settings.DATABASE_URL
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
 try:
     # If the configured URL targets Postgres but psycopg2 isn't installed, fall back
     if db_url.startswith("postgres"):

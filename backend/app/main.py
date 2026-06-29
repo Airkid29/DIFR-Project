@@ -43,6 +43,11 @@ def on_startup():
     print("[*] Initializing databases schemas...")
     init_db()
 
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 # HELPER: JWT token generator
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -384,8 +389,15 @@ def trigger_yara_scan(file: UploadFile = File(...), db: Session = Depends(get_db
     db.commit()
     db.refresh(job)
 
-    # Trigger Celery background task
-    tasks.compute_hashes_and_yara_scan.delay(job_id, filepath)
+    # Trigger Celery task, or run synchronously if the broker is unavailable
+    try:
+        if tasks.celery_app is not None:
+            tasks.compute_hashes_and_yara_scan.delay(job_id, filepath)
+        else:
+            tasks.compute_hashes_and_yara_scan(job_id, filepath)
+    except Exception as exc:
+        print(f"[!] Celery dispatch failed, running scan synchronously: {exc}")
+        tasks.compute_hashes_and_yara_scan(job_id, filepath)
 
     # Log audit entry
     audit = models.AuditLog(

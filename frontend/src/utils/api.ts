@@ -1,5 +1,12 @@
 const AUTH_TOKEN_KEY = "forensiguard_token";
 
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") || "";
+
+export function apiUrl(endpoint: string): string {
+  const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  return `${API_BASE}${path}`;
+}
+
 export async function request(
   endpoint: string,
   options: RequestInit = {}
@@ -22,7 +29,7 @@ export async function request(
   };
 
   try {
-    const response = await fetch(endpoint, config);
+    const response = await fetch(apiUrl(endpoint), config);
 
     if (response.status === 401) {
       // Token has expired or is invalid, clear storage and redirect

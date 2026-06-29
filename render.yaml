@@ -1,0 +1,38 @@
+# Render Blueprint — free-tier stack for ForensiGuard API
+# Docs: https://render.com/docs/blueprint-spec
+
+databases:
+  - name: forensiguard-db
+    databaseName: forensiguard
+    user: forensiguard
+    plan: free
+
+services:
+  - type: keyvalue
+    name: forensiguard-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+  - type: web
+    name: forensiguard-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: forensiguard-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: forensiguard-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: UPLOAD_DIR
+        value: /app/uploads

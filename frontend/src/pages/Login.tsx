@@ -1,6 +1,7 @@
 // src/pages/Login.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from "../utils/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function Login() {
     if (!email || !password) { setError("Please enter your email and password."); return; }
     setError(""); setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
+      const res = await fetch(apiUrl("/api/auth/login"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
       if (res.status === 402) { setStep(2); }
       else if (!res.ok) { const d = await res.json(); setError(d.detail || "Unable to authenticate. Please verify your credentials."); }
       else { const d = await res.json(); localStorage.setItem("forensiguard_token", d.access_token); navigate("/dashboard"); }
@@ -30,7 +31,7 @@ export default function Login() {
     if (mfaCode.length !== 6 || isNaN(Number(mfaCode))) { setError("Please enter a valid 6-digit authentication code."); return; }
     setError(""); setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password, mfa_code: mfaCode }) });
+      const res = await fetch(apiUrl("/api/auth/login"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password, mfa_code: mfaCode }) });
       if (!res.ok) { const d = await res.json(); setError(d.detail || "Multi-factor authentication failed."); }
       else { const d = await res.json(); localStorage.setItem("forensiguard_token", d.access_token); navigate("/dashboard"); }
     } catch { setError("Unable to connect to the authentication server."); }

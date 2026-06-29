@@ -300,13 +300,12 @@ export default function Layout() {
           {/* User actions */}
           <div className="flex items-center space-x-2.5 md:space-x-4">
             {/* System Status Indicators */}
-            <div className="hidden md:flex items-center space-x-2 text-xs border-r border-brand-border pr-4 h-5">
+            {/* <div className="hidden md:flex items-center space-x-2 text-xs border-r border-brand-border pr-4 h-5">
               <span className="flex h-1.5 w-1.5 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-brand-emerald"></span>
               </span>
-              <span className="text-brand-text-secondary text-[11px] font-medium">YARA Daemon: Active</span>
-            </div>
+            </div> */}
 
             {/* Theme Toggle */}
             <button 

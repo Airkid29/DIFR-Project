@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ShieldCheck, Play, ArrowRight, Activity, Database, Cpu } from "lucide-react";
 
 export default function Landing() {
-  const s = {
+  const s: Record<string, React.CSSProperties> = {
     shell: { minHeight: "100vh", background: "#0A0E1A", color: "#F9FAFB", fontFamily: "'Inter', system-ui, sans-serif" },
     header: { height: 80, borderBottom: "1px solid #1F2937", background: "rgba(10, 14, 26, 0.8)", backdropFilter: "blur(10px)", position: "sticky", top: 0, zIndex: 50 },
     headerInner: { maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" },
@@ -19,7 +19,7 @@ export default function Landing() {
     heroSection: { position: "relative", paddingTop: 120, paddingBottom: 160, overflow: "hidden" },
     heroInner: { maxWidth: 1280, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 10 },
     heroGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" },
-    heroContent: { space: "yes" },
+    heroContent: { display: "flex", flexDirection: "column" as const, gap: 12 },
     heroTag: { display: "inline-flex", alignItems: "center", gap: 12, background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", padding: "8px 16px", borderRadius: 20, fontSize: 12, color: "#3B82F6", fontWeight: 600, marginBottom: 32 },
     heroPulse: { width: 6, height: 6, background: "#3B82F6", borderRadius: "50%", animation: "pulse 2s infinite" },
     heroTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 64, color: "#fff", lineHeight: 1.1, letterSpacing: -1.5, marginBottom: 24 },
@@ -43,8 +43,8 @@ export default function Landing() {
     
     featuresSection: { paddingTop: 128, paddingBottom: 128, borderTop: "1px solid #1F2937", background: "rgba(17, 24, 39, 0.2)" },
     featuresInner: { maxWidth: 1280, margin: "0 auto", padding: "0 24px" },
-    sectionTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 56, color: "#fff", lineHeight: 1.1, marginBottom: 16, textAlign: "center" },
-    sectionDesc: { fontSize: 18, color: "#9CA3AF", maxWidth: 700, margin: "0 auto 80px", textAlign: "center", lineHeight: 1.6 },
+    sectionTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 56, color: "#fff", lineHeight: 1.1, marginBottom: 16, textAlign: "center" as const },
+    sectionDesc: { fontSize: 18, color: "#9CA3AF", maxWidth: 700, margin: "0 auto 80px", textAlign: "center" as const, lineHeight: 1.6 },
     featuresGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 },
     featureCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 32, cursor: "pointer", transition: "all 0.3s" },
     featureIcon: { width: 40, height: 40, background: "rgba(59, 130, 246, 0.1)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24, color: "#3B82F6" },
@@ -53,11 +53,11 @@ export default function Landing() {
     
     platformSection: { paddingTop: 128, paddingBottom: 128, borderTop: "1px solid #1F2937" },
     platformGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 },
-    platformCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 28, textAlign: "center" },
+    platformCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 28, textAlign: "center" as const },
     
     pricingSection: { paddingTop: 128, paddingBottom: 128, borderTop: "1px solid #1F2937", background: "rgba(17, 24, 39, 0.2)" },
     pricingGrid: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 32, maxWidth: 1000, margin: "0 auto" },
-    priceCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 40, display: "flex", flexDirection: "column" },
+    priceCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 40, display: "flex", flexDirection: "column" as const },
     priceCardActive: { background: "rgba(59, 130, 246, 0.05)", borderColor: "rgba(59, 130, 246, 0.3)", position: "relative" },
     priceCardBadge: { position: "absolute", top: -16, left: 24, padding: "6px 12px", background: "rgba(59, 130, 246, 0.2)", border: "1px solid rgba(59, 130, 246, 0.4)", borderRadius: 20, fontSize: 10, fontWeight: 700, color: "#3B82F6" },
     priceTier: { fontSize: 11, fontWeight: 600, color: "#9CA3AF", letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 },
@@ -71,7 +71,7 @@ export default function Landing() {
     priceBtnSecondary: { background: "rgba(255, 255, 255, 0.05)", border: "1px solid #1F2937", color: "#F9FAFB" },
     priceBtnPrimary: { background: "linear-gradient(135deg, #3B82F6, #10B981)", color: "#0A0E1A", boxShadow: "0 10px 30px rgba(59, 130, 246, 0.3)" },
     
-    ctaSection: { paddingTop: 128, paddingBottom: 128, borderTop: "1px solid #1F2937", background: "linear-gradient(to bottom, rgba(59, 130, 246, 0.05), transparent)", textAlign: "center" },
+    ctaSection: { paddingTop: 128, paddingBottom: 128, borderTop: "1px solid #1F2937", background: "linear-gradient(to bottom, rgba(59, 130, 246, 0.05), transparent)", textAlign: "center" as const },
     ctaInner: { maxWidth: 800, margin: "0 auto", padding: "0 24px" },
     ctaTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 56, color: "#fff", marginBottom: 24, lineHeight: 1.1 },
     ctaDesc: { fontSize: 18, color: "#9CA3AF", marginBottom: 40, lineHeight: 1.6 },

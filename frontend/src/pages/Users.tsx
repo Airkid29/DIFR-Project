@@ -20,8 +20,8 @@ export default function Users() {
   ]);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
 
-  const s = {
-    container: { display: "flex", flexDirection: "column", gap: 24 },
+  const s: Record<string, React.CSSProperties> = {
+    container: { display: "flex", flexDirection: "column" as const, gap: 24 },
     header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" },
     title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 28, color: "#F9FAFB", letterSpacing: -1, marginBottom: 8 },
     desc: { fontSize: 11, color: "#9CA3AF" },

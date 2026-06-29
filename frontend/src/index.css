@@ -2,54 +2,53 @@
 @import "tailwindcss";
 
 :root {
-  /* Premium Slate/Zinc Color System */
-  --brand-abyssal: hsl(240, 10%, 3.9%); /* zinc-950 */
-  --brand-card: hsl(240, 10%, 6%); /* zinc-900 with transparency potential */
-  --brand-border: hsl(240, 6%, 15%); /* zinc-800 */
-  --brand-text-primary: hsl(0, 0%, 98%); /* zinc-50 */
-  --brand-text-secondary: hsl(240, 5%, 65%); /* zinc-400 */
-  
-  /* Accent colors - Professional tones */
-  --brand-cyan: hsl(221.2, 83.2%, 53.3%); /* Cobalt Blue */
-  --brand-emerald: hsl(142.1, 70.6%, 45.3%); /* Emerald */
-  --brand-amber: hsl(47.9, 95.8%, 51.2%); /* Amber */
-  --brand-crimson: hsl(346.8, 77.2%, 49.8%); /* Crimson */
-  --brand-info: hsl(217.2, 91.2%, 59.8%); /* Blue */
-  
-  --glass-bg: rgba(9, 9, 11, 0.85); /* zinc-950 with opacity */
+  /* Blue Palette System */
+  --brand-abyssal: #0f1623;
+  --brand-card: #1a2235;
+  --brand-border: #2a3a55;
+  --brand-text-primary: #F0F3FA;
+  --brand-text-secondary: #8AAEE0;
+
+  /* Accent colors */
+  --brand-cyan: #638ECB;
+  --brand-emerald: #4a9e7a;
+  --brand-amber: #c49a3a;
+  --brand-crimson: #c45a6a;
+  --brand-info: #8AAEE0;
+
+  --glass-bg: rgba(15, 22, 35, 0.88);
   --glass-border: var(--brand-border);
-  --theme-text-title: #ffffff;
-  --theme-white-bg-tint: rgba(255, 255, 255, 0.04);
-  --theme-subtle-bg: rgba(255, 255, 255, 0.015);
-  
-  /* Subtle, soft shadows for premium look */
-  --glow-cyan-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.15);
-  --glow-emerald-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.1);
-  --glow-crimson-shadow: 0 4px 20px -2px rgba(239, 68, 68, 0.1);
+  --theme-text-title: #F0F3FA;
+  --theme-white-bg-tint: rgba(176, 201, 239, 0.06);
+  --theme-subtle-bg: rgba(176, 201, 239, 0.02);
+
+  --glow-cyan-shadow: 0 4px 20px -2px rgba(99, 142, 203, 0.2);
+  --glow-emerald-shadow: 0 4px 20px -2px rgba(74, 158, 122, 0.1);
+  --glow-crimson-shadow: 0 4px 20px -2px rgba(196, 90, 106, 0.1);
 }
 
 :root[data-theme="light"] {
-  --brand-abyssal: hsl(240, 5%, 96%); /* zinc-100 */
-  --brand-card: hsl(0, 0%, 100%); /* white */
-  --brand-border: hsl(240, 6%, 90%); /* zinc-200 */
-  --brand-text-primary: hsl(240, 10%, 3.9%); /* zinc-950 */
-  --brand-text-secondary: hsl(240, 4%, 46%); /* zinc-500 */
-  
-  --brand-cyan: hsl(221.2, 83.2%, 53.3%); /* Cobalt Blue */
-  --brand-emerald: hsl(142.1, 76%, 36%); /* Refined green */
-  --brand-amber: hsl(35.4, 91.7%, 32.9%); /* Refined amber */
-  --brand-crimson: hsl(346.8, 84%, 44%); /* Refined crimson */
-  --brand-info: hsl(217.2, 85%, 45%);
-  
-  --glass-bg: rgba(255, 255, 255, 0.9);
+  --brand-abyssal: #F0F3FA;
+  --brand-card: #ffffff;
+  --brand-border: #D5DEEF;
+  --brand-text-primary: #395886;
+  --brand-text-secondary: #638ECB;
+
+  --brand-cyan: #395886;
+  --brand-emerald: #2e7a57;
+  --brand-amber: #8a6820;
+  --brand-crimson: #9e3a4a;
+  --brand-info: #628ECB;
+
+  --glass-bg: rgba(240, 243, 250, 0.92);
   --glass-border: var(--brand-border);
-  --theme-text-title: hsl(240, 10%, 3.9%);
-  --theme-white-bg-tint: rgba(0, 0, 0, 0.02);
-  --theme-subtle-bg: rgba(0, 0, 0, 0.005);
-  
-  --glow-cyan-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  --glow-emerald-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  --glow-crimson-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  --theme-text-title: #395886;
+  --theme-white-bg-tint: rgba(57, 88, 134, 0.04);
+  --theme-subtle-bg: rgba(57, 88, 134, 0.02);
+
+  --glow-cyan-shadow: 0 4px 12px rgba(57, 88, 134, 0.08);
+  --glow-emerald-shadow: 0 4px 12px rgba(57, 88, 134, 0.04);
+  --glow-crimson-shadow: 0 4px 12px rgba(57, 88, 134, 0.04);
 }
 
 @theme {
@@ -69,7 +68,7 @@
   --font-outfit: "Outfit", "Inter", sans-serif;
   --font-inter: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
-  
+
   --animate-fade-in-up: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-shake: shake 0.3s ease-in-out;
 }
@@ -91,7 +90,6 @@
   75% { transform: translateX(4px); }
 }
 
-/* Global Reset & Styling */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -104,23 +102,30 @@ body {
   font-family: var(--font-inter);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle app background (non-distracting) */
 .app-bg {
   position: fixed;
   inset: 0;
   background-color: transparent;
-  background-image: radial-gradient(rgba(0,0,0,0.02) 1px, transparent 1px);
-  background-size: 24px 24px;
-  opacity: 0.12;
+  background-image: radial-gradient(rgba(99, 142, 203, 0.1) 1px, transparent 1px),
+                    radial-gradient(rgba(138, 174, 224, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px, 36px 36px;
+  background-position: 0 0, 12px 12px;
+  opacity: 0.2;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Custom Scrollbar */
+:root[data-theme="light"] .app-bg {
+  opacity: 0.15;
+  background-image: radial-gradient(rgba(57, 88, 134, 0.07) 1px, transparent 1px),
+                    radial-gradient(rgba(99, 142, 203, 0.05) 1px, transparent 1px);
+}
+
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -139,7 +144,6 @@ body {
   background: var(--brand-cyan);
 }
 
-/* Glassmorphism/Flat Panels */
 .glass-panel {
   background: var(--glass-bg);
   border: 1px solid var(--brand-border);
@@ -148,11 +152,10 @@ body {
 }
 
 .glass-panel-hover:hover {
-  border-color: rgba(59, 130, 246, 0.25);
+  border-color: rgba(99, 142, 203, 0.35);
   transform: translateY(-1px);
 }
 
-/* Form inputs styling (modern, accessible) */
 .form-input {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -167,7 +170,7 @@ body {
 
 .form-input:focus {
   border-color: var(--brand-cyan);
-  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.06);
+  box-shadow: 0 6px 18px rgba(99, 142, 203, 0.1);
 }
 
 .form-input:disabled {
@@ -175,7 +178,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Buttons */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -194,7 +196,7 @@ body {
 }
 
 .btn-primary:hover:not(:disabled) {
-  filter: brightness(1.1);
+  filter: brightness(1.12);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -224,7 +226,7 @@ body {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(138, 174, 224, 0.1);
 }
 
 .btn-secondary:active:not(:disabled) {

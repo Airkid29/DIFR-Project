@@ -7,19 +7,19 @@ export default function Settings() {
   const [orgName, setOrgName] = useState("ForensiGuard SOC L1");
   const [retention, setRetention] = useState("90");
 
-  const s = {
-    container: { display: "flex", flexDirection: "column", gap: 24 },
-    header: { space: "yes" },
+  const s: Record<string, React.CSSProperties> = {
+    container: { display: "flex", flexDirection: "column" as const, gap: 24 },
+    header: { display: "flex", flexDirection: "column" as const, gap: 8 },
     title: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 32, color: "#F9FAFB", letterSpacing: -1, marginBottom: 8 },
     desc: { fontSize: 12, color: "#9CA3AF" },
     gridLayout: { display: "grid", gridTemplateColumns: "200px 1fr", gap: 24 },
-    tabs: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 8, display: "flex", flexDirection: "column", gap: 4, height: "fit-content" },
-    tabBtn: { padding: "12px 16px", background: "transparent", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 8 },
+    tabs: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 8, display: "flex", flexDirection: "column" as const, gap: 4, height: "fit-content" },
+    tabBtn: { padding: "12px 16px", background: "transparent", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase" as const, cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 8 },
     tabBtnActive: { background: "rgba(59, 130, 246, 0.1)", color: "#3B82F6" },
-    panel: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 24, space: "yes" },
+    panel: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 24, display: "flex", flexDirection: "column" as const, gap: 16 },
     panelTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 16, marginBottom: 20 },
-    formGroup: { space: "yes", maxWidth: 400, marginBottom: 20 },
-    label: { fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 8 },
+    formGroup: { display: "flex", flexDirection: "column" as const, gap: 8, maxWidth: 400, marginBottom: 20 },
+    label: { fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" as const, display: "block", marginBottom: 8 },
     input: { width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 12, outline: "none" },
     select: { width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 12, outline: "none" },
     btn: { padding: "10px 20px", background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer" }

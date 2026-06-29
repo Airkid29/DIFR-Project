@@ -38,17 +38,17 @@ export default function Timeline() {
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const s = {
-    container: { display: "flex", flexDirection: "column", gap: 24 },
+  const s: Record<string, React.CSSProperties> = {
+    container: { display: "flex", flexDirection: "column" as const, gap: 24 },
     header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" },
     title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 28, color: "#F9FAFB", letterSpacing: -1, marginBottom: 8 },
     desc: { fontSize: 11, color: "#9CA3AF" },
     btn: { padding: "10px 16px", background: "linear-gradient(135deg, #3B82F6, #10B981)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
     controlBar: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16, display: "flex", gap: 12, alignItems: "center" },
-    filterPill: { padding: "6px 12px", borderRadius: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase", border: "1px solid", cursor: "pointer", transition: "all 0.2s" },
-    timelineTrack: { position: "relative", paddingLeft: 24, borderLeft: "2px solid #1F2937" },
+    filterPill: { padding: "6px 12px", borderRadius: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, border: "1px solid", cursor: "pointer", transition: "all 0.2s" },
+    timelineTrack: { position: "relative" as const, paddingLeft: 24, borderLeft: "2px solid #1F2937" },
     timelineItem: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16, marginBottom: 16, cursor: "pointer", transition: "all 0.2s" },
-    detailPanel: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 20, display: "flex", flexDirection: "column", gap: 16 }
+    detailPanel: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" as const, gap: 16 }
   };
 
   const getCategoryColor = (cat: string) => {

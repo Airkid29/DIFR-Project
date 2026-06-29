@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Layout & Pages
 import Layout from "./components/Layout";
+import { SettingsProvider } from "./context/SettingsContext";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -38,21 +39,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  React.useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    if (savedTheme === "light") {
-      document.documentElement.setAttribute("data-theme", "light");
-    } else {
-      document.documentElement.removeAttribute("data-theme");
-    }
-  }, []);
-
   const isAuth = Boolean(localStorage.getItem(AUTH_TOKEN_KEY));
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
+      <SettingsProvider>
+        <BrowserRouter>
+          <Routes>
           {/* Public Marketing/Auth routes */}
           <Route index element={isAuth ? <Navigate to="/dashboard" replace /> : <Landing />} />
           <Route path="login" element={isAuth ? <Navigate to="/dashboard" replace /> : <Login />} />
@@ -81,7 +74,8 @@ export default function App() {
           {/* Fallback routing */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </SettingsProvider>
     </QueryClientProvider>
   );
 }

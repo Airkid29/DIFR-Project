@@ -35,7 +35,7 @@ export default function Evidence() {
   const [selectedItem, setSelectedItem] = useState<EvidenceItem | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  const s = {
+  const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column", gap: 24 },
     header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" },
     headerText: { flex: 1 },
@@ -113,7 +113,7 @@ export default function Evidence() {
 
               <h3 style={s.panelTitle}>{selectedItem.name}</h3>
 
-              <div style={{ space: "yes" }}>
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
                 <label style={{ fontSize: 9, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 12 }}>Custody Timeline</label>
                 <div style={{ borderLeft: "2px solid #1F2937", paddingLeft: 16, display: "flex", flexDirection: "column", gap: 16 }}>
                   {selectedItem.custody_chain.map((hist: any) => (

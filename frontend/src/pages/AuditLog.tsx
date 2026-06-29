@@ -23,9 +23,9 @@ export default function AuditLog() {
     { id: "AUD-0997", time: "2026-06-26 19:42:01.320", user: "m.chang@forensiguard.com", action: "MFA_LOGIN_FAILURE", resource: "Session Token", ip: "10.0.4.15", status: "failure" }
   ]);
 
-  const s = {
-    container: { display: "flex", flexDirection: "column", gap: 24 },
-    banner: { display: "flex", flexDirection: "column", gap: 16 },
+  const s: Record<string, React.CSSProperties> = {
+    container: { display: "flex", flexDirection: "column" as const, gap: 24 },
+    banner: { display: "flex", flexDirection: "column" as const, gap: 16 },
     bannerTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 24, color: "#F9FAFB", letterSpacing: -0.5 },
     bannerDesc: { fontSize: 12, color: "#9CA3AF" },
     topBar: { display: "flex", justifyContent: "space-between", alignItems: "center" },

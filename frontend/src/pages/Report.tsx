@@ -3,27 +3,27 @@ import React from "react";
 import { FileText, Download, AlertTriangle, CheckCircle } from "lucide-react";
 
 export default function Report() {
-  const s = {
-    container: { display: "flex", flexDirection: "column", gap: 24, maxWidth: 900, margin: "0 auto" },
+  const s: Record<string, React.CSSProperties> = {
+    container: { display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 900, margin: "0 auto" },
     backLink: { display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "#9CA3AF", cursor: "pointer", marginBottom: 12 },
     header: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 20, display: "flex", justifyContent: "space-between", alignItems: "center" },
     headerLeft: { display: "flex", alignItems: "center", gap: 16 },
     headerIcon: { width: 48, height: 48, background: "rgba(59, 130, 246, 0.1)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#3B82F6" },
-    headerInfo: { space: "yes" },
+    headerInfo: { display: "flex", flexDirection: "column" as const, gap: 4 },
     headerTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, color: "#F9FAFB" },
     headerSub: { fontSize: 10, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace", marginTop: 4 },
     headerButtons: { display: "flex", gap: 12 },
     btn: { padding: "10px 16px", background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontWeight: 600, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
     btnPrimary: { background: "linear-gradient(135deg, #3B82F6, #10B981)", color: "#0A0E1A", border: "none" },
     metricsGrid: { display: "grid", gridTemplateColumns: "1fr 2fr", gap: 16 },
-    card: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 20, space: "yes" },
+    card: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" as const, gap: 12 },
     cardTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 14, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 12, marginBottom: 16 },
     threatBox: { display: "flex", alignItems: "center", gap: 16 },
     threatIcon: { width: 40, height: 40 },
     threatInfo: { flex: 1 },
     threatScore: { fontFamily: "'Outfit', sans-serif", fontWeight: 900, fontSize: 32, lineHeight: 1 },
-    badge: { display: "inline-block", padding: "4px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" },
-    hashBox: { background: "#0A0E1A", border: "1px solid #1F2937", padding: 12, borderRadius: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#9CA3AF", wordBreak: "break-all", marginTop: 4 }
+    badge: { display: "inline-block", padding: "4px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const },
+    hashBox: { background: "#0A0E1A", border: "1px solid #1F2937", padding: 12, borderRadius: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#9CA3AF", wordBreak: "break-all" as const, marginTop: 4 }
   };
 
   return (
@@ -67,7 +67,7 @@ export default function Report() {
 
         <div style={s.card}>
           <h3 style={s.cardTitle}>Digital Hashes</h3>
-          <div style={{ space: "yes" }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
             <div style={{ marginBottom: 12 }}>
               <span style={{ fontSize: 8, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>MD5</span>
               <div style={s.hashBox}>3a42d9f86d081884c7d659a2feaa0c55</div>
@@ -86,7 +86,7 @@ export default function Report() {
 
       <div style={s.card}>
         <h3 style={s.cardTitle}>YARA Signatures Matched</h3>
-        <div style={{ space: "yes" }}>
+        <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
           {["Malware_Suspicious_Strings", "Packing_Detected"].map((rule) => (
             <div key={rule} style={{ background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, padding: 12, marginBottom: 12 }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444", marginBottom: 8 }}>{rule}</div>

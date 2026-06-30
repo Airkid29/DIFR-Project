@@ -1,12 +1,30 @@
+from sqlalchemy import inspect, text
 from .database import engine, Base
 from .models import User, Incident, Evidence, CustodyHistory, TimelineEvent, AuditLog, YaraJob
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+def migrate_schema():
+    inspector = inspect(engine)
+    if "users" not in inspector.get_table_names():
+        return
+
+    columns = {col["name"] for col in inspector.get_columns("users")}
+    dialect = engine.dialect.name
+
+    with engine.begin() as conn:
+        if "oauth_provider" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN oauth_provider VARCHAR(50)"))
+        if "oauth_subject" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN oauth_subject VARCHAR(255)"))
+        if dialect == "postgresql" and "password_hash" in columns:
+            conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
+
 def init_db():
     # Construct database schemas
     Base.metadata.create_all(bind=engine)
+    migrate_schema()
     
     # Check if admin user exists, if not seed a default admin
     from .database import SessionLocal

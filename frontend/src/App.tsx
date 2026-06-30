@@ -7,6 +7,8 @@ import Layout from "./components/Layout";
 import { SettingsProvider } from "./context/SettingsContext";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import OAuthCallback from "./pages/OAuthCallback";
 import Dashboard from "./pages/Dashboard";
 import Incidents from "./pages/Incidents";
 import FileAnalysis from "./pages/FileAnalysis";
@@ -46,9 +48,11 @@ export default function App() {
       <SettingsProvider>
         <BrowserRouter>
           <Routes>
-          {/* Public Marketing/Auth routes */}
-          <Route index element={isAuth ? <Navigate to="/dashboard" replace /> : <Landing />} />
-          <Route path="login" element={isAuth ? <Navigate to="/dashboard" replace /> : <Login />} />
+{/* Public Marketing/Auth routes */}
+           <Route index element={isAuth ? <Navigate to="/dashboard" replace /> : <Landing />} />
+           <Route path="login" element={isAuth ? <Navigate to="/dashboard" replace /> : <Login />} />
+           <Route path="register" element={isAuth ? <Navigate to="/dashboard" replace /> : <Register />} />
+           <Route path="auth/callback" element={<OAuthCallback />} />
 
           {/* Secure application shell */}
           <Route

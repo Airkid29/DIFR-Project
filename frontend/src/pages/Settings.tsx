@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Sliders, Key, Server } from "lucide-react";
 import { api } from "../utils/api";
+import { t } from "../i18n";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<"general" | "integrations" | "yara">("general");
@@ -23,7 +24,7 @@ export default function Settings() {
   }, []);
 
   const handleSaveSettings = () => {
-    setStatusMessage("General settings updated successfully.");
+    setStatusMessage(t("settings.generalSaved"));
   };
 
   const handleValidateKeys = async () => {
@@ -44,12 +45,12 @@ export default function Settings() {
         });
       }
     } catch (error: any) {
-      setStatusMessage(error.message || "Unable to validate keys at this time.");
+      setStatusMessage(error.message || t("settings.validateError"));
     }
   };
 
   const handleUploadYara = () => {
-    setStatusMessage("YARA package uploaded and compiled successfully.");
+    setStatusMessage(t("settings.yaraUploaded"));
   };
 
   const s: Record<string, React.CSSProperties> = {
@@ -73,16 +74,16 @@ export default function Settings() {
   return (
     <div style={s.container}>
       <div style={s.header}>
-        <h1 style={s.title}>System Settings</h1>
-        <p style={s.desc}>Manage integrations, API connections, retention schedules, and YARA rule assets.</p>
+        <h1 style={s.title}>{t("settings.title")}</h1>
+        <p style={s.desc}>{t("settings.desc")}</p>
       </div>
 
       <div style={s.gridLayout}>
         <div style={s.tabs}>
           {[
-            { id: "general", label: "General Setup", icon: Sliders },
-            { id: "integrations", label: "Threat Intel APIs", icon: Key },
-            { id: "yara", label: "YARA Signatures", icon: Server }
+            { id: "general", label: t("settings.tabGeneral"), icon: Sliders },
+            { id: "integrations", label: t("settings.tabIntegrations"), icon: Key },
+            { id: "yara", label: t("settings.tabYara"), icon: Server }
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -101,66 +102,66 @@ export default function Settings() {
         <div style={s.panel}>
           {activeTab === "general" && (
             <div style={{ animation: "fadeIn 0.2s" }}>
-              <h3 style={s.panelTitle}>General Configuration</h3>
+              <h3 style={s.panelTitle}>{t("settings.generalConfig")}</h3>
               <div style={s.formGroup}>
-                <label style={s.label}>Organization Title</label>
+                <label style={s.label}>{t("settings.orgTitle")}</label>
                 <input type="text" style={s.input} value={orgName} onChange={(e) => setOrgName(e.target.value)} />
               </div>
               <div style={s.formGroup}>
-                <label style={s.label}>Data Retention Period (Days)</label>
+                <label style={s.label}>{t("settings.retentionPeriod")}</label>
                 <select style={s.select} value={retention} onChange={(e) => setRetention(e.target.value)}>
-                  <option value="30">30 Days</option>
-                  <option value="90">90 Days</option>
-                  <option value="180">180 Days</option>
-                  <option value="365">365 Days</option>
+                  <option value="30">{t("settings.days30")}</option>
+                  <option value="90">{t("settings.days90")}</option>
+                  <option value="180">{t("settings.days180")}</option>
+                  <option value="365">{t("settings.days365")}</option>
                 </select>
               </div>
-              <button type="button" style={s.btn} onClick={handleSaveSettings}>Save Changes</button>
+              <button type="button" style={s.btn} onClick={handleSaveSettings}>{t("settings.saveChanges")}</button>
             </div>
           )}
 
           {activeTab === "integrations" && (
             <div style={{ animation: "fadeIn 0.2s" }}>
-              <h3 style={s.panelTitle}>Threat Intelligence Integrations</h3>
+              <h3 style={s.panelTitle}>{t("settings.threatIntelIntegrations")}</h3>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
                 <div style={{ flex: 1, minWidth: 180, padding: 14, borderRadius: 12, background: "rgba(15, 23, 42, 0.6)", border: "1px solid #1F2937" }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", marginBottom: 8 }}>VirusTotal</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", marginBottom: 8 }}>{t("settings.virustotal")}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: integrationStatus?.virustotal_configured ? "#34D399" : "#FBBF24" }}>
-                    {integrationStatus?.virustotal_configured ? "Configured" : "Not configured"}
+                    {integrationStatus?.virustotal_configured ? t("settings.configured") : t("settings.notConfigured")}
                   </div>
                 </div>
                 <div style={{ flex: 1, minWidth: 180, padding: 14, borderRadius: 12, background: "rgba(15, 23, 42, 0.6)", border: "1px solid #1F2937" }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", marginBottom: 8 }}>AlienVault OTX</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", marginBottom: 8 }}>{t("settings.otx")}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: integrationStatus?.otx_configured ? "#34D399" : "#FBBF24" }}>
-                    {integrationStatus?.otx_configured ? "Configured" : "Not configured"}
+                    {integrationStatus?.otx_configured ? t("settings.configured") : t("settings.notConfigured")}
                   </div>
                 </div>
               </div>
               <div style={s.formGroup}>
-                <label style={s.label}>VirusTotal API Key</label>
+                <label style={s.label}>{t("settings.virustotalApiKey")}</label>
                 <input type="password" style={s.input} placeholder="••••••••••••••••••••" value={virusTotalKey} onChange={(e) => setVirusTotalKey(e.target.value)} />
               </div>
               <div style={s.formGroup}>
-                <label style={s.label}>AlienVault OTX Key</label>
+                <label style={s.label}>{t("settings.otxApiKey")}</label>
                 <input type="password" style={s.input} placeholder="••••••••••••••••••••" value={otxKey} onChange={(e) => setOtxKey(e.target.value)} />
               </div>
-              <button type="button" style={s.btn} onClick={handleValidateKeys}>Validate & Save Keys</button>
+              <button type="button" style={s.btn} onClick={handleValidateKeys}>{t("settings.validateSaveKeys")}</button>
             </div>
           )}
 
           {activeTab === "yara" && (
             <div style={{ animation: "fadeIn 0.2s" }}>
-              <h3 style={s.panelTitle}>YARA Rule Packages</h3>
+              <h3 style={s.panelTitle}>{t("settings.yaraPackages")}</h3>
               <div style={{ background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, padding: 16, marginBottom: 20 }}>
-                <span style={{ fontSize: 9, fontWeight: 700, color: "#3B82F6", textTransform: "uppercase" }}>Current Ruleset</span>
+                <span style={{ fontSize: 9, fontWeight: 700, color: "#3B82F6", textTransform: "uppercase" }}>{t("settings.currentRuleset")}</span>
                 <p style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 12, color: "#F9FAFB", marginTop: 8 }}>apt_signatures_v2.yar</p>
-                <p style={{ fontSize: 10, color: "#9CA3AF", marginTop: 4 }}>120 compiled rules (CobaltStrike, Mimikatz, shellcodes)</p>
+                <p style={{ fontSize: 10, color: "#9CA3AF", marginTop: 4 }}>{t("settings.compiledRules")}</p>
               </div>
               <div style={s.formGroup}>
-                <label style={s.label}>Upload New File (.yar / .yara)</label>
+                <label style={s.label}>{t("settings.uploadNewFile")}</label>
                 <input type="file" style={{ ...s.input, cursor: "pointer" }} onChange={() => setStatusMessage("")} />
               </div>
-              <button type="button" style={s.btn} onClick={handleUploadYara}>Upload & Compile</button>
+              <button type="button" style={s.btn} onClick={handleUploadYara}>{t("settings.uploadCompile")}</button>
             </div>
           )}
         </div>

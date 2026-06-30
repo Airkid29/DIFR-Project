@@ -11,6 +11,16 @@ class TokenData(BaseModel):
     email: Optional[str] = None
     role: Optional[str] = None
 
+class OAuthAuthorizeResponse(BaseModel):
+    authorization_url: str
+    state: str
+
+class OAuthCallbackRequest(BaseModel):
+    provider: str
+    code: str
+    redirect_uri: str
+    state: str
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
@@ -25,10 +35,16 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+class UserRegister(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
 class UserResponse(UserBase):
     id: int
     mfa_enabled: bool
     is_active: bool
+    last_login: Optional[datetime]
 
     class Config:
         from_attributes = True

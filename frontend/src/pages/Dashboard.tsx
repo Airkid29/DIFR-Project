@@ -1,7 +1,8 @@
 // DASHBOARD PAGE
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ShieldAlert, Cpu, Database, Clock, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, MapPinned, Network, GitBranch } from "lucide-react";
+import { ShieldAlert, Cpu, Database, Clock, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, MapPinned } from "lucide-react";
+import { t } from "../i18n";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, ScatterChart, Scatter, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 
 const incidentData = [
@@ -57,12 +58,12 @@ export default function Dashboard() {
   };
 
   const metrics = [
-    { title: "Active Incidents", value: 12, change: "6 escalated today", trend: "up", icon: ShieldAlert, color: "#EF4444" },
-    { title: "Evidence Files Triaged", value: 38, change: "100% verified", trend: "up", icon: Cpu, color: "#3B82F6" },
-    { title: "Integrity Verified", value: "100%", change: "No mismatches", trend: "up", icon: Database, color: "#10B981" },
-    { title: "Avg. Triage Response", value: "14m", change: "-5m vs last week", trend: "down", icon: Clock, color: "#06B6D4" },
-    { title: "Analyst Availability", value: "92%", change: "3 analysts online", trend: "up", icon: CheckCircle2, color: "#10B981" },
-    { title: "Critical Alerts", value: 4, change: "2 require immediate action", trend: "neutral", icon: AlertTriangle, color: "#F59E0B" }
+    { title: t("dashboard.activeIncidents"), value: 12, change: t("dashboard.activeIncidentsChange"), trend: "up", icon: ShieldAlert, color: "#EF4444" },
+    { title: t("dashboard.evidenceTriaged"), value: 38, change: t("dashboard.evidenceTriagedChange"), trend: "up", icon: Cpu, color: "#3B82F6" },
+    { title: t("dashboard.integrityVerified"), value: "100%", change: t("dashboard.integrityChange"), trend: "up", icon: Database, color: "#10B981" },
+    { title: t("dashboard.avgTriage"), value: "14m", change: t("dashboard.avgTriageChange"), trend: "down", icon: Clock, color: "#06B6D4" },
+    { title: t("dashboard.analystAvailability"), value: "92%", change: t("dashboard.analystChange"), trend: "up", icon: CheckCircle2, color: "#10B981" },
+    { title: t("dashboard.criticalAlerts"), value: 4, change: t("dashboard.criticalChange"), trend: "neutral", icon: AlertTriangle, color: "#F59E0B" }
   ];
 
   const threats = [
@@ -89,12 +90,12 @@ export default function Dashboard() {
     <div style={s.container}>
       <div style={s.header}>
         <div style={s.headerText}>
-          <h1 style={s.title}>Security Command Center</h1>
-          <p style={s.desc}>Overview of active cases, forensic chain of custody logs, executive alerts, and live network reputation indicators for a polished demonstration experience.</p>
+          <h1 style={s.title}>{t("dashboard.title")}</h1>
+          <p style={s.desc}>{t("dashboard.desc")}</p>
         </div>
         <div style={s.headerButtons}>
-          <button style={s.btn} onClick={() => navigate('/incidents')}>Manage Incidents</button>
-          <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => navigate('/analysis')}>+ File Scanner</button>
+          <button style={s.btn} onClick={() => navigate('/incidents')}>{t("dashboard.manageIncidents")}</button>
+          <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => navigate('/analysis')}>+ {t("dashboard.fileScanner")}</button>
         </div>
       </div>
 
@@ -122,7 +123,7 @@ export default function Dashboard() {
 
       <div style={s.graphSection}>
         <div style={s.card}>
-          <h3 style={s.cardTitle}>Incident Triage Volume</h3>
+          <h3 style={s.cardTitle}>{t("dashboard.incidentVolume")}</h3>
           <div style={{ height: 300 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={incidentData}>
@@ -143,7 +144,7 @@ export default function Dashboard() {
         </div>
 
         <div style={s.card}>
-          <h3 style={s.cardTitle}>Threat Intelligence Feed</h3>
+          <h3 style={s.cardTitle}>{t("dashboard.threatFeed")}</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {threats.map((t, i) => (
               <div key={i} style={s.threatItem}>
@@ -166,7 +167,7 @@ export default function Dashboard() {
 
       <div style={s.tripleGrid}>
         <div style={s.card}>
-          <h3 style={s.cardTitle}>Activity Timeline</h3>
+          <h3 style={s.cardTitle}>{t("dashboard.activityTimeline")}</h3>
           <div style={{ height: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={incidentData}>
@@ -181,19 +182,19 @@ export default function Dashboard() {
         </div>
 
         <div style={s.card}>
-          <h3 style={s.cardTitle}>Incident Mapping</h3>
+          <h3 style={s.cardTitle}>{t("dashboard.incidentMapping")}</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {incidentMap.map((item) => (
               <div key={item.region} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid #1F2937", borderRadius: 8, padding: 10 }}>
                 <span style={{ display: "flex", alignItems: "center", gap: 8, color: "#F9FAFB", fontSize: 12 }}><MapPinned size={14} style={{ color: "#3B82F6" }} />{item.region}</span>
-                <span style={{ color: item.severity >= 4 ? "#EF4444" : "#F59E0B", fontWeight: 700, fontSize: 12 }}>Severity {item.severity}</span>
+                <span style={{ color: item.severity >= 4 ? "#EF4444" : "#F59E0B", fontWeight: 700, fontSize: 12 }}>{t("dashboard.severityLabel", { level: String(item.severity) })}</span>
               </div>
             ))}
           </div>
         </div>
 
         <div style={s.card}>
-          <h3 style={s.cardTitle}>Correlation Graph</h3>
+          <h3 style={s.cardTitle}>{t("dashboard.correlationGraph")}</h3>
           <div style={{ height: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={correlationData}>
@@ -209,7 +210,7 @@ export default function Dashboard() {
 
       <div style={s.bottomGrid}>
         <div style={s.card}>
-          <h3 style={s.cardTitle}>Case Queue</h3>
+          <h3 style={s.cardTitle}>{t("dashboard.caseQueue")}</h3>
           {caseQueue.map((item) => (
             <div key={item.name} style={s.listItem}>
               <span>{item.name}</span>
@@ -218,7 +219,7 @@ export default function Dashboard() {
           ))}
         </div>
         <div style={s.card}>
-          <h3 style={s.cardTitle}>Evidence Readiness</h3>
+          <h3 style={s.cardTitle}>{t("dashboard.evidenceReadiness")}</h3>
           {evidenceQueue.map((item) => (
             <div key={item.name} style={s.listItem}>
               <span>{item.name}</span>

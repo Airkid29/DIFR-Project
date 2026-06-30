@@ -1,7 +1,8 @@
 // EVIDENCE PAGE
 import React, { useState } from "react";
-import { Database, Plus, Search, ShieldCheck, Download, X } from "lucide-react";
+import { Database, Plus, Search, Download } from "lucide-react";
 import { exportForensicPdf } from "../utils/pdfExport";
+import { t } from "../i18n";
 
 interface EvidenceItem {
   id: string;
@@ -76,7 +77,7 @@ export default function Evidence() {
     setSelectedItem(newItem);
     setIsRegistering(false);
     setNewEvidence({ name: "", category: "Disk Image", sha256: "", custodian: "Analyst A" });
-    setStatusMessage("Evidence registered successfully.");
+    setStatusMessage(t("evidence.registeredSuccess"));
     window.setTimeout(() => setStatusMessage(""), 3200);
   };
 
@@ -104,12 +105,12 @@ export default function Evidence() {
     <div style={s.container}>
       <div style={s.header}>
         <div style={s.headerText}>
-          <h1 style={s.title}>Chain of Custody Repository</h1>
-          <p style={s.desc}>Immutable registry ensuring cryptographic integrity and audit trails of case materials.</p>
+          <h1 style={s.title}>{t("evidence.title")}</h1>
+          <p style={s.desc}>{t("evidence.desc")}</p>
         </div>
         <button style={s.btn} onClick={() => setIsRegistering(true)}>
           <Plus size={16} />
-          <span>Register Evidence</span>
+          <span>{t("evidence.registerEvidence")}</span>
         </button>
       </div>
 
@@ -118,7 +119,7 @@ export default function Evidence() {
           <div style={s.controlBar}>
             <div style={s.searchWrap}>
               <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#9CA3AF" }} />
-              <input type="text" style={s.input} placeholder="Search registered evidence..." value={search} onChange={(e) => setSearch(e.target.value)} />
+              <input type="text" style={s.input} placeholder={t("evidence.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
           </div>
 
@@ -128,12 +129,12 @@ export default function Evidence() {
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: "#3B82F6" }}>{item.id}</span>
-                    <span style={s.badge}>{item.category}</span>
-                    {item.verified && <span style={{ ...s.badge, ...s.badgeVerified }}>✓ Verified</span>}
+                    <span style={s.badge}>{item.category === "Disk Image" ? t("evidence.diskImage") : item.category === "RAM Dump" ? t("evidence.ramDump") : item.category === "Log File" ? t("evidence.logFile") : item.category}</span>
+                    {item.verified && <span style={{ ...s.badge, ...s.badgeVerified }}>✓ {t("evidence.verified")}</span>}
                   </div>
                   <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 14, color: "#F9FAFB", marginBottom: 8 }}>{item.name}</h3>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, fontSize: 10 }}>
-                    <div><span style={{ color: "#6B7280", fontWeight: 600, textTransform: "uppercase" }}>Custodian</span><p style={{ color: "#F9FAFB", fontWeight: 600, marginTop: 4 }}>{item.custodian}</p></div>
+                    <div><span style={{ color: "#6B7280", fontWeight: 600, textTransform: "uppercase" }}>{t("evidence.custodian")}</span><p style={{ color: "#F9FAFB", fontWeight: 600, marginTop: 4 }}>{item.custodian}</p></div>
                     <div><span style={{ color: "#6B7280", fontWeight: 600, textTransform: "uppercase" }}>SHA-256</span><p style={{ color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace", marginTop: 4, fontSize: 9 }}>{item.sha256_hash.slice(0, 16)}...</p></div>
                   </div>
                 </div>
@@ -149,23 +150,23 @@ export default function Evidence() {
           {selectedItem ? (
             <div style={s.detailPanel}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: "#3B82F6" }}>{selectedItem.id} Detail</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: "#3B82F6" }}>{selectedItem.id} {t("evidence.detail")}</span>
                 <button type="button" style={{ background: "none", border: "none", color: "#3B82F6", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 10 }} onClick={handleExportEvidencePdf}>
                   <Download size={14} />
-                  <span>PDF Audit</span>
+                  <span>{t("evidence.pdfAudit")}</span>
                 </button>
               </div>
 
               <h3 style={s.panelTitle}>{selectedItem.name}</h3>
 
               <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-                <label style={{ fontSize: 9, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 12 }}>Custody Timeline</label>
+                <label style={{ fontSize: 9, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 12 }}>{t("evidence.custodyTimeline")}</label>
                 <div style={{ borderLeft: "2px solid #1F2937", paddingLeft: 16, display: "flex", flexDirection: "column", gap: 16 }}>
                   {selectedItem.custody_chain.map((hist: any) => (
                     <div key={hist.id} style={{ position: "relative" }}>
                       <div style={{ position: "absolute", left: -23, top: 6, width: 8, height: 8, background: "#3B82F6", borderRadius: "50%" }} />
                       <div style={{ fontSize: 11, fontWeight: 600, color: "#F9FAFB", marginBottom: 4 }}>{hist.to}</div>
-                      <div style={{ fontSize: 9, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>From {hist.from} - {hist.action}</div>
+                      <div style={{ fontSize: 9, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>{t("evidence.fromAction", { from: hist.from, action: hist.action })}</div>
                     </div>
                   ))}
                 </div>
@@ -174,7 +175,7 @@ export default function Evidence() {
           ) : (
             <div style={{ ...s.detailPanel, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 300 }}>
               <Database size={32} style={{ opacity: 0.2, marginBottom: 12 }} />
-              <p style={{ fontSize: 12, color: "#9CA3AF" }}>Select evidence to view details</p>
+              <p style={{ fontSize: 12, color: "#9CA3AF" }}>{t("evidence.selectEvidence")}</p>
             </div>
           )}
         </div>
@@ -185,32 +186,32 @@ export default function Evidence() {
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)" }} onClick={() => setIsRegistering(false)} />
           <div style={{ position: "relative", background: "#111827", border: "1px solid #1F2937", borderRadius: 12, padding: 20, maxWidth: 420, width: "100%", zIndex: 10 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #1F2937" }}>
-              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 16, color: "#F9FAFB" }}>Register Evidence Item</h3>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 16, color: "#F9FAFB" }}>{t("evidence.modalTitle")}</h3>
               <button onClick={() => setIsRegistering(false)} style={{ background: "none", border: "none", color: "#9CA3AF", cursor: "pointer", fontSize: 20 }}>×</button>
             </div>
             <form style={{ display: "flex", flexDirection: "column", gap: 16 }} onSubmit={handleRegisterEvidence}>
               <div>
-                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Evidence Name</label>
-                <input type="text" style={{ ...s.input, width: "100%" }} placeholder="e.g. Corporate DC01 SSD dump" value={newEvidence.name} onChange={(e) => setNewEvidence((prev) => ({ ...prev, name: e.target.value }))} />
+                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("evidence.evidenceName")}</label>
+                <input type="text" style={{ ...s.input, width: "100%" }} placeholder={t("evidence.namePlaceholder")} value={newEvidence.name} onChange={(e) => setNewEvidence((prev) => ({ ...prev, name: e.target.value }))} />
               </div>
               <div>
-                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Category</label>
+                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("evidence.category")}</label>
                 <select style={{ ...s.input, width: "100%" }} value={newEvidence.category} onChange={(e) => setNewEvidence((prev) => ({ ...prev, category: e.target.value }))}>
-                  <option>Disk Image</option>
-                  <option>RAM Dump</option>
-                  <option>Log File</option>
+                  <option value="Disk Image">{t("evidence.diskImage")}</option>
+                  <option value="RAM Dump">{t("evidence.ramDump")}</option>
+                  <option value="Log File">{t("evidence.logFile")}</option>
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>SHA-256 Hash</label>
-                <input type="text" style={{ ...s.input, width: "100%", fontFamily: "'JetBrains Mono', monospace" }} placeholder="64-character hex hash" value={newEvidence.sha256} onChange={(e) => setNewEvidence((prev) => ({ ...prev, sha256: e.target.value }))} />
+                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("evidence.sha256Hash")}</label>
+                <input type="text" style={{ ...s.input, width: "100%", fontFamily: "'JetBrains Mono', monospace" }} placeholder={t("evidence.hashPlaceholder")} value={newEvidence.sha256} onChange={(e) => setNewEvidence((prev) => ({ ...prev, sha256: e.target.value }))} />
               </div>
               <div>
-                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Custodian</label>
+                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("evidence.custodian")}</label>
                 <input type="text" style={{ ...s.input, width: "100%" }} placeholder="Analyst A" value={newEvidence.custodian} onChange={(e) => setNewEvidence((prev) => ({ ...prev, custodian: e.target.value }))} />
               </div>
               <button type="submit" style={{ padding: 12, background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
-                Register & Audit Evidence
+                {t("evidence.registerAndAudit")}
               </button>
             </form>
           </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Search, CornerDownLeft, Sparkles, AlertTriangle, FileText, Settings } from "lucide-react";
+import { t } from "../i18n";
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -34,18 +35,15 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: CommandP
 
   // Mock index for search
   const items = [
-    // Actions
-    { id: "act-1", title: "Create New Incident", category: "Actions", path: "/incidents", icon: Sparkles },
-    { id: "act-2", title: "Go to System Settings", category: "Actions", path: "/settings", icon: Settings },
-    { id: "act-3", title: "Upload File for YARA Triage", category: "Actions", path: "/analysis", icon: FileText },
-    // Incidents
-    { id: "inc-1", title: "INC-2026-001: SSH Brute Force on Web01", category: "Incidents", path: "/incidents", icon: AlertTriangle },
-    { id: "inc-2", title: "INC-2026-002: Ransomware indicator on DC01", category: "Incidents", path: "/incidents", icon: AlertTriangle },
-    { id: "inc-3", title: "INC-2026-003: Phishing campaign target sales", category: "Incidents", path: "/incidents", icon: AlertTriangle },
-    // Files
-    { id: "file-1", title: "mimikatz.exe (SHA-256: 4f129a...)", category: "Files", path: "/report/mimikatz", icon: FileText },
-    { id: "file-2", title: "cobalt_strike_beacon.dll (SHA-256: 8a42b...)", category: "Files", path: "/report/cobalt_strike", icon: FileText },
-    { id: "file-3", title: "powershell_payload.ps1 (SHA-256: f9b2d...)", category: "Files", path: "/report/payload", icon: FileText },
+    { id: "act-1", title: t("commandPalette.createIncident"), category: t("commandPalette.categoryActions"), path: "/incidents", icon: Sparkles },
+    { id: "act-2", title: t("commandPalette.goToSettings"), category: t("commandPalette.categoryActions"), path: "/settings", icon: Settings },
+    { id: "act-3", title: t("commandPalette.uploadFile"), category: t("commandPalette.categoryActions"), path: "/analysis", icon: FileText },
+    { id: "inc-1", title: "INC-2026-001: SSH Brute Force on Web01", category: t("commandPalette.categoryIncidents"), path: "/incidents", icon: AlertTriangle },
+    { id: "inc-2", title: "INC-2026-002: Ransomware indicator on DC01", category: t("commandPalette.categoryIncidents"), path: "/incidents", icon: AlertTriangle },
+    { id: "inc-3", title: "INC-2026-003: Phishing campaign target sales", category: t("commandPalette.categoryIncidents"), path: "/incidents", icon: AlertTriangle },
+    { id: "file-1", title: "mimikatz.exe (SHA-256: 4f129a...)", category: t("commandPalette.categoryFiles"), path: "/report/mimikatz", icon: FileText },
+    { id: "file-2", title: "cobalt_strike_beacon.dll (SHA-256: 8a42b...)", category: t("commandPalette.categoryFiles"), path: "/report/cobalt_strike", icon: FileText },
+    { id: "file-3", title: "powershell_payload.ps1 (SHA-256: f9b2d...)", category: t("commandPalette.categoryFiles"), path: "/report/payload", icon: FileText },
   ];
 
   // Filter items
@@ -101,7 +99,7 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: CommandP
             ref={inputRef}
             type="text"
             className="form-input bg-transparent border-0 p-0 text-sm text-brand-text-primary placeholder-brand-text-secondary outline-none font-sans"
-            placeholder="Search incidents, hashes, rules, actions..."
+            placeholder={t("commandPalette.searchPlaceholder")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -116,7 +114,7 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: CommandP
         <div className="max-h-[350px] overflow-y-auto p-2">
           {filtered.length === 0 ? (
             <div className="py-8 text-center text-xs text-brand-text-secondary">
-              No results found for "{search}"
+              {t("commandPalette.noResults", { query: search })}
             </div>
           ) : (
             categories.map((category) => (
@@ -152,7 +150,7 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: CommandP
                           </div>
                           {isSelected && (
                             <div className="flex items-center space-x-1 text-[9px] text-brand-cyan bg-brand-cyan/10 px-1.5 py-0.5 rounded border border-brand-cyan/10">
-                              <span>Enter</span>
+                              <span>{t("commandPalette.enter")}</span>
                               <CornerDownLeft className="h-2.5 w-2.5" />
                             </div>
                           )}

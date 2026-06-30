@@ -42,11 +42,18 @@ services:
       - DATABASE_URL=postgresql://postgres:securepassword123@db:5432/forensiguard
       - REDIS_URL=redis://redis:6379/0
       - ENABLE_CELERY_WORKER=true
+      - FRONTEND_URL=http://localhost:5173
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+      
 
   worker:
     build:

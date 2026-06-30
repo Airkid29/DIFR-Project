@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import { UploadCloud, File, AlertTriangle, CheckCircle, Download } from "lucide-react";
 import { api } from "../utils/api";
 import { exportForensicPdf } from "../utils/pdfExport";
+import { t } from "../i18n";
 
 type YaraJob = {
   id: string;
@@ -23,8 +24,14 @@ type ScanResult = {
   intelMessages: string[];
 };
 
-const severityFromScore = (score: number) =>
-  score >= 75 ? "Critical" : score >= 45 ? "High" : score >= 25 ? "Medium" : "Low";
+const severityFromScore = (score: number): keyof typeof severityKeys => {
+  if (score >= 75) return "critical";
+  if (score >= 45) return "high";
+  if (score >= 25) return "medium";
+  return "low";
+};
+
+const severityKeys = { critical: "critical", high: "high", medium: "medium", low: "low" } as const;
 
 const buildResultFromJob = (job: YaraJob): ScanResult => {
   const matches: string[] = [];
@@ -32,21 +39,21 @@ const buildResultFromJob = (job: YaraJob): ScanResult => {
   const intelMessages: string[] = [];
 
   for (const entry of job.matched_rules || []) {
-    const rule = entry.rule || "Unknown rule";
+    const rule = entry.rule || t("fileAnalysis.unknownRule");
     if (rule === "ThreatIntel_VirusTotal") {
       const positives = Number(entry.meta?.positives ?? 0);
       const total = Number(entry.meta?.total ?? 0);
       const found = Boolean(entry.meta?.found);
       if (found && positives > 0) {
-        matches.push(`VirusTotal: ${positives}/${total} engines flagged this hash`);
+        matches.push(t("fileAnalysis.vtFlagged", { positives: String(positives), total: String(total) }));
         const permalink = entry.meta?.permalink;
         if (typeof permalink === "string" && permalink) {
-          notes.push(`VirusTotal report: ${permalink}`);
+          notes.push(t("fileAnalysis.vtReport", { url: permalink }));
         }
       } else if (found) {
-        notes.push(`VirusTotal: hash known, ${positives}/${total} detections (clean sample).`);
+        notes.push(t("fileAnalysis.vtClean", { positives: String(positives), total: String(total) }));
       } else {
-        notes.push("VirusTotal: hash not found — this file has not been submitted to VT before.");
+        notes.push(t("fileAnalysis.vtNotFound"));
       }
       continue;
     }
@@ -54,15 +61,15 @@ const buildResultFromJob = (job: YaraJob): ScanResult => {
     if (rule === "ThreatIntel_OTX") {
       const pulseCount = Number(entry.meta?.pulse_count ?? 0);
       if (pulseCount > 0) {
-        matches.push(`AlienVault OTX: ${pulseCount} threat pulse(s) reference this hash`);
-        notes.push("This hash appears in OTX community threat intelligence feeds.");
+        matches.push(t("fileAnalysis.otxPulses", { count: String(pulseCount) }));
+        notes.push(t("fileAnalysis.otxFound"));
       } else {
-        notes.push("AlienVault OTX: no threat pulses found for this hash.");
+        notes.push(t("fileAnalysis.otxNotFound"));
       }
       continue;
     }
 
-    matches.push(`YARA match: ${rule}`);
+    matches.push(t("fileAnalysis.yaraMatch", { rule }));
     const description = entry.meta?.description;
     if (typeof description === "string" && description) {
       notes.push(description);
@@ -70,12 +77,14 @@ const buildResultFromJob = (job: YaraJob): ScanResult => {
   }
 
   if (matches.length === 0) {
-    notes.push("No YARA rule matches or threat intelligence hits for this sample.");
+    notes.push(t("fileAnalysis.noMatches"));
   }
+
+  const severityKey = severityFromScore(job.score ?? 0);
 
   return {
     threat: job.score ?? 0,
-    severity: severityFromScore(job.score ?? 0),
+    severity: t(`common.${severityKey}`),
     hashes: {
       md5: job.md5 || "",
       sha1: job.sha1 || "",
@@ -95,7 +104,7 @@ export default function FileAnalysis() {
   const [errorMessage, setErrorMessage] = useState("");
   const [result, setResult] = useState<ScanResult>({
     threat: 0,
-    severity: "Low",
+    severity: t("common.low"),
     hashes: { md5: "", sha1: "", sha256: "" },
     matches: [],
     notes: [],
@@ -106,18 +115,18 @@ export default function FileAnalysis() {
   const handleExportReport = () => {
     if (!file) return;
     exportForensicPdf({
-      title: "Forensic Artifact Scan Report",
+      title: t("fileAnalysis.reportTitle"),
       fileName: file.name,
       fileSize: `${((file.size || 0) / 1024).toFixed(2)} KB`,
       threatScore: result.threat,
       severity: result.severity,
       hashes: result.hashes,
-      signatures: result.matches.length > 0 ? result.matches : ["No direct signature matches"],
-      notes: result.notes.length > 0 ? result.notes : ["No heuristic notes available."],
+      signatures: result.matches.length > 0 ? result.matches : [t("fileAnalysis.noDirectMatches")],
+      notes: result.notes.length > 0 ? result.notes : [t("fileAnalysis.noHeuristicNotes")],
       custody: [
-        "Artifact collected and submitted for automated triage",
-        "Cryptographic hashes computed server-side (MD5, SHA-1, SHA-256)",
-        "YARA rules and threat intelligence lookups executed",
+        t("fileAnalysis.custody1"),
+        t("fileAnalysis.custody2"),
+        t("fileAnalysis.custody3"),
       ],
     });
   };
@@ -154,7 +163,7 @@ export default function FileAnalysis() {
       setProgress((current) => Math.min(current + 4, 90));
       await new Promise((resolve) => window.setTimeout(resolve, 700));
     }
-    throw new Error("Scan timed out. The background worker may still be processing this file.");
+    throw new Error(t("fileAnalysis.scanTimeout"));
   };
 
   const processFile = async (selectedFile: File) => {
@@ -171,14 +180,14 @@ export default function FileAnalysis() {
 
       const completedJob = await pollYaraJob(createdJob.id);
       if (completedJob.status === "failed") {
-        throw new Error("Server-side scan failed. Check that the Celery worker is running.");
+        throw new Error(t("fileAnalysis.scanServerFailed"));
       }
 
       setProgress(100);
       setResult(buildResultFromJob(completedJob));
       setStatus("done");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to analyze this file.";
+      const message = error instanceof Error ? error.message : t("fileAnalysis.analyzeError");
       setErrorMessage(message);
       setStatus("error");
       setProgress(0);
@@ -192,7 +201,7 @@ export default function FileAnalysis() {
     setErrorMessage("");
     setResult({
       threat: 0,
-      severity: "Low",
+      severity: t("common.low"),
       hashes: { md5: "", sha1: "", sha256: "" },
       matches: [],
       notes: [],
@@ -203,9 +212,9 @@ export default function FileAnalysis() {
   return (
     <div style={s.container}>
       <div style={s.header}>
-        <h1 style={s.title}>Forensic Artifact Scanner</h1>
+        <h1 style={s.title}>{t("fileAnalysis.title")}</h1>
         <p style={s.desc}>
-          Upload a file to run server-side cryptographic hashing, YARA rule matching, and live VirusTotal / AlienVault OTX lookups. Each file is analyzed from its real content and hash.
+          {t("fileAnalysis.desc")}
         </p>
       </div>
 
@@ -225,8 +234,8 @@ export default function FileAnalysis() {
           <input ref={fileInputRef} type="file" hidden onChange={(e) => e.target.files && void processFile(e.target.files[0])} />
           <UploadCloud style={s.uploadIcon} />
           <div style={s.uploadText}>
-            <div style={s.uploadTextMain}>Drag and drop a file here, or click to browse</div>
-            <div style={s.uploadTextSub}>Supports .exe, .dll, .bin, .pdf, .log, .evtx and other investigative artifacts (Max 100MB)</div>
+            <div style={s.uploadTextMain}>{t("fileAnalysis.dragDrop")}</div>
+            <div style={s.uploadTextSub}>{t("fileAnalysis.supportedFormats")}</div>
           </div>
         </div>
       ) : (
@@ -243,9 +252,9 @@ export default function FileAnalysis() {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#9CA3AF", marginTop: 8 }}>
                 <span>
-                  {status === "scanning" && "Running YARA scan and threat intelligence lookups..."}
-                  {status === "done" && "Scan complete"}
-                  {status === "error" && "Scan failed"}
+                  {status === "scanning" && t("fileAnalysis.scanning")}
+                  {status === "done" && t("fileAnalysis.scanComplete")}
+                  {status === "error" && t("fileAnalysis.scanFailed")}
                 </span>
                 <span>{progress}%</span>
               </div>
@@ -261,7 +270,7 @@ export default function FileAnalysis() {
           {status === "done" && (
             <div style={s.resultsGrid}>
               <div style={s.resultCard}>
-                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 15, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 12, marginBottom: 12 }}>Threat Assessment</h3>
+                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 15, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 12, marginBottom: 12 }}>{t("fileAnalysis.threatAssessment")}</h3>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                   {result.threat > 50 ? (
                     <>
@@ -270,7 +279,7 @@ export default function FileAnalysis() {
                         <div style={{ ...s.threatBig, color: "#EF4444" }}>{result.threat}/100</div>
                         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                           <span style={{ ...s.badge, ...s.badgeMalicious }}>{result.severity}</span>
-                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>YARA + Intel</span>
+                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>{t("fileAnalysis.yaraIntel")}</span>
                         </div>
                       </div>
                     </>
@@ -281,19 +290,19 @@ export default function FileAnalysis() {
                         <div style={{ ...s.threatBig, color: "#10B981" }}>{result.threat}/100</div>
                         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                           <span style={{ ...s.badge, ...s.badgeClean }}>{result.severity}</span>
-                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>YARA + Intel</span>
+                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>{t("fileAnalysis.yaraIntel")}</span>
                         </div>
                       </div>
                     </>
                   )}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {result.matches.length > 0 ? result.matches.map((match) => <div key={match} style={{ fontSize: 12, color: "#F9FAFB" }}>• {match}</div>) : <div style={{ fontSize: 12, color: "#9CA3AF" }}>No strong signature match found.</div>}
+                  {result.matches.length > 0 ? result.matches.map((match) => <div key={match} style={{ fontSize: 12, color: "#F9FAFB" }}>• {match}</div>) : <div style={{ fontSize: 12, color: "#9CA3AF" }}>{t("fileAnalysis.noSignatureMatch")}</div>}
                 </div>
               </div>
 
               <div style={s.resultCard}>
-                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 15, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 12, marginBottom: 12 }}>Digital Fingerprints</h3>
+                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 15, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 12, marginBottom: 12 }}>{t("fileAnalysis.digitalFingerprints")}</h3>
                 <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
                   <div>
                     <span style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>MD5</span>
@@ -314,19 +323,19 @@ export default function FileAnalysis() {
 
           <div style={{ display: "flex", gap: 12, marginTop: 20, borderTop: "1px solid #1F2937", paddingTop: 20, flexWrap: "wrap" }}>
             <button onClick={handleReset} style={{ padding: "10px 16px", background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-              Scan Another File
+              {t("fileAnalysis.scanAnother")}
             </button>
             {status === "done" && (
               <button type="button" onClick={handleExportReport} style={{ padding: "10px 16px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
                 <Download size={14} />
-                <span>Export Report</span>
+                <span>{t("fileAnalysis.exportReport")}</span>
               </button>
             )}
           </div>
 
           {status === "done" && (
             <div style={{ borderTop: "1px solid #1F2937", paddingTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#F9FAFB" }}>Operational notes</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#F9FAFB" }}>{t("fileAnalysis.operationalNotes")}</div>
               {result.notes.map((note) => (
                 <div key={note} style={{ fontSize: 12, color: "#9CA3AF" }}>• {note}</div>
               ))}

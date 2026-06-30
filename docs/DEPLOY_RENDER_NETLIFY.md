@@ -88,3 +88,16 @@ Sans slash final. Remplacez par votre vraie URL Render.
 | API lente au 1er appel | Plan gratuit : réveil ~1 min après inactivité |
 | Scan bloqué | Logs Render du service `forensiguard-api` |
 | Build échoue (mémoire) | Relancer le deploy ou passer en Starter ($7/mois) |
+| `could not translate host name "dpg-..."` | Voir section ci-dessous |
+
+### Erreur `could not translate host name "dpg-..."`
+
+L'API et Postgres ne sont pas dans la même région Render.
+
+**Correctif immédiat :**
+
+1. **forensiguard-db** → **Connections** → copier **External Database URL**
+2. **forensiguard-api** → **Environment** → ajouter `DATABASE_EXTERNAL_URL` = cette URL
+3. **Manual Deploy** sur `forensiguard-api`
+
+Poussez aussi le dernier `config.py` qui lit `DATABASE_EXTERNAL_URL` en priorité.

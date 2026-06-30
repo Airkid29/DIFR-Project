@@ -16,6 +16,7 @@ from .config import settings
 from .database import get_db
 from .init_db import init_db
 from . import models, schemas, tasks
+from . import oauth as oauth_service
 from .threat_intel import (
     get_integration_setting,
     validate_virustotal_api_key,
@@ -110,8 +111,7 @@ def _dispatch_yara_scan(job_id: str, filepath: str) -> None:
 @app.post("/api/auth/login", response_model=schemas.Token)
 def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == request.email).first()
-    if not user or not pwd_context.verify(request.password, user.password_hash):
-        # Audit fail entry
+    if not user:
         audit = models.AuditLog(
             user_email=request.email,
             action="LOGIN_FAILURE",
@@ -120,14 +120,31 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
         )
         db.add(audit)
         db.commit()
-        raise HTTPException(status_code=400, detail="Invalid email or password credentials")
+        raise HTTPException(status_code=400, detail="E-mail ou mot de passe incorrect.")
+
+    if not user.password_hash:
+        raise HTTPException(
+            status_code=400,
+            detail="Ce compte utilise la connexion Google ou GitHub.",
+        )
+
+    if not pwd_context.verify(request.password, user.password_hash):
+        audit = models.AuditLog(
+            user_email=request.email,
+            action="LOGIN_FAILURE",
+            resource="Credentials authentication",
+            status="failure"
+        )
+        db.add(audit)
+        db.commit()
+        raise HTTPException(status_code=400, detail="E-mail ou mot de passe incorrect.")
 
     # MFA Code challenge (TOTP static verify for MVP)
     if user.mfa_enabled:
         if not request.mfa_code:
-            raise HTTPException(status_code=402, detail="MFA Code required")
-        if request.mfa_code != "123456" and request.mfa_code != "000000": # Static verification values for easy testing
-            raise HTTPException(status_code=400, detail="Invalid Multi-Factor validation token")
+            raise HTTPException(status_code=402, detail="Code MFA requis.")
+        if request.mfa_code != "123456" and request.mfa_code != "000000":
+            raise HTTPException(status_code=400, detail="Code d'authentification multi-facteurs invalide.")
 
     token = create_access_token({"sub": user.email, "role": user.role})
     
@@ -141,6 +158,79 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
     db.add(audit)
     db.commit()
 
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.post("/api/auth/register", response_model=schemas.UserResponse)
+def register(request: schemas.UserRegister, db: Session = Depends(get_db)):
+    existing = db.query(models.User).filter(models.User.email == request.email).first()
+    if existing:
+        if existing.oauth_provider and not existing.password_hash:
+            raise HTTPException(
+                status_code=400,
+                detail="Cet e-mail est déjà enregistré via Google ou GitHub. Connectez-vous avec ce fournisseur.",
+            )
+        raise HTTPException(status_code=400, detail="Un compte existe déjà avec cette adresse e-mail.")
+    
+    hashed_pw = pwd_context.hash(request.password)
+    user = models.User(
+        name=request.name,
+        email=request.email,
+        password_hash=hashed_pw,
+        oauth_provider=None,
+        oauth_subject=None,
+        role="Viewer",
+        mfa_enabled=False,
+        is_active=True
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@app.get("/api/auth/oauth/{provider}/authorize", response_model=schemas.OAuthAuthorizeResponse)
+def oauth_authorize(provider: str, redirect_uri: str):
+    try:
+        return oauth_service.get_oauth_authorization_url(provider, redirect_uri)
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/auth/oauth/callback", response_model=schemas.Token)
+def oauth_callback(request: schemas.OAuthCallbackRequest, db: Session = Depends(get_db)):
+    if not oauth_service.verify_oauth_state(request.state, request.provider):
+        raise HTTPException(status_code=400, detail="État OAuth invalide ou expiré.")
+
+    try:
+        profile = oauth_service.exchange_oauth_code(
+            request.provider,
+            request.code,
+            request.redirect_uri,
+        )
+        user = oauth_service.upsert_oauth_user(db, profile)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Impossible de finaliser la connexion OAuth. Réessayez.",
+        ) from exc
+
+    if user.mfa_enabled:
+        raise HTTPException(
+            status_code=400,
+            detail="Les comptes MFA doivent utiliser la connexion par e-mail.",
+        )
+
+    token = create_access_token({"sub": user.email, "role": user.role})
+    audit = models.AuditLog(
+        user_email=user.email,
+        action="LOGIN_SUCCESS",
+        resource=f"OAuth {request.provider}",
+        status="success",
+    )
+    db.add(audit)
+    db.commit()
     return {"access_token": token, "token_type": "bearer"}
 
 # --- INCIDENTS ENDPOINTS ---

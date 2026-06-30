@@ -1,6 +1,7 @@
 // AUDIT LOG PAGE
 import React, { useState } from "react";
-import { History, Search, Download } from "lucide-react";
+import { Download } from "lucide-react";
+import { t } from "../i18n";
 
 interface AuditEntry {
   id: string;
@@ -72,13 +73,13 @@ export default function AuditLog() {
     <div style={s.container}>
       <div style={s.banner}>
         <div>
-          <h1 style={s.bannerTitle}>System Audit Logs</h1>
-          <p style={s.bannerDesc}>Immutable historical ledger logging all operational activities on security cases.</p>
+          <h1 style={s.bannerTitle}>{t("audit.title")}</h1>
+          <p style={s.bannerDesc}>{t("audit.desc")}</p>
         </div>
         <div style={s.topBar}>
           <button style={s.exportBtn} onClick={handleExportCsv} onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,0.05)"} onMouseOut={e => e.currentTarget.style.background = "transparent"}>
             <Download size={16} />
-            <span>Export Logs (CSV)</span>
+            <span>{t("audit.exportCsv")}</span>
           </button>
         </div>
       </div>
@@ -89,7 +90,7 @@ export default function AuditLog() {
           <input
             type="text"
             style={s.searchInput}
-            placeholder="Search logs (user, action, resource)..."
+            placeholder={t("audit.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -100,13 +101,13 @@ export default function AuditLog() {
         <table style={s.table}>
           <thead style={s.thead}>
             <tr>
-              <th style={s.th}>Audit ID</th>
-              <th style={s.th}>Precise Time</th>
-              <th style={s.th}>Analyst</th>
-              <th style={s.th}>Action Code</th>
-              <th style={s.th}>Resource</th>
-              <th style={s.th}>IP Address</th>
-              <th style={{ ...s.th, textAlign: "center" }}>Status</th>
+              <th style={s.th}>{t("audit.auditId")}</th>
+              <th style={s.th}>{t("audit.preciseTime")}</th>
+              <th style={s.th}>{t("audit.analyst")}</th>
+              <th style={s.th}>{t("audit.actionCode")}</th>
+              <th style={s.th}>{t("audit.resource")}</th>
+              <th style={s.th}>{t("audit.ipAddress")}</th>
+              <th style={{ ...s.th, textAlign: "center" }}>{t("audit.status")}</th>
             </tr>
           </thead>
           <tbody>
@@ -120,7 +121,7 @@ export default function AuditLog() {
                 <td style={s.td}>{log.ip}</td>
                 <td style={{ ...s.td, textAlign: "center" }}>
                   <span style={{ ...s.badge, ...(log.status === "success" ? s.badgeSuccess : s.badgeFailure) }}>
-                    {log.status === "success" ? "Success" : "Fail"}
+                    {log.status === "success" ? t("common.success") : t("common.fail")}
                   </span>
                 </td>
               </tr>

@@ -1,6 +1,7 @@
 // PROFILE PAGE
 import React, { useState } from "react";
 import { User, Smartphone, ShieldCheck, Clock3 } from "lucide-react";
+import { t } from "../i18n";
 
 export default function Profile() {
   const [mfaActive, setMfaActive] = useState(true);
@@ -12,7 +13,7 @@ export default function Profile() {
   const [accountMessage, setAccountMessage] = useState("");
 
   const handleSaveAccount = () => {
-    setAccountMessage("Account details saved successfully.");
+    setAccountMessage(t("profile.accountSaved"));
     window.setTimeout(() => setAccountMessage(""), 3200);
   };
 
@@ -41,7 +42,7 @@ export default function Profile() {
   const handleToggleMfa = () => {
     if (mfaActive) {
       setMfaActive(false);
-      setMfaMessage("MFA was disabled successfully.");
+      setMfaMessage(t("profile.mfaDisabled"));
     } else {
       setShowQrCode(true);
       setTotpInput("");
@@ -54,37 +55,37 @@ export default function Profile() {
     if (totpInput.length === 6 && !isNaN(Number(totpInput))) {
       setMfaActive(true);
       setShowQrCode(false);
-      setMfaMessage("MFA activated successfully.");
+      setMfaMessage(t("profile.mfaActivated"));
     } else {
-      alert("Invalid code. Please input the 6 digits from your authenticator app.");
+      alert(t("profile.invalidCode"));
     }
   };
 
   const activity = [
-    { title: "Case escalation reviewed", time: "10 mins ago" },
-    { title: "Evidence hash verified", time: "42 mins ago" },
-    { title: "MFA policy updated", time: "Today, 08:15" }
+    { title: t("profile.activity1"), time: t("profile.activity1Time") },
+    { title: t("profile.activity2"), time: t("profile.activity2Time") },
+    { title: t("profile.activity3"), time: t("profile.activity3Time") }
   ];
 
   return (
     <div style={s.shell}>
       <div style={s.banner}>
-        <h1 style={s.bannerTitle}>User Account Profile</h1>
-        <p style={s.bannerDesc}>Configure credentials, security controls, and review analyst activity in a polished operations-ready view.</p>
+        <h1 style={s.bannerTitle}>{t("profile.title")}</h1>
+        <p style={s.bannerDesc}>{t("profile.desc")}</p>
       </div>
 
       <div style={s.statGrid}>
         <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>Role</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#F9FAFB", marginTop: 6 }}>Administrator</div>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("profile.role")}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#F9FAFB", marginTop: 6 }}>{t("profile.administrator")}</div>
         </div>
         <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>Security Level</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#10B981", marginTop: 6 }}>Tier 3</div>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("profile.securityLevel")}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#10B981", marginTop: 6 }}>{t("profile.tier3")}</div>
         </div>
         <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>Last login</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#3B82F6", marginTop: 6 }}>14 min ago</div>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("profile.lastLogin")}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#3B82F6", marginTop: 6 }}>{t("profile.lastLoginAgo")}</div>
         </div>
       </div>
 
@@ -96,26 +97,26 @@ export default function Profile() {
             </div>
             <div>
               <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, color: "#F9FAFB" }}>{name}</div>
-              <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 2 }}>System Administrator</div>
+              <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 2 }}>{t("profile.systemAdmin")}</div>
             </div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" as const, gap: 16 }}>
             <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-              <span style={s.label}>Email Address</span>
+              <span style={s.label}>{t("profile.emailAddress")}</span>
               <div style={{ background: "#0A0E1A", padding: 12, borderRadius: 8, fontSize: 13, color: "#F9FAFB", fontFamily: "'JetBrains Mono', monospace" }}>{email}</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-              <span style={s.label}>Edit Full Name</span>
+              <span style={s.label}>{t("profile.editFullName")}</span>
               <input type="text" style={s.input} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
-            <button type="button" style={s.btn} onClick={handleSaveAccount} onMouseOver={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")} onMouseOut={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}>Save Account Details</button>
+            <button type="button" style={s.btn} onClick={handleSaveAccount} onMouseOver={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")} onMouseOut={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}>{t("profile.saveAccount")}</button>
             {accountMessage && <div style={{ marginTop: 12, fontSize: 12, color: "#10B981" }}>{accountMessage}</div>}
           </div>
         </div>
 
         <div style={s.card}>
-          <h3 style={s.cardTitle}>Multi-Factor Authentication</h3>
+          <h3 style={s.cardTitle}>{t("profile.mfaTitle")}</h3>
 
           {mfaMessage && (
             <div style={{ padding: 12, borderRadius: 8, background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.3)", color: "#10B981", fontSize: 13, marginBottom: 16 }}>
@@ -127,9 +128,9 @@ export default function Profile() {
             <div style={s.mfaText}>
               <div style={s.mfaLabel}>
                 <Smartphone size={16} style={{ color: "#3B82F6" }} />
-                <span>TOTP Authentication</span>
+                <span>{t("profile.totpAuth")}</span>
               </div>
-              <p style={s.mfaDesc}>Protects the account with a dynamic verification code from authenticator apps.</p>
+              <p style={s.mfaDesc}>{t("profile.totpDesc")}</p>
             </div>
             <button
               onClick={handleToggleMfa}
@@ -146,7 +147,7 @@ export default function Profile() {
                 transition: "all 0.2s"
               }}
             >
-              {mfaActive ? "Deactivate" : "Activate"}
+              {mfaActive ? t("common.deactivate") : t("common.activate")}
             </button>
           </div>
 
@@ -157,14 +158,14 @@ export default function Profile() {
                   <div style={s.qrPattern} />
                 </div>
                 <div style={{ fontSize: 13, color: "#9CA3AF", lineHeight: 1.6 }}>
-                  <div style={{ color: "#3B82F6", fontWeight: 700, fontSize: 12, textTransform: "uppercase", marginBottom: 8 }}>Scan QR Code</div>
-                  <p>1. Scan with your authenticator app</p>
-                  <p>2. Input the 6-digit code below</p>
+                  <div style={{ color: "#3B82F6", fontWeight: 700, fontSize: 12, textTransform: "uppercase", marginBottom: 8 }}>{t("profile.scanQr")}</div>
+                  <p>{t("profile.scanStep1")}</p>
+                  <p>{t("profile.scanStep2")}</p>
                 </div>
               </div>
               <form onSubmit={handleValidateMfaSetup} style={{ display: "flex", gap: 12 }}>
                 <input type="text" maxLength={6} placeholder="000000" style={{ width: 110, padding: 12, background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, textAlign: "center", fontSize: 20, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 8, color: "#F9FAFB" }} value={totpInput} onChange={(e) => setTotpInput(e.target.value)} required />
-                <button type="submit" style={s.btnSecondary}>Confirm</button>
+                <button type="submit" style={s.btnSecondary}>{t("common.confirm")}</button>
               </form>
             </div>
           )}
@@ -172,7 +173,7 @@ export default function Profile() {
           <div style={{ marginTop: 16, borderTop: "1px solid #1F2937", paddingTop: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#F9FAFB", fontWeight: 700 }}>
               <ShieldCheck size={16} style={{ color: "#10B981" }} />
-              <span>Latest security activities</span>
+              <span>{t("profile.latestActivities")}</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
               {activity.map((item) => (

@@ -1,6 +1,7 @@
 // TIMELINE PAGE
 import React, { useState } from "react";
-import { Plus, Filter, Clock, X, AlertTriangle, Loader } from "lucide-react";
+import { Plus, Clock } from "lucide-react";
+import { t } from "../i18n";
 
 interface TimelineEvent {
   id: string;
@@ -70,17 +71,17 @@ export default function Timeline() {
     <div style={s.container}>
       <div style={s.header}>
         <div>
-          <h1 style={s.title}>Attack Timeline</h1>
-          <p style={s.desc}>Chronological sequence of reconstructed attack events linked to incidents.</p>
+          <h1 style={s.title}>{t("timeline.title")}</h1>
+          <p style={s.desc}>{t("timeline.desc")}</p>
         </div>
         <button style={s.btn} onClick={() => setIsModalOpen(true)}>
           <Plus size={16} />
-          <span>Add Event</span>
+          <span>{t("timeline.addEvent")}</span>
         </button>
       </div>
 
       <div style={s.controlBar}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase" }}>Filter:</span>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase" }}>{t("common.filter")}:</span>
         {["all", "network", "process", "malware", "auth", "system"].map((cat) => (
           <button
             key={cat}
@@ -92,7 +93,7 @@ export default function Timeline() {
             }}
             onClick={() => setActiveCategory(cat)}
           >
-            {cat}
+            {cat === "all" ? t("common.all") : t(`common.${cat}`)}
           </button>
         ))}
       </div>
@@ -115,7 +116,7 @@ export default function Timeline() {
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                   <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#9CA3AF" }}>{formatDate(event.timestamp)}</span>
                   <span style={{ fontSize: 9, fontWeight: 700, color: event.importance === "high" ? "#EF4444" : "#F59E0B", textTransform: "uppercase" }}>
-                    {event.importance}
+                    {t(`common.${event.importance}`)}
                   </span>
                 </div>
                 <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 14, color: "#F9FAFB", marginBottom: 6 }}>
@@ -131,7 +132,7 @@ export default function Timeline() {
           {selectedEvent ? (
             <div style={s.detailPanel}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #1F2937", paddingBottom: 12 }}>
-                <span style={{ fontSize: 9, fontWeight: 700, color: "#3B82F6", textTransform: "uppercase" }}>{selectedEvent.category}</span>
+                <span style={{ fontSize: 9, fontWeight: 700, color: "#3B82F6", textTransform: "uppercase" }}>{t(`common.${selectedEvent.category}`)}</span>
                 <button onClick={() => setSelectedEvent(null)} style={{ background: "none", border: "none", color: "#9CA3AF", cursor: "pointer", fontSize: 18 }}>×</button>
               </div>
               <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 14, color: "#F9FAFB" }}>{selectedEvent.title}</h3>
@@ -140,13 +141,13 @@ export default function Timeline() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", padding: 12, borderRadius: 8 }}>
-                  <span style={{ fontSize: 8, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>Source</span>
+                  <span style={{ fontSize: 8, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("common.source")}</span>
                   <p style={{ fontSize: 11, color: "#F9FAFB", marginTop: 4, fontWeight: 600 }}>{selectedEvent.source}</p>
                 </div>
                 <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", padding: 12, borderRadius: 8 }}>
-                  <span style={{ fontSize: 8, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>Severity</span>
+                  <span style={{ fontSize: 8, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("common.severity")}</span>
                   <p style={{ fontSize: 11, color: selectedEvent.importance === "high" ? "#EF4444" : "#F59E0B", marginTop: 4, fontWeight: 700, textTransform: "uppercase" }}>
-                    {selectedEvent.importance}
+                    {t(`common.${selectedEvent.importance}`)}
                   </p>
                 </div>
               </div>
@@ -154,7 +155,7 @@ export default function Timeline() {
           ) : (
             <div style={{ ...s.detailPanel, textAlign: "center", alignItems: "center", justifyContent: "center", minHeight: 300 }}>
               <Clock size={32} style={{ opacity: 0.2, marginBottom: 12 }} />
-              <p style={{ fontSize: 12, color: "#9CA3AF" }}>Select an event to view details</p>
+              <p style={{ fontSize: 12, color: "#9CA3AF" }}>{t("timeline.selectEvent")}</p>
             </div>
           )}
         </div>
@@ -165,39 +166,39 @@ export default function Timeline() {
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)" }} onClick={() => setIsModalOpen(false)} />
           <div style={{ position: "relative", background: "#111827", border: "1px solid #1F2937", borderRadius: 12, padding: 20, maxWidth: 420, width: "100%", zIndex: 10 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #1F2937" }}>
-              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 16, color: "#F9FAFB" }}>Log Custom Event</h3>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 16, color: "#F9FAFB" }}>{t("timeline.modalTitle")}</h3>
               <button onClick={() => setIsModalOpen(false)} style={{ background: "none", border: "none", color: "#9CA3AF", cursor: "pointer", fontSize: 20 }}>×</button>
             </div>
             <form style={{ display: "flex", flexDirection: "column", gap: 16 }} onSubmit={(e) => { e.preventDefault(); setIsModalOpen(false); }}>
               <div>
-                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Event Title</label>
-                <input type="text" style={{ width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 12, outline: "none" }} placeholder="e.g. Remote execution shell" />
+                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("timeline.eventTitle")}</label>
+                <input type="text" style={{ width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 12, outline: "none" }} placeholder={t("timeline.eventPlaceholder")} />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Category</label>
+                  <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("timeline.category")}</label>
                   <select style={{ width: "100%", padding: "8px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 11 }}>
-                    <option>Network</option>
-                    <option>Process</option>
-                    <option>Malware</option>
-                    <option>Auth</option>
+                    <option>{t("common.network")}</option>
+                    <option>{t("common.process")}</option>
+                    <option>{t("common.malware")}</option>
+                    <option>{t("common.auth")}</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Importance</label>
+                  <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("timeline.importance")}</label>
                   <select style={{ width: "100%", padding: "8px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 11 }}>
-                    <option>High</option>
-                    <option>Medium</option>
-                    <option>Low</option>
+                    <option>{t("common.high")}</option>
+                    <option>{t("common.medium")}</option>
+                    <option>{t("common.low")}</option>
                   </select>
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Details</label>
-                <textarea style={{ width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", outline: "none", minHeight: 80 }} placeholder="Event details..." />
+                <label style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("common.details")}</label>
+                <textarea style={{ width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", outline: "none", minHeight: 80 }} placeholder={t("timeline.detailsPlaceholder")} />
               </div>
               <button style={{ padding: 12, background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
-                Add Event
+                {t("timeline.addEvent")}
               </button>
             </form>
           </div>

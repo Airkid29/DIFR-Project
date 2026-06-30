@@ -1,6 +1,7 @@
 // INCIDENTS PAGE
 import React, { useState } from "react";
 import { Plus, Search } from "lucide-react";
+import { t } from "../i18n";
 
 interface Incident {
   id: string;
@@ -62,26 +63,26 @@ export default function Incidents() {
     <div style={s.container}>
       <div style={s.header}>
         <div style={s.headerText}>
-          <h1 style={s.title}>Security Incident Logs</h1>
-          <p style={s.desc}>A richer incident workspace for analyst review, case progression, and executive-ready reporting.</p>
+          <h1 style={s.title}>{t("incidents.title")}</h1>
+          <p style={s.desc}>{t("incidents.desc")}</p>
         </div>
         <button style={s.btn} onClick={() => setIsModalOpen(true)}>
           <Plus size={16} />
-          <span>Log Incident</span>
+          <span>{t("incidents.logIncident")}</span>
         </button>
       </div>
 
       <div style={s.statGrid}>
         <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>Open cases</div>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("incidents.openCases")}</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: "#F9FAFB", marginTop: 6 }}>3</div>
         </div>
         <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>Critical</div>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("incidents.critical")}</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: "#EF4444", marginTop: 6 }}>1</div>
         </div>
         <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>Resolved</div>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("incidents.resolved")}</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: "#10B981", marginTop: 6 }}>2</div>
         </div>
       </div>
@@ -89,14 +90,14 @@ export default function Incidents() {
       <div style={s.controlBar}>
         <div style={s.searchWrap}>
           <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#9CA3AF" }} />
-          <input type="text" style={s.input} placeholder="Search incident ID, title..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <input type="text" style={s.input} placeholder={t("incidents.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <select style={{ padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, fontSize: 13, color: "#F9FAFB" }} value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}>
-          <option value="all">All Severities</option>
-          <option value="critical">Critical</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
+          <option value="all">{t("incidents.allSeverities")}</option>
+          <option value="critical">{t("common.critical")}</option>
+          <option value="high">{t("common.high")}</option>
+          <option value="medium">{t("common.medium")}</option>
+          <option value="low">{t("common.low")}</option>
         </select>
       </div>
 
@@ -104,11 +105,11 @@ export default function Incidents() {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #1F2937", background: "rgba(255,255,255,0.01)" }}>
-              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>Case ID</th>
-              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>Title</th>
-              <th style={{ padding: 16, textAlign: "center", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>Severity</th>
-              <th style={{ padding: 16, textAlign: "center", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>Status</th>
-              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>Created</th>
+              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("incidents.caseId")}</th>
+              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("common.title")}</th>
+              <th style={{ padding: 16, textAlign: "center", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("incidents.severity")}</th>
+              <th style={{ padding: 16, textAlign: "center", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("incidents.status")}</th>
+              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("incidents.created")}</th>
             </tr>
           </thead>
           <tbody>
@@ -123,10 +124,10 @@ export default function Incidents() {
                   </td>
                   <td style={{ padding: 16, textAlign: "center" }}>
                     <span style={{ ...s.badge, background: sevColor.bg, color: sevColor.color, border: `1px solid ${sevColor.border}` }}>
-                      {inc.severity}
+                      {t(`common.${inc.severity}`)}
                     </span>
                   </td>
-                  <td style={{ padding: 16, textAlign: "center", fontSize: 11, color: "#10B981", fontWeight: 700, textTransform: "uppercase" }}>{inc.status}</td>
+                  <td style={{ padding: 16, textAlign: "center", fontSize: 11, color: "#10B981", fontWeight: 700, textTransform: "uppercase" }}>{t(`common.${inc.status}`)}</td>
                   <td style={{ padding: 16, fontSize: 11, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>
                     {new Date(inc.created_at).toLocaleString()}
                   </td>
@@ -142,25 +143,25 @@ export default function Incidents() {
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)" }} onClick={() => setIsModalOpen(false)} />
           <div style={{ position: "relative", background: "#111827", border: "1px solid #1F2937", borderRadius: 12, padding: 20, maxWidth: 440, width: "100%", zIndex: 10 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #1F2937" }}>
-              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, color: "#F9FAFB" }}>Log Security Incident</h3>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, color: "#F9FAFB" }}>{t("incidents.modalTitle")}</h3>
               <button onClick={() => setIsModalOpen(false)} style={{ background: "none", border: "none", color: "#9CA3AF", cursor: "pointer", fontSize: 22 }}>×</button>
             </div>
             <form style={{ display: "flex", flexDirection: "column", gap: 16 }} onSubmit={(e) => { e.preventDefault(); setIsModalOpen(false); }}>
               <div>
-                <label style={{ fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Title</label>
-                <input type="text" style={s.input} placeholder="e.g. SSH brute force attempt" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+                <label style={{ fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("common.title")}</label>
+                <input type="text" style={s.input} placeholder={t("incidents.titlePlaceholder")} value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
               </div>
               <div>
-                <label style={{ fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Severity</label>
+                <label style={{ fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("incidents.severity")}</label>
                 <select style={s.input} value={newSeverity} onChange={(e) => setNewSeverity(e.target.value as Incident["severity"])}>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="critical">Critical</option>
+                  <option value="low">{t("common.low")}</option>
+                  <option value="medium">{t("common.medium")}</option>
+                  <option value="high">{t("common.high")}</option>
+                  <option value="critical">{t("common.critical")}</option>
                 </select>
               </div>
               <button style={{ padding: 12, background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
-                Create Incident
+                {t("incidents.createIncident")}
               </button>
             </form>
           </div>

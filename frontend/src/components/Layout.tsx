@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../utils/api";
 import CommandPalette from "./CommandPalette";
 import NotificationDrawer from "./NotificationDrawer";
+import { t } from "../i18n";
 
 interface Notification {
   id: string;
@@ -69,25 +70,25 @@ export default function Layout() {
     {
       id: "n-1",
       type: "critical",
-      title: "YARA Rules Match",
-      description: "suspicious_payload.exe matched CobaltStrike rule",
-      time: "2m ago",
+      title: "Correspondance règles YARA",
+      description: "suspicious_payload.exe a correspondé à la règle CobaltStrike",
+      time: "il y a 2 min",
       read: false
     },
     {
       id: "n-2",
       type: "success",
-      title: "Audit Log Generated",
-      description: "Incident INC-2026-001 audit log generated successfully",
-      time: "1h ago",
+      title: "Journal d'audit généré",
+      description: "Journal d'audit de l'incident INC-2026-001 généré avec succès",
+      time: "il y a 1 h",
       read: true
     },
     {
       id: "n-3",
       type: "info",
-      title: "New Team Member",
-      description: "Sarah Jenkins was assigned to Incident Response L3",
-      time: "4h ago",
+      title: "Nouveau membre d'équipe",
+      description: "Sarah Jenkins a été assignée à la réponse aux incidents L3",
+      time: "il y a 4 h",
       read: true
     }
   ]);
@@ -130,14 +131,14 @@ export default function Layout() {
   };
 
   const menuItems = [
-    { name: "Dashboard", path: "/dashboard", icon: Home },
-    { name: "Incidents", path: "/incidents", icon: ShieldAlert },
-    { name: "File Analysis", path: "/analysis", icon: FileSearch },
-    { name: "Evidence & Custody", path: "/evidence", icon: Database },
-    { name: "Investigation Timeline", path: "/timeline", icon: Clock },
-    { name: "User Management", path: "/users", icon: UsersIcon, adminOnly: true },
-    { name: "Audit Log", path: "/audit", icon: History, adminOnly: true },
-    { name: "Settings", path: "/settings", icon: SettingsIcon },
+    { name: t("nav.dashboard"), path: "/dashboard", icon: Home },
+    { name: t("nav.incidents"), path: "/incidents", icon: ShieldAlert },
+    { name: t("nav.fileAnalysis"), path: "/analysis", icon: FileSearch },
+    { name: t("nav.evidence"), path: "/evidence", icon: Database },
+    { name: t("nav.timeline"), path: "/timeline", icon: Clock },
+    { name: t("nav.users"), path: "/users", icon: UsersIcon, adminOnly: true },
+    { name: t("nav.audit"), path: "/audit", icon: History, adminOnly: true },
+    { name: t("nav.settings"), path: "/settings", icon: SettingsIcon },
   ];
 
   // Filter menu items by user role if user profile is available
@@ -266,7 +267,7 @@ export default function Layout() {
             className="w-full flex items-center space-x-3 px-3 py-3 rounded-lg border border-transparent text-sm text-brand-text-secondary hover:bg-brand-crimson/5 hover:text-brand-crimson transition-all cursor-pointer"
           >
             <LogOut className="h-4.5 w-4.5 shrink-0" />
-            {isSidebarOpen && <span className="font-medium">Sign Out</span>}
+            {isSidebarOpen && <span className="font-medium">{t("common.logout")}</span>}
           </button>
         </div>
       </aside>
@@ -290,7 +291,7 @@ export default function Layout() {
               className="flex items-center space-x-2.5 w-10 md:w-56 h-9 md:h-auto justify-center md:justify-start px-0 md:px-2.5 py-1.5 bg-brand-abyssal border border-brand-border hover:border-brand-cyan/35 rounded-lg text-brand-text-secondary text-xs text-left transition-colors cursor-pointer"
             >
               <Search className="h-3.5 w-3.5 shrink-0" />
-              <span className="hidden md:inline">Search console...</span>
+              <span className="hidden md:inline">{t("nav.searchPlaceholder")}</span>
               <kbd className="hidden md:inline ml-auto text-[9px] bg-brand-card border border-brand-border px-1 py-0.5 rounded text-brand-text-secondary font-mono">
                 Ctrl+K
               </kbd>
@@ -311,7 +312,7 @@ export default function Layout() {
             <button 
               onClick={toggleTheme}
               className="p-1.5 hover:bg-theme-tint rounded-md text-brand-text-secondary hover:text-brand-text-primary transition-colors cursor-pointer"
-              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              title={theme === "dark" ? t("nav.switchToLight") : t("nav.switchToDark")}
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>

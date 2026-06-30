@@ -1,9 +1,9 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ShieldCheck, Play, ArrowRight, Activity, Database, Cpu } from "lucide-react";
+import { t } from "../i18n";
 
 export default function Landing() {
-  const navigate = useNavigate();
   const s: Record<string, React.CSSProperties> = {
     shell: { minHeight: "100vh", background: "#0A0E1A", color: "#F9FAFB", fontFamily: "'Inter', system-ui, sans-serif" },
     header: { height: 80, borderBottom: "1px solid #1F2937", background: "rgba(10, 14, 26, 0.8)", backdropFilter: "blur(10px)", position: "sticky", top: 0, zIndex: 50 },
@@ -82,6 +82,32 @@ export default function Landing() {
     footerLinks: { display: "flex", gap: 32 },
   };
 
+  const features = [
+    { icon: Cpu, title: t("landing.feature1Title"), desc: t("landing.feature1Desc") },
+    { icon: Database, title: t("landing.feature2Title"), desc: t("landing.feature2Desc") },
+    { icon: Activity, title: t("landing.feature3Title"), desc: t("landing.feature3Desc") },
+  ];
+
+  const platformItems = [
+    { title: t("landing.platform1Title"), desc: t("landing.platform1Desc") },
+    { title: t("landing.platform2Title"), desc: t("landing.platform2Desc") },
+    { title: t("landing.platform3Title"), desc: t("landing.platform3Desc") },
+  ];
+
+  const proFeatures = [
+    t("landing.proFeature1"),
+    t("landing.proFeature2"),
+    t("landing.proFeature3"),
+    t("landing.proFeature4"),
+  ];
+
+  const enterpriseFeatures = [
+    t("landing.enterpriseFeature1"),
+    t("landing.enterpriseFeature2"),
+    t("landing.enterpriseFeature3"),
+    t("landing.enterpriseFeature4"),
+  ];
+
   return (
     <div style={s.shell}>
       <style>{`
@@ -102,14 +128,14 @@ export default function Landing() {
           </div>
 
           <nav style={s.nav}>
-            <a href="#features" style={s.navLink}>Features</a>
-            <a href="#platform" style={s.navLink}>Platform</a>
-            <a href="#pricing" style={s.navLink}>Pricing</a>
+            <a href="#features" style={s.navLink}>{t("landing.features")}</a>
+            <a href="#platform" style={s.navLink}>{t("landing.platform")}</a>
+            <a href="#pricing" style={s.navLink}>{t("landing.pricing")}</a>
           </nav>
 
           <div style={s.header_right}>
-            <Link to="/login" style={s.loginLink}>Login</Link>
-            <button type="button" style={s.trialBtn} onClick={() => navigate('/login')}>Start Free Trial</button>
+            <Link to="/login" style={s.loginLink}>{t("landing.login")}</Link>
+            <Link to="/register" style={s.trialBtn}>{t("landing.startTrial")}</Link>
           </div>
         </div>
       </header>
@@ -121,18 +147,18 @@ export default function Landing() {
             <div>
               <div style={s.heroTag}>
                 <div style={s.heroPulse} />
-                <span>Enterprise Cybersecurity Platform</span>
+                <span>{t("landing.heroTag")}</span>
               </div>
-              <h1 style={s.heroTitle}>Next-Gen Incident Response</h1>
-              <p style={s.heroDesc}>Automated evidence collection with cryptographic integrity, YARA signature scanning, and compliance-ready reports. Built for enterprise SOCs.</p>
+              <h1 style={s.heroTitle}>{t("landing.heroTitle")}</h1>
+              <p style={s.heroDesc}>{t("landing.heroDesc")}</p>
               <div style={s.heroButtons}>
-                <Link to="/login" style={s.btnPrimary}>
-                  <span>Start Free Trial</span>
+                <Link to="/register" style={s.btnPrimary}>
+                  <span>{t("landing.startTrial")}</span>
                   <ArrowRight size={16} />
                 </Link>
                 <a href="#features" style={s.btnSecondary}>
                   <Play size={16} style={{ color: "#3B82F6" }} />
-                  <span>Learn More</span>
+                  <span>{t("landing.learnMore")}</span>
                 </a>
               </div>
             </div>
@@ -165,14 +191,10 @@ export default function Landing() {
       {/* Features */}
       <section id="features" style={s.featuresSection}>
         <div style={s.featuresInner}>
-          <h2 style={s.sectionTitle}>Complete Incident Triage</h2>
-          <p style={s.sectionDesc}>Everything needed to investigate, document, and remediate security incidents with forensic rigor and compliance.</p>
+          <h2 style={s.sectionTitle}>{t("landing.featuresTitle")}</h2>
+          <p style={s.sectionDesc}>{t("landing.featuresDesc")}</p>
           <div style={s.featuresGrid}>
-            {[
-              { icon: Cpu, title: "YARA Rules Triage", desc: "Scan executables, memory dumps, and documents against industry-standard malware signatures instantly." },
-              { icon: Database, title: "Cryptographic Custody", desc: "Immutable evidence chain-of-custody with SHA-256 hashing, timestamps, and compliance audit logs." },
-              { icon: Activity, title: "Threat Intelligence", desc: "Correlate indicators with live security feeds and malware reputation databases in real time." }
-            ].map((f, i) => (
+            {features.map((f, i) => (
               <div key={i} style={s.featureCard} onMouseOver={e => e.currentTarget.style.borderColor = "#3B82F6"} onMouseOut={e => e.currentTarget.style.borderColor = "#1F2937"}>
                 <div style={s.featureIcon}><f.icon size={24} /></div>
                 <h3 style={s.featureTitle}>{f.title}</h3>
@@ -186,14 +208,10 @@ export default function Landing() {
       {/* Platform */}
       <section id="platform" style={s.platformSection}>
         <div style={s.featuresInner}>
-          <h2 style={s.sectionTitle}>Designed for Security Teams</h2>
-          <p style={s.sectionDesc}>A modern platform purpose-built for forensic analysts and SOC operations to centralize case management and automate triage.</p>
+          <h2 style={s.sectionTitle}>{t("landing.platformTitle")}</h2>
+          <p style={s.sectionDesc}>{t("landing.platformDesc")}</p>
           <div style={s.platformGrid}>
-            {[
-              { title: "Case Coordination", desc: "Triage incidents, assign analysts, and maintain complete audit trails for compliance." },
-              { title: "Evidence Integrity", desc: "Store forensic artifacts with SHA-256 provenance and immutable chain-of-custody." },
-              { title: "Automated Triage", desc: "Background YARA scanning surfaces high-priority threats without tool switching." }
-            ].map((p, i) => (
+            {platformItems.map((p, i) => (
               <div key={i} style={s.platformCard} onMouseOver={e => e.currentTarget.style.borderColor = "#3B82F6"} onMouseOut={e => e.currentTarget.style.borderColor = "#1F2937"}>
                 <h3 style={{ ...s.featureTitle, marginBottom: 12 }}>{p.title}</h3>
                 <p style={s.featureDesc}>{p.desc}</p>
@@ -206,44 +224,44 @@ export default function Landing() {
       {/* Pricing */}
       <section id="pricing" style={s.pricingSection}>
         <div style={s.featuresInner}>
-          <h2 style={s.sectionTitle}>Transparent Pricing</h2>
-          <p style={s.sectionDesc}>Scale-as-you-grow plans for teams of any size. No lock-ins, no surprises.</p>
+          <h2 style={s.sectionTitle}>{t("landing.pricingTitle")}</h2>
+          <p style={s.sectionDesc}>{t("landing.pricingDesc")}</p>
           <div style={s.pricingGrid}>
             <div style={s.priceCard}>
               <div style={{ marginBottom: 32 }}>
-                <div style={s.priceTier}>For Growing Teams</div>
-                <h3 style={s.priceName}>Professional</h3>
-                <p style={s.priceDesc}>Mid-size companies & IR consultants</p>
-                <div style={s.priceAmount}>$249<span style={{ fontSize: 14, color: "#9CA3AF" }}> / month</span></div>
+                <div style={s.priceTier}>{t("landing.proTier")}</div>
+                <h3 style={s.priceName}>{t("landing.proName")}</h3>
+                <p style={s.priceDesc}>{t("landing.proDesc")}</p>
+                <div style={s.priceAmount}>$249<span style={{ fontSize: 14, color: "#9CA3AF" }}>{t("common.perMonth")}</span></div>
               </div>
               <div style={s.priceList}>
-                {["Up to 10 Active Incidents", "SHA-256 Hash Calculation", "YARA Signature Scanning", "3 Analyst Accounts"].map((item, i) => (
+                {proFeatures.map((item, i) => (
                   <div key={i} style={s.priceItem}>
                     <div style={s.priceBullet} />
                     <span>{item}</span>
                   </div>
                 ))}
               </div>
-              <Link to="/login" style={{ ...s.priceBtn, ...s.priceBtnSecondary }}>Get Started</Link>
+              <Link to="/register" style={{ ...s.priceBtn, ...s.priceBtnSecondary }}>{t("landing.getStarted")}</Link>
             </div>
 
             <div style={{ ...s.priceCard, ...s.priceCardActive }}>
-              <div style={s.priceCardBadge}>Most Popular</div>
+              <div style={s.priceCardBadge}>{t("landing.mostPopular")}</div>
               <div style={{ marginBottom: 32, marginTop: 8 }}>
-                <div style={s.priceTier}>For Enterprise</div>
-                <h3 style={s.priceName}>Enterprise</h3>
-                <p style={s.priceDesc}>Large teams & MSSPs requiring audits</p>
-                <div style={s.priceAmount}>$899<span style={{ fontSize: 14, color: "#9CA3AF" }}> / month</span></div>
+                <div style={s.priceTier}>{t("landing.enterpriseTier")}</div>
+                <h3 style={s.priceName}>{t("landing.enterpriseName")}</h3>
+                <p style={s.priceDesc}>{t("landing.enterpriseDesc")}</p>
+                <div style={s.priceAmount}>$899<span style={{ fontSize: 14, color: "#9CA3AF" }}>{t("common.perMonth")}</span></div>
               </div>
               <div style={s.priceList}>
-                {["Unlimited Active Incidents", "Custom YARA Signatures", "MFA, SSO & RBAC Roles", "Cryptographic Audit Logs"].map((item, i) => (
+                {enterpriseFeatures.map((item, i) => (
                   <div key={i} style={s.priceItem}>
                     <div style={s.priceBullet} />
                     <span>{item}</span>
                   </div>
                 ))}
               </div>
-              <Link to="/login" style={{ ...s.priceBtn, ...s.priceBtnPrimary }}>Contact Sales</Link>
+              <Link to="/register" style={{ ...s.priceBtn, ...s.priceBtnPrimary }}>{t("landing.contactSales")}</Link>
             </div>
           </div>
         </div>
@@ -252,10 +270,10 @@ export default function Landing() {
       {/* CTA */}
       <section style={s.ctaSection}>
         <div style={s.ctaInner}>
-          <h2 style={s.ctaTitle}>Ready to automate incident response?</h2>
-          <p style={s.ctaDesc}>Join enterprise SOCs using ForensiGuard to detect, investigate, and remediate threats 10x faster.</p>
-          <Link to="/login" style={s.btnPrimary}>
-            <span>Start Your Free Trial</span>
+          <h2 style={s.ctaTitle}>{t("landing.ctaTitle")}</h2>
+          <p style={s.ctaDesc}>{t("landing.ctaDesc")}</p>
+          <Link to="/register" style={s.btnPrimary}>
+            <span>{t("landing.startYourTrial")}</span>
             <ArrowRight size={18} />
           </Link>
         </div>
@@ -264,11 +282,11 @@ export default function Landing() {
       {/* Footer */}
       <footer style={s.footer}>
         <div style={s.footerInner}>
-          <p>© 2026 ForensiGuard Inc. All rights reserved.</p>
+          <p>{t("landing.footerRights")}</p>
           <div style={s.footerLinks}>
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Docs</a>
+            <a href="#">{t("landing.privacy")}</a>
+            <a href="#">{t("landing.terms")}</a>
+            <a href="#">{t("landing.docs")}</a>
           </div>
         </div>
       </footer>

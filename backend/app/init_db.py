@@ -18,6 +18,8 @@ def migrate_schema():
             conn.execute(text("ALTER TABLE users ADD COLUMN oauth_provider VARCHAR(50)"))
         if "oauth_subject" not in columns:
             conn.execute(text("ALTER TABLE users ADD COLUMN oauth_subject VARCHAR(255)"))
+        if "last_login" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN last_login TIMESTAMP"))
         if dialect == "postgresql" and "password_hash" in columns:
             conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
 

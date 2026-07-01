@@ -28,27 +28,27 @@
 }
 
 :root[data-theme="light"] {
-  --brand-abyssal: #F0F3FA;
-  --brand-card: #ffffff;
-  --brand-border: #D5DEEF;
-  --brand-text-primary: #395886;
-  --brand-text-secondary: #638ECB;
+  --brand-abyssal: #E8EEF7;
+  --brand-card: #FFFFFF;
+  --brand-border: #C5D4EA;
+  --brand-text-primary: #1A2D4D;
+  --brand-text-secondary: #4A6B9A;
 
-  --brand-cyan: #395886;
-  --brand-emerald: #2e7a57;
-  --brand-amber: #8a6820;
-  --brand-crimson: #9e3a4a;
-  --brand-info: #628ECB;
+  --brand-cyan: #2B5A9E;
+  --brand-emerald: #1F7A52;
+  --brand-amber: #9A7220;
+  --brand-crimson: #B83248;
+  --brand-info: #3D6DB5;
 
-  --glass-bg: rgba(240, 243, 250, 0.92);
-  --glass-border: var(--brand-border);
-  --theme-text-title: #395886;
-  --theme-white-bg-tint: rgba(57, 88, 134, 0.04);
-  --theme-subtle-bg: rgba(57, 88, 134, 0.02);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: #C5D4EA;
+  --theme-text-title: #1A2D4D;
+  --theme-white-bg-tint: rgba(43, 90, 158, 0.06);
+  --theme-subtle-bg: rgba(43, 90, 158, 0.03);
 
-  --glow-cyan-shadow: 0 4px 12px rgba(57, 88, 134, 0.08);
-  --glow-emerald-shadow: 0 4px 12px rgba(57, 88, 134, 0.04);
-  --glow-crimson-shadow: 0 4px 12px rgba(57, 88, 134, 0.04);
+  --glow-cyan-shadow: 0 2px 8px rgba(43, 90, 158, 0.1);
+  --glow-emerald-shadow: 0 2px 8px rgba(31, 122, 82, 0.08);
+  --glow-crimson-shadow: 0 2px 8px rgba(184, 50, 72, 0.08);
 }
 
 @theme {
@@ -121,9 +121,14 @@ body {
 }
 
 :root[data-theme="light"] .app-bg {
-  opacity: 0.15;
-  background-image: radial-gradient(rgba(57, 88, 134, 0.07) 1px, transparent 1px),
-                    radial-gradient(rgba(99, 142, 203, 0.05) 1px, transparent 1px);
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(43, 90, 158, 0.08) 1px, transparent 1px),
+                    radial-gradient(rgba(74, 107, 154, 0.05) 1px, transparent 1px);
+}
+
+:root[data-theme="light"] .btn-primary {
+  color: #ffffff;
+  background: var(--brand-cyan);
 }
 
 ::-webkit-scrollbar {

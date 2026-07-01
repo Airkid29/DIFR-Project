@@ -13,12 +13,15 @@ class User(Base):
     oauth_provider = Column(String(50), nullable=True)
     oauth_subject = Column(String(255), nullable=True)
     role = Column(String(50), default="Viewer")  # Admin, Analyst, Responder, Viewer
+    account_type = Column(String(50), default="professional")  # professional, enterprise
+    organization_name = Column(String(255), nullable=True)
     mfa_secret = Column(String(100), nullable=True)
     mfa_enabled = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     last_login = Column(DateTime, nullable=True)
 
     incidents = relationship("Incident", back_populates="owner")
+    activity_history = relationship("ActivityHistory", back_populates="user", cascade="all, delete-orphan")
 
 
 class Incident(Base):
@@ -95,10 +98,26 @@ class AuditLog(Base):
     status = Column(String(50), default="success")  # success, failure
 
 
+class ActivityHistory(Base):
+    __tablename__ = "activity_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    action_type = Column(String(50), nullable=False)  # scan, report, intel, incident, evidence, timeline
+    title = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    resource_id = Column(String(255), nullable=True)
+    extra_data = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="activity_history")
+
+
 class YaraJob(Base):
     __tablename__ = "yara_jobs"
 
     id = Column(String(100), primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     filepath = Column(String(255), nullable=False)
     status = Column(String(50), default="pending")  # pending, processing, completed, failed
     score = Column(Integer, default=0)

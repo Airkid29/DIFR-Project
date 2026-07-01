@@ -1,188 +1,176 @@
-// PROFILE PAGE
-import React, { useState } from "react";
-import { User, Smartphone, ShieldCheck, Clock3 } from "lucide-react";
+// PROFILE PAGE — API-backed with password change
+import React, { useEffect, useState } from "react";
+import { User, Smartphone, ShieldCheck, Clock3, KeyRound, Building2 } from "lucide-react";
+import { api } from "../utils/api";
+import { ps } from "../utils/pageStyles";
 import { t } from "../i18n";
 
+interface UserProfile {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  account_type: string;
+  organization_name?: string;
+  mfa_enabled: boolean;
+  last_login?: string;
+}
+
+interface ActivityItem {
+  id: number;
+  title: string;
+  created_at: string;
+}
+
 export default function Profile() {
-  const [mfaActive, setMfaActive] = useState(true);
-  const [name, setName] = useState("Rachid BAWA");
-  const [email] = useState("rachcode@forensiguard.com");
-  const [showQrCode, setShowQrCode] = useState(false);
-  const [totpInput, setTotpInput] = useState("");
-  const [mfaMessage, setMfaMessage] = useState("");
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [name, setName] = useState("");
+  const [orgName, setOrgName] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [accountMessage, setAccountMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
 
-  const handleSaveAccount = () => {
-    setAccountMessage(t("profile.accountSaved"));
-    window.setTimeout(() => setAccountMessage(""), 3200);
-  };
+  useEffect(() => {
+    api.get("/api/auth/me").then((data) => {
+      setUser(data);
+      setName(data.name);
+      setOrgName(data.organization_name || "");
+    }).catch(console.error);
+    api.get("/api/history?limit=5").then(setActivity).catch(console.error);
+  }, []);
 
-  const s: Record<string, React.CSSProperties> = {
-    shell: { display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 1100, margin: "0 auto" },
-    banner: { display: "flex", flexDirection: "column" as const, gap: 8 },
-    bannerTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 34, color: "#F9FAFB", letterSpacing: -1, marginBottom: 12 },
-    bannerDesc: { fontSize: 14, color: "#9CA3AF", lineHeight: 1.7 },
-    grid: { display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 24, alignItems: "start" },
-    card: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 14, padding: 24, display: "flex", flexDirection: "column" as const, gap: 16 },
-    cardTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 16, marginBottom: 16 },
-    label: { fontSize: 10, fontWeight: 600, color: "#6B7280", letterSpacing: 0.7, textTransform: "uppercase" as const, marginBottom: 8, display: "block" },
-    input: { width: "100%", padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontSize: 13, outline: "none" },
-    btn: { width: "100%", padding: 12, background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontWeight: 600, fontSize: 13, cursor: "pointer", transition: "all 0.2s" },
-    btnSecondary: { padding: "10px 16px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer", fontSize: 13 },
-    mfaBox: { background: "#111827", border: "1px solid #1F2937", borderRadius: 10, padding: 16, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 },
-    mfaText: { flex: 1, display: "flex", flexDirection: "column" as const, gap: 4 },
-    mfaLabel: { display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: "#F9FAFB" },
-    mfaDesc: { fontSize: 13, color: "#9CA3AF", lineHeight: 1.6, marginTop: 4 },
-    qrCode: { width: 128, height: 128, background: "#fff", padding: 8, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" },
-    qrPattern: { width: "100%", height: "100%", background: "repeating-linear-gradient(45deg,#000,#000_10px,#fff_10px,#fff_20px)", opacity: 0.8 },
-    statGrid: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 },
-    statCard: { background: "rgba(255,255,255,0.03)", border: "1px solid #1F2937", borderRadius: 10, padding: 14 }
-  };
-
-  const handleToggleMfa = () => {
-    if (mfaActive) {
-      setMfaActive(false);
-      setMfaMessage(t("profile.mfaDisabled"));
-    } else {
-      setShowQrCode(true);
-      setTotpInput("");
-      setMfaMessage("");
+  const handleSaveAccount = async () => {
+    try {
+      const updated = await api.put("/api/auth/me", {
+        name,
+        organization_name: user?.account_type === "enterprise" ? orgName : undefined,
+      });
+      setUser(updated);
+      setAccountMessage(t("profile.accountSaved"));
+      window.setTimeout(() => setAccountMessage(""), 3200);
+    } catch {
+      setAccountMessage(t("common.serverError"));
     }
   };
 
-  const handleValidateMfaSetup = (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (totpInput.length === 6 && !isNaN(Number(totpInput))) {
-      setMfaActive(true);
-      setShowQrCode(false);
-      setMfaMessage(t("profile.mfaActivated"));
-    } else {
-      alert(t("profile.invalidCode"));
+    setPasswordError("");
+    if (newPassword !== confirmPassword) {
+      setPasswordError(t("auth.passwordsMismatch"));
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError(t("auth.passwordMinLength"));
+      return;
+    }
+    try {
+      await api.post("/api/auth/change-password", {
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+      setPasswordMessage(t("profile.passwordChanged"));
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      window.setTimeout(() => setPasswordMessage(""), 3200);
+    } catch (err: unknown) {
+      setPasswordError(err instanceof Error ? err.message : t("common.serverError"));
     }
   };
 
-  const activity = [
-    { title: t("profile.activity1"), time: t("profile.activity1Time") },
-    { title: t("profile.activity2"), time: t("profile.activity2Time") },
-    { title: t("profile.activity3"), time: t("profile.activity3Time") }
-  ];
+  if (!user) {
+    return <div style={ps.muted}>{t("common.loading")}</div>;
+  }
 
   return (
-    <div style={s.shell}>
-      <div style={s.banner}>
-        <h1 style={s.bannerTitle}>{t("profile.title")}</h1>
-        <p style={s.bannerDesc}>{t("profile.desc")}</p>
+    <div style={{ ...ps.container, maxWidth: 1100, margin: "0 auto" }}>
+      <div>
+        <h1 style={ps.title}>{t("profile.title")}</h1>
+        <p style={ps.desc}>{t("profile.desc")}</p>
       </div>
 
-      <div style={s.statGrid}>
-        <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("profile.role")}</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#F9FAFB", marginTop: 6 }}>{t("profile.administrator")}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
+        <div style={ps.card}>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--brand-text-secondary)" }}>{t("profile.role")}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--brand-text-primary)", marginTop: 6 }}>{user.role}</div>
         </div>
-        <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("profile.securityLevel")}</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#10B981", marginTop: 6 }}>{t("profile.tier3")}</div>
+        <div style={ps.card}>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--brand-text-secondary)" }}>{t("profile.accountType")}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--brand-cyan)", marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+            {user.account_type === "enterprise" ? <Building2 size={18} /> : <User size={18} />}
+            {user.account_type === "enterprise" ? t("auth.enterpriseAccount") : t("auth.professionalAccount")}
+          </div>
         </div>
-        <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("profile.lastLogin")}</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#3B82F6", marginTop: 6 }}>{t("profile.lastLoginAgo")}</div>
+        <div style={ps.card}>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--brand-text-secondary)" }}>{t("profile.lastLogin")}</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "var(--brand-emerald)", marginTop: 6 }}>
+            {user.last_login ? new Date(user.last_login).toLocaleString() : t("common.never")}
+          </div>
         </div>
       </div>
 
-      <div style={s.grid}>
-        <div style={s.card}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #1F2937", paddingBottom: 16, marginBottom: 20 }}>
-            <div style={{ width: 52, height: 52, background: "rgba(59, 130, 246, 0.1)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#3B82F6" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
+        <div style={ps.card}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid var(--brand-border)", paddingBottom: 16, marginBottom: 20 }}>
+            <div style={{ width: 52, height: 52, background: "rgba(99,142,203,0.1)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-cyan)" }}>
               <User size={24} />
             </div>
             <div>
-              <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, color: "#F9FAFB" }}>{name}</div>
-              <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 2 }}>{t("profile.systemAdmin")}</div>
+              <div style={{ fontWeight: 700, fontSize: 18, color: "var(--brand-text-primary)" }}>{user.name}</div>
+              <div style={ps.muted}>{user.email}</div>
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: 16 }}>
-            <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-              <span style={s.label}>{t("profile.emailAddress")}</span>
-              <div style={{ background: "#0A0E1A", padding: 12, borderRadius: 8, fontSize: 13, color: "#F9FAFB", fontFamily: "'JetBrains Mono', monospace" }}>{email}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <span style={ps.label}>{t("profile.editFullName")}</span>
+              <input type="text" style={ps.input} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-              <span style={s.label}>{t("profile.editFullName")}</span>
-              <input type="text" style={s.input} value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <button type="button" style={s.btn} onClick={handleSaveAccount} onMouseOver={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")} onMouseOut={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}>{t("profile.saveAccount")}</button>
-            {accountMessage && <div style={{ marginTop: 12, fontSize: 12, color: "#10B981" }}>{accountMessage}</div>}
+            {user.account_type === "enterprise" && (
+              <div>
+                <span style={ps.label}>{t("auth.organizationName")}</span>
+                <input type="text" style={ps.input} value={orgName} onChange={(e) => setOrgName(e.target.value)} />
+              </div>
+            )}
+            <button type="button" style={ps.btnSecondary} onClick={handleSaveAccount}>{t("profile.saveAccount")}</button>
+            {accountMessage && <div style={{ ...ps.success, fontSize: 12 }}>{accountMessage}</div>}
           </div>
         </div>
 
-        <div style={s.card}>
-          <h3 style={s.cardTitle}>{t("profile.mfaTitle")}</h3>
+        <div style={ps.card}>
+          <h3 style={{ fontWeight: 700, fontSize: 16, color: "var(--brand-text-primary)", borderBottom: "1px solid var(--brand-border)", paddingBottom: 12, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+            <KeyRound size={16} />
+            {t("profile.changePassword")}
+          </h3>
+          <form onSubmit={handleChangePassword} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div><span style={ps.label}>{t("profile.currentPassword")}</span><input type="password" style={ps.input} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required /></div>
+            <div><span style={ps.label}>{t("profile.newPassword")}</span><input type="password" style={ps.input} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} /></div>
+            <div><span style={ps.label}>{t("common.confirmPassword")}</span><input type="password" style={ps.input} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required /></div>
+            {passwordError && <div style={{ ...ps.danger, fontSize: 12 }}>{passwordError}</div>}
+            {passwordMessage && <div style={{ ...ps.success, fontSize: 12 }}>{passwordMessage}</div>}
+            <button type="submit" style={ps.btnPrimary}>{t("profile.updatePassword")}</button>
+          </form>
 
-          {mfaMessage && (
-            <div style={{ padding: 12, borderRadius: 8, background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.3)", color: "#10B981", fontSize: 13, marginBottom: 16 }}>
-              {mfaMessage}
+          <div style={{ marginTop: 20, borderTop: "1px solid var(--brand-border)", paddingTop: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 13, color: "var(--brand-text-primary)", marginBottom: 12 }}>
+              <ShieldCheck size={16} style={{ color: "var(--brand-emerald)" }} />
+              {t("profile.latestActivities")}
             </div>
-          )}
-
-          <div style={s.mfaBox}>
-            <div style={s.mfaText}>
-              <div style={s.mfaLabel}>
-                <Smartphone size={16} style={{ color: "#3B82F6" }} />
-                <span>{t("profile.totpAuth")}</span>
-              </div>
-              <p style={s.mfaDesc}>{t("profile.totpDesc")}</p>
-            </div>
-            <button
-              onClick={handleToggleMfa}
-              style={{
-                padding: "10px 16px",
-                background: mfaActive ? "rgba(239, 68, 68, 0.1)" : "rgba(16, 185, 129, 0.1)",
-                color: mfaActive ? "#EF4444" : "#10B981",
-                border: mfaActive ? "1px solid rgba(239, 68, 68, 0.2)" : "1px solid rgba(16, 185, 129, 0.2)",
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                transition: "all 0.2s"
-              }}
-            >
-              {mfaActive ? t("common.deactivate") : t("common.activate")}
-            </button>
-          </div>
-
-          {showQrCode && (
-            <div style={{ marginTop: 16, padding: 16, background: "rgba(59, 130, 246, 0.05)", border: "1px solid rgba(59, 130, 246, 0.2)", borderRadius: 8, display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                <div style={s.qrCode}>
-                  <div style={s.qrPattern} />
+            {activity.length === 0 ? (
+              <p style={ps.muted}>{t("history.empty")}</p>
+            ) : (
+              activity.map((item) => (
+                <div key={item.id} style={{ ...ps.card, padding: 10, marginBottom: 8, display: "flex", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ fontSize: 12, color: "var(--brand-text-primary)" }}>{item.title}</span>
+                  <span style={{ ...ps.muted, fontSize: 10, display: "flex", alignItems: "center", gap: 4 }}><Clock3 size={10} />{new Date(item.created_at).toLocaleString()}</span>
                 </div>
-                <div style={{ fontSize: 13, color: "#9CA3AF", lineHeight: 1.6 }}>
-                  <div style={{ color: "#3B82F6", fontWeight: 700, fontSize: 12, textTransform: "uppercase", marginBottom: 8 }}>{t("profile.scanQr")}</div>
-                  <p>{t("profile.scanStep1")}</p>
-                  <p>{t("profile.scanStep2")}</p>
-                </div>
-              </div>
-              <form onSubmit={handleValidateMfaSetup} style={{ display: "flex", gap: 12 }}>
-                <input type="text" maxLength={6} placeholder="000000" style={{ width: 110, padding: 12, background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, textAlign: "center", fontSize: 20, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 8, color: "#F9FAFB" }} value={totpInput} onChange={(e) => setTotpInput(e.target.value)} required />
-                <button type="submit" style={s.btnSecondary}>{t("common.confirm")}</button>
-              </form>
-            </div>
-          )}
-
-          <div style={{ marginTop: 16, borderTop: "1px solid #1F2937", paddingTop: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#F9FAFB", fontWeight: 700 }}>
-              <ShieldCheck size={16} style={{ color: "#10B981" }} />
-              <span>{t("profile.latestActivities")}</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
-              {activity.map((item) => (
-                <div key={item.title} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.03)", border: "1px solid #1F2937", borderRadius: 8, padding: 10 }}>
-                  <span style={{ fontSize: 12, color: "#F9FAFB" }}>{item.title}</span>
-                  <span style={{ fontSize: 11, color: "#9CA3AF", display: "flex", alignItems: "center", gap: 6 }}><Clock3 size={12} />{item.time}</span>
-                </div>
-              ))}
-            </div>
+              ))
+            )}
           </div>
         </div>
       </div>

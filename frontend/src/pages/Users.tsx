@@ -10,6 +10,8 @@ interface TeamMember {
   name: string;
   email: string;
   role: string;
+  account_type?: string;
+  organization_name?: string;
   mfa_enabled: boolean;
   last_login?: string | null;
 }
@@ -137,6 +139,12 @@ export default function Users() {
                 <td style={{ padding: 16 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: "#F9FAFB", marginBottom: 4 }}>{member.name}</div>
                   <div style={{ fontSize: 10, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>{member.email}</div>
+                  {member.account_type && (
+                    <div style={{ fontSize: 9, marginTop: 4, color: member.account_type === "enterprise" ? "#10B981" : "#3B82F6", fontWeight: 700, textTransform: "uppercase" }}>
+                      {member.account_type === "enterprise" ? t("auth.enterpriseAccount") : t("auth.professionalAccount")}
+                      {member.organization_name ? ` · ${member.organization_name}` : ""}
+                    </div>
+                  )}
                 </td>
                 <td style={{ padding: 16 }}>
                   <select

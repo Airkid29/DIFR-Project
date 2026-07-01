@@ -40,7 +40,7 @@ export default function Dashboard() {
     desc: { fontSize: 14, color: "#9CA3AF", lineHeight: 1.6 },
     headerButtons: { display: "flex", gap: 12, flexWrap: "wrap" },
     btn: { padding: "12px 18px", background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 10, color: "#F9FAFB", fontWeight: 600, fontSize: 13, cursor: "pointer" },
-    btnPrimary: { background: "#FFFFFF", border: "none", color: "#FFFFFF" },
+    btnPrimary: { background: "#FFFFFF", border: "none", color: "#000000" },
     metricsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 },
     metricCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 14, padding: 20, display: "flex", justifyContent: "space-between", alignItems: "flex-start", minHeight: 124 },
     metricContent: { display: "flex", flexDirection: "column", gap: 8 },

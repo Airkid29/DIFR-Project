@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { t } from "../../i18n";
 
 export const authStyles: Record<string, React.CSSProperties> = {
@@ -31,12 +32,13 @@ export const authStyles: Record<string, React.CSSProperties> = {
   btnLink: { background: "none", border: "none", color: "#3B82F6", fontSize: 11, cursor: "pointer", width: "100%", textAlign: "center" as const, marginTop: 16, padding: 6 },
 };
 
-export function AuthShell({ children, title, subtitle, showSteps, step }: {
+export function AuthShell({ children, title, subtitle, showSteps, step, showBackHome }: {
   children: React.ReactNode;
   title: string;
   subtitle: string;
   showSteps?: boolean;
   step?: 1 | 2;
+  showBackHome?: boolean;
 }) {
   const s = authStyles;
   const StepDot = ({ active }: { active: boolean }) => (
@@ -79,6 +81,11 @@ export function AuthShell({ children, title, subtitle, showSteps, step }: {
         </div>
         <div style={s.right}>
           <div style={s.formContainer}>
+            {showBackHome && (
+              <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, color: "#6B7280", textDecoration: "none", marginBottom: 16 }}>
+                ← {t("auth.backToHome")}
+              </Link>
+            )}
             {showSteps && (
               <div style={s.stepDots}>
                 <StepDot active={step === 1} />

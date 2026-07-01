@@ -39,15 +39,44 @@ class UserRegister(BaseModel):
     name: str
     email: EmailStr
     password: str
+    account_type: str = "professional"  # professional | enterprise
+    organization_name: Optional[str] = None
+
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    organization_name: Optional[str] = None
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
 
 class UserResponse(UserBase):
     id: int
+    account_type: str = "professional"
+    organization_name: Optional[str] = None
     mfa_enabled: bool
     is_active: bool
     last_login: Optional[datetime]
 
     class Config:
         from_attributes = True
+
+class ActivityHistoryResponse(BaseModel):
+    id: int
+    user_id: int
+    action_type: str
+    title: str
+    description: Optional[str]
+    resource_id: Optional[str]
+    extra_data: Dict[str, Any] = {}
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ThreatIntelLookup(BaseModel):
+    indicator: str
+    indicator_type: str  # hash, url, domain, ip
 
 # Incident Schemas
 class IncidentCreate(BaseModel):

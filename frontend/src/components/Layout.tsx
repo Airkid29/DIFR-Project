@@ -6,6 +6,8 @@ import {
   FileSearch, 
   Database, 
   Clock, 
+  Globe,
+  Archive,
   Users as UsersIcon, 
   Settings as SettingsIcon, 
   History, 
@@ -43,7 +45,16 @@ export default function Layout() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
-  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; role: string; account_type?: string } | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme") || "dark";
+    if (saved === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+  }, []);
 
   useEffect(() => {
     // Load active profile
@@ -131,14 +142,16 @@ export default function Layout() {
   };
 
   const menuItems = [
-    { name: t("nav.dashboard"), path: "/dashboard", icon: Home },
-    { name: t("nav.incidents"), path: "/incidents", icon: ShieldAlert },
-    { name: t("nav.fileAnalysis"), path: "/analysis", icon: FileSearch },
-    { name: t("nav.evidence"), path: "/evidence", icon: Database },
-    { name: t("nav.timeline"), path: "/timeline", icon: Clock },
-    { name: t("nav.users"), path: "/users", icon: UsersIcon, adminOnly: true },
-    { name: t("nav.audit"), path: "/audit", icon: History, adminOnly: true },
-    { name: t("nav.settings"), path: "/settings", icon: SettingsIcon },
+    { name: t("nav.dashboard"), path: "/dashboard", icon: Home, group: "ops" },
+    { name: t("nav.incidents"), path: "/incidents", icon: ShieldAlert, group: "ops" },
+    { name: t("nav.fileAnalysis"), path: "/analysis", icon: FileSearch, group: "investigation" },
+    { name: t("nav.threatIntel"), path: "/intel", icon: Globe, group: "investigation" },
+    { name: t("nav.evidence"), path: "/evidence", icon: Database, group: "investigation" },
+    { name: t("nav.timeline"), path: "/timeline", icon: Clock, group: "investigation" },
+    { name: t("nav.history"), path: "/history", icon: Archive, group: "investigation" },
+    { name: t("nav.users"), path: "/users", icon: UsersIcon, adminOnly: true, group: "admin" },
+    { name: t("nav.audit"), path: "/audit", icon: History, adminOnly: true, group: "admin" },
+    { name: t("nav.settings"), path: "/settings", icon: SettingsIcon, group: "admin" },
   ];
 
   // Filter menu items by user role if user profile is available
@@ -151,7 +164,7 @@ export default function Layout() {
 
   const handleLogout = () => {
     localStorage.removeItem("forensiguard_token");
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -204,13 +217,16 @@ export default function Layout() {
           </div>
 
           {/* Navigation Menu */}
-          <nav className="px-4 py-3 space-y-2">
-            {visibleMenuItems.map((item) => {
+          <nav className="px-3 py-4 flex flex-col gap-1">
+            {visibleMenuItems.map((item, index) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
+              const prevGroup = index > 0 ? visibleMenuItems[index - 1].group : null;
+              const showDivider = prevGroup && item.group && prevGroup !== item.group;
               return (
+                <React.Fragment key={item.name}>
+                  {showDivider && <div className="h-px bg-brand-border my-2 mx-1" />}
                 <Link
-                  key={item.name}
                   to={item.path}
                   onClick={() => {
                     if (window.innerWidth <= 1024) {
@@ -227,6 +243,7 @@ export default function Layout() {
                   {isSidebarOpen && <span>{item.name}</span>}
                   {isActive && isSidebarOpen && <ChevronRight className="h-3.5 w-3.5 ml-auto text-brand-cyan" />}
                 </Link>
+                </React.Fragment>
               );
             })}
           </nav>
@@ -254,7 +271,7 @@ export default function Layout() {
                   <p className="text-xs font-semibold text-brand-text-primary truncate">{user?.name || "RachCode"}</p>
                   {user?.role && (
                     <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/15 uppercase">
-                      {user.role}
+                      {user.account_type === "enterprise" ? "ENT" : user.role}
                     </span>
                   )}
                 </div>

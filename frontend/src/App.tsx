@@ -19,6 +19,8 @@ import Users from "./pages/Users";
 import AuditLog from "./pages/AuditLog";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
+import History from "./pages/History";
+import ThreatIntel from "./pages/ThreatIntel";
 
 // Initialize Query Client for TanStack Query API calls
 const queryClient = new QueryClient({
@@ -66,6 +68,8 @@ export default function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="incidents" element={<Incidents />} />
             <Route path="analysis" element={<FileAnalysis />} />
+            <Route path="intel" element={<ThreatIntel />} />
+            <Route path="history" element={<History />} />
             <Route path="report/:id" element={<Report />} />
             <Route path="evidence" element={<Evidence />} />
             <Route path="timeline" element={<Timeline />} />

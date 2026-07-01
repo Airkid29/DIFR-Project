@@ -1,6 +1,6 @@
 from sqlalchemy import inspect, text
 from .database import engine, Base
-from .models import User, Incident, Evidence, CustodyHistory, TimelineEvent, AuditLog, YaraJob
+from .models import User, Incident, Evidence, CustodyHistory, TimelineEvent, AuditLog, YaraJob, ActivityHistory
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -20,8 +20,18 @@ def migrate_schema():
             conn.execute(text("ALTER TABLE users ADD COLUMN oauth_subject VARCHAR(255)"))
         if "last_login" not in columns:
             conn.execute(text("ALTER TABLE users ADD COLUMN last_login TIMESTAMP"))
+        if "account_type" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN account_type VARCHAR(50) DEFAULT 'professional'"))
+        if "organization_name" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN organization_name VARCHAR(255)"))
         if dialect == "postgresql" and "password_hash" in columns:
             conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
+
+    if "yara_jobs" in inspector.get_table_names():
+        yara_cols = {col["name"] for col in inspector.get_columns("yara_jobs")}
+        with engine.begin() as conn:
+            if "user_id" not in yara_cols:
+                conn.execute(text("ALTER TABLE yara_jobs ADD COLUMN user_id INTEGER REFERENCES users(id)"))
 
 def init_db():
     # Construct database schemas

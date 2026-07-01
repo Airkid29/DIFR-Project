@@ -22,6 +22,7 @@ from .threat_intel import (
     validate_virustotal_api_key,
     validate_otx_api_key,
     lookup_hash_intel,
+    lookup_indicator_intel,
 )
 
 # Auth Context
@@ -106,6 +107,26 @@ def _dispatch_yara_scan(job_id: str, filepath: str) -> None:
 
     threading.Thread(target=run_scan, daemon=True).start()
 
+def log_activity(
+    db: Session,
+    user_id: int,
+    action_type: str,
+    title: str,
+    description: Optional[str] = None,
+    resource_id: Optional[str] = None,
+    extra_data: Optional[Dict[str, Any]] = None,
+):
+    entry = models.ActivityHistory(
+        user_id=user_id,
+        action_type=action_type,
+        title=title,
+        description=description,
+        resource_id=resource_id,
+        extra_data=extra_data or {},
+    )
+    db.add(entry)
+    db.commit()
+
 # --- AUTH ENDPOINTS ---
 
 @app.post("/api/auth/login", response_model=schemas.Token)
@@ -122,13 +143,7 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
         db.commit()
         raise HTTPException(status_code=400, detail="E-mail ou mot de passe incorrect.")
 
-    if not user.password_hash:
-        raise HTTPException(
-            status_code=400,
-            detail="Ce compte utilise la connexion Google ou GitHub.",
-        )
-
-    if not pwd_context.verify(request.password, user.password_hash):
+    if not user.password_hash or not pwd_context.verify(request.password, user.password_hash):
         audit = models.AuditLog(
             user_email=request.email,
             action="LOGIN_FAILURE",
@@ -147,6 +162,7 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Code d'authentification multi-facteurs invalide.")
 
     token = create_access_token({"sub": user.email, "role": user.role})
+    user.last_login = datetime.datetime.utcnow()
     
     # Audit success entry
     audit = models.AuditLog(
@@ -162,23 +178,29 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
 
 @app.post("/api/auth/register", response_model=schemas.UserResponse)
 def register(request: schemas.UserRegister, db: Session = Depends(get_db)):
+    if request.account_type not in ("professional", "enterprise"):
+        raise HTTPException(status_code=400, detail="Type de compte invalide.")
+    if request.account_type == "enterprise" and not (request.organization_name or "").strip():
+        raise HTTPException(status_code=400, detail="Le nom de l'organisation est requis pour un compte Entreprise.")
+
     existing = db.query(models.User).filter(models.User.email == request.email).first()
     if existing:
-        if existing.oauth_provider and not existing.password_hash:
-            raise HTTPException(
-                status_code=400,
-                detail="Cet e-mail est déjà enregistré via Google ou GitHub. Connectez-vous avec ce fournisseur.",
-            )
-        raise HTTPException(status_code=400, detail="Un compte existe déjà avec cette adresse e-mail.")
+        raise HTTPException(
+            status_code=400,
+            detail="Impossible de créer le compte. Vérifiez vos informations ou connectez-vous.",
+        )
     
     hashed_pw = pwd_context.hash(request.password)
+    default_role = "Analyst" if request.account_type == "professional" else "Admin"
     user = models.User(
         name=request.name,
         email=request.email,
         password_hash=hashed_pw,
         oauth_provider=None,
         oauth_subject=None,
-        role="Viewer",
+        role=default_role,
+        account_type=request.account_type,
+        organization_name=request.organization_name.strip() if request.organization_name else None,
         mfa_enabled=False,
         is_active=True
     )
@@ -264,7 +286,67 @@ def create_incident(inc: schemas.IncidentCreate, db: Session = Depends(get_db), 
     db.add(audit)
     db.commit()
 
+    log_activity(
+        db,
+        current_user.id,
+        "incident",
+        f"Incident créé : {new_id}",
+        description=inc.title,
+        resource_id=new_id,
+    )
+
     return new_inc
+
+@app.get("/api/incidents/{incident_id}", response_model=schemas.IncidentResponse)
+def get_incident(incident_id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    inc = db.query(models.Incident).filter(models.Incident.id == incident_id).first()
+    if not inc:
+        raise HTTPException(status_code=404, detail="Incident introuvable.")
+    return inc
+
+@app.patch("/api/incidents/{incident_id}", response_model=schemas.IncidentResponse)
+def update_incident(
+    incident_id: str,
+    update: schemas.IncidentUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role(["Admin", "Analyst", "Responder"])),
+):
+    inc = db.query(models.Incident).filter(models.Incident.id == incident_id).first()
+    if not inc:
+        raise HTTPException(status_code=404, detail="Incident introuvable.")
+
+    if update.status is not None:
+        inc.status = update.status
+        if update.status == "resolved":
+            inc.closed_at = datetime.datetime.utcnow()
+    if update.severity is not None:
+        inc.severity = update.severity
+    if update.owner_id is not None:
+        inc.owner_id = update.owner_id
+    if update.description is not None:
+        inc.description = update.description
+
+    db.commit()
+    db.refresh(inc)
+
+    audit = models.AuditLog(
+        user_email=current_user.email,
+        action="INCIDENT_UPDATE",
+        resource=incident_id,
+        status="success",
+    )
+    db.add(audit)
+    db.commit()
+
+    log_activity(
+        db,
+        current_user.id,
+        "incident",
+        f"Incident mis à jour : {incident_id}",
+        description=f"Statut : {inc.status}, Sévérité : {inc.severity}",
+        resource_id=incident_id,
+    )
+    return inc
 
 # --- EVIDENCE & CHAIN OF CUSTODY ENDPOINTS ---
 
@@ -307,6 +389,15 @@ def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db),
     )
     db.add(audit)
     db.commit()
+
+    log_activity(
+        db,
+        current_user.id,
+        "evidence",
+        f"Preuve enregistrée : {new_id}",
+        description=ev.name,
+        resource_id=new_id,
+    )
 
     return new_ev
 
@@ -384,6 +475,16 @@ def add_timeline_event(event: schemas.TimelineEventCreate, db: Session = Depends
     db.add(new_event)
     db.commit()
     db.refresh(new_event)
+
+    log_activity(
+        db,
+        current_user.id,
+        "timeline",
+        f"Événement ajouté : {event.title}",
+        description=f"Incident {event.incident_id}",
+        resource_id=str(new_event.id),
+        extra_data={"incident_id": event.incident_id},
+    )
 
     return new_event
 
@@ -467,6 +568,34 @@ def validate_integration_keys(request: schemas.IntegrationSettingsUpdate, db: Se
 @app.post("/api/intel/hash", response_model=schemas.ThreatIntelResponse)
 def lookup_hash_intel_endpoint(request: schemas.ThreatIntelHashLookup, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     virustotal_result, otx_result, messages = lookup_hash_intel(db, request.sha256_hash)
+    log_activity(
+        db,
+        current_user.id,
+        "intel",
+        f"Recherche hash : {request.sha256_hash[:16]}…",
+        description="; ".join(messages[:3]) if messages else None,
+        resource_id=request.sha256_hash,
+        extra_data={"indicator_type": "hash"},
+    )
+    return {
+        "virustotal": virustotal_result,
+        "otx": otx_result,
+        "messages": messages,
+    }
+
+
+@app.post("/api/intel/lookup", response_model=schemas.ThreatIntelResponse)
+def lookup_indicator_endpoint(request: schemas.ThreatIntelLookup, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    virustotal_result, otx_result, messages = lookup_indicator_intel(db, request.indicator, request.indicator_type)
+    log_activity(
+        db,
+        current_user.id,
+        "intel",
+        f"Recherche {request.indicator_type} : {request.indicator[:80]}",
+        description="; ".join(messages[:3]) if messages else None,
+        resource_id=request.indicator,
+        extra_data={"indicator_type": request.indicator_type},
+    )
     return {
         "virustotal": virustotal_result,
         "otx": otx_result,
@@ -490,6 +619,7 @@ def trigger_yara_scan(file: UploadFile = File(...), db: Session = Depends(get_db
     # Create DB entry
     job = models.YaraJob(
         id=job_id,
+        user_id=current_user.id,
         filepath=filepath,
         status="pending"
     )
@@ -509,6 +639,16 @@ def trigger_yara_scan(file: UploadFile = File(...), db: Session = Depends(get_db
     db.add(audit)
     db.commit()
 
+    log_activity(
+        db,
+        current_user.id,
+        "scan",
+        f"Analyse YARA : {file.filename}",
+        description=f"Job {job_id}",
+        resource_id=job_id,
+        extra_data={"filename": file.filename},
+    )
+
     return job
 
 @app.get("/api/yara/job/{id}", response_model=schemas.YaraJobResponse)
@@ -523,6 +663,58 @@ def get_yara_job(id: str, db: Session = Depends(get_db)):
 @app.get("/api/auth/me", response_model=schemas.UserResponse)
 def get_me(current_user: models.User = Depends(get_current_user)):
     return current_user
+
+@app.put("/api/auth/me", response_model=schemas.UserResponse)
+def update_me(
+    request: schemas.ProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if request.name is not None:
+        current_user.name = request.name.strip()
+    if request.organization_name is not None and current_user.account_type == "enterprise":
+        current_user.organization_name = request.organization_name.strip() or None
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+@app.post("/api/auth/change-password")
+def change_password(
+    request: schemas.PasswordChangeRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not current_user.password_hash:
+        raise HTTPException(status_code=400, detail="Ce compte n'a pas de mot de passe local configuré.")
+    if not pwd_context.verify(request.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Mot de passe actuel incorrect.")
+    if len(request.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Le nouveau mot de passe doit contenir au moins 8 caractères.")
+    current_user.password_hash = pwd_context.hash(request.new_password)
+    db.commit()
+    audit = models.AuditLog(
+        user_email=current_user.email,
+        action="PASSWORD_CHANGE",
+        resource="User account",
+        status="success",
+    )
+    db.add(audit)
+    db.commit()
+    return {"status": "success", "detail": "Mot de passe mis à jour."}
+
+@app.get("/api/history", response_model=List[schemas.ActivityHistoryResponse])
+def get_activity_history(
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    return (
+        db.query(models.ActivityHistory)
+        .filter(models.ActivityHistory.user_id == current_user.id)
+        .order_by(models.ActivityHistory.created_at.desc())
+        .limit(min(limit, 200))
+        .all()
+    )
 
 @app.get("/api/users", response_model=List[schemas.UserResponse])
 def get_users(db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin"]))):

@@ -88,6 +88,7 @@ export default function Login() {
       subtitle={subtitle}
       showSteps
       step={step}
+      showBackHome
     >
       <AuthError message={error} />
 

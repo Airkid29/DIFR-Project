@@ -1,6 +1,9 @@
-// INCIDENTS PAGE
-import React, { useState } from "react";
-import { Plus, Search } from "lucide-react";
+// INCIDENTS PAGE — API-backed with interactive detail panel
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Search, Clock, Database, X, ChevronRight } from "lucide-react";
+import { api } from "../utils/api";
+import { ps, severityColors } from "../utils/pageStyles";
 import { t } from "../i18n";
 
 interface Incident {
@@ -9,90 +12,121 @@ interface Incident {
   severity: "critical" | "high" | "medium" | "low";
   status: "open" | "triage" | "resolved";
   created_at: string;
-  description: string;
+  description?: string;
+  owner_id?: number;
 }
 
 export default function Incidents() {
-  const [incidents] = useState<Incident[]>([
-    { id: "INC-2026-001", title: "Ransomware outbreak on DC01", severity: "critical", status: "open", created_at: "2026-06-27T02:45:00Z", description: "Suspicious file execution detected on a domain controller" },
-    { id: "INC-2026-002", title: "SSH brute force on WebServer-01", severity: "high", status: "triage", created_at: "2026-06-27T00:55:00Z", description: "Multiple failed login attempts against the admin account" },
-    { id: "INC-2026-003", title: "Phishing lure delivered to finance mailbox", severity: "high", status: "open", created_at: "2026-06-26T15:10:00Z", description: "Credential harvesting email with an invoice PDF" },
-    { id: "INC-2026-004", title: "Suspicious PowerShell execution on analyst host", severity: "medium", status: "resolved", created_at: "2026-06-25T11:20:00Z", description: "Encoded script downloaded from an internal share" },
-    { id: "INC-2026-005", title: "Unusual smb traffic from backup appliance", severity: "medium", status: "triage", created_at: "2026-06-24T19:05:00Z", description: "Large data transfer outside business hours" },
-    { id: "INC-2026-006", title: "USB device inserted on executive laptop", severity: "low", status: "resolved", created_at: "2026-06-24T08:35:00Z", description: "Approved removable media activity after review" }
-  ]);
-
+  const navigate = useNavigate();
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterSeverity, setFilterSeverity] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selected, setSelected] = useState<Incident | null>(null);
   const [newTitle, setNewTitle] = useState("");
+  const [newDesc, setNewDesc] = useState("");
   const [newSeverity, setNewSeverity] = useState<Incident["severity"]>("medium");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const s: Record<string, React.CSSProperties> = {
-    container: { display: "flex", flexDirection: "column", gap: 24 },
-    header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 24 },
-    headerText: { flex: 1 },
-    title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 32, color: "#F9FAFB", letterSpacing: -1, marginBottom: 8 },
-    desc: { fontSize: 14, color: "#9CA3AF", lineHeight: 1.6 },
-    btn: { padding: "12px 20px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
-    controlBar: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" },
-    searchWrap: { position: "relative", flex: 1, minWidth: 240, maxWidth: 360 },
-    input: { width: "100%", padding: "10px 12px 10px 40px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, fontSize: 13, color: "#F9FAFB", outline: "none" },
-    table: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, overflow: "hidden" },
-    badge: { display: "inline-block", padding: "4px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" },
-    statGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 },
-    statCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16 }
+  const loadIncidents = () => {
+    setLoading(true);
+    api.get("/api/incidents")
+      .then((data) => setIncidents(data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   };
 
-  const getSeverityColor = (sev: Incident["severity"]) => {
-    const colors = {
-      critical: { bg: "rgba(239, 68, 68, 0.1)", color: "#EF4444", border: "rgba(239, 68, 68, 0.2)" },
-      high: { bg: "rgba(251, 146, 60, 0.1)", color: "#FB923C", border: "rgba(251, 146, 60, 0.2)" },
-      medium: { bg: "rgba(59, 130, 246, 0.1)", color: "#3B82F6", border: "rgba(59, 130, 246, 0.2)" },
-      low: { bg: "rgba(255, 255, 255, 0.05)", color: "#9CA3AF", border: "rgba(255, 255, 255, 0.1)" }
-    };
-    return colors[sev];
-  };
+  useEffect(() => { loadIncidents(); }, []);
 
-  const filtered = incidents.filter((inc) =>
-    inc.title.toLowerCase().includes(search.toLowerCase()) &&
-    (filterSeverity === "all" || inc.severity === filterSeverity)
+  const filtered = incidents.filter(
+    (inc) =>
+      (inc.title.toLowerCase().includes(search.toLowerCase()) ||
+        inc.id.toLowerCase().includes(search.toLowerCase())) &&
+      (filterSeverity === "all" || inc.severity === filterSeverity)
   );
 
+  const stats = {
+    open: incidents.filter((i) => i.status === "open" || i.status === "triage").length,
+    critical: incidents.filter((i) => i.severity === "critical" && i.status !== "resolved").length,
+    resolved: incidents.filter((i) => i.status === "resolved").length,
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim()) return;
+    setSaving(true);
+    setError("");
+    try {
+      await api.post("/api/incidents", {
+        title: newTitle,
+        severity: newSeverity,
+        description: newDesc || undefined,
+      });
+      setIsModalOpen(false);
+      setNewTitle("");
+      setNewDesc("");
+      loadIncidents();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t("common.serverError"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateStatus = async (id: string, status: Incident["status"]) => {
+    try {
+      const updated = await api.patch(`/api/incidents/${id}`, { status });
+      setIncidents((prev) => prev.map((i) => (i.id === id ? updated : i)));
+      if (selected?.id === id) setSelected(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const updateSeverity = async (id: string, severity: Incident["severity"]) => {
+    try {
+      const updated = await api.patch(`/api/incidents/${id}`, { severity });
+      setIncidents((prev) => prev.map((i) => (i.id === id ? updated : i)));
+      if (selected?.id === id) setSelected(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <div style={s.container}>
-      <div style={s.header}>
-        <div style={s.headerText}>
-          <h1 style={s.title}>{t("incidents.title")}</h1>
-          <p style={s.desc}>{t("incidents.desc")}</p>
+    <div style={ps.container}>
+      <div style={ps.header}>
+        <div style={{ flex: 1 }}>
+          <h1 style={ps.title}>{t("incidents.title")}</h1>
+          <p style={ps.desc}>{t("incidents.desc")}</p>
         </div>
-        <button style={s.btn} onClick={() => setIsModalOpen(true)}>
+        <button type="button" style={ps.btnPrimary} onClick={() => setIsModalOpen(true)}>
           <Plus size={16} />
           <span>{t("incidents.logIncident")}</span>
         </button>
       </div>
 
-      <div style={s.statGrid}>
-        <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("incidents.openCases")}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#F9FAFB", marginTop: 6 }}>3</div>
-        </div>
-        <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("incidents.critical")}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#EF4444", marginTop: 6 }}>1</div>
-        </div>
-        <div style={s.statCard}>
-          <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#6B7280" }}>{t("incidents.resolved")}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#10B981", marginTop: 6 }}>2</div>
-        </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
+        {[
+          { label: t("incidents.openCases"), value: stats.open, color: "var(--brand-text-primary)" },
+          { label: t("incidents.critical"), value: stats.critical, color: "var(--brand-crimson)" },
+          { label: t("incidents.resolved"), value: stats.resolved, color: "var(--brand-emerald)" },
+        ].map((s) => (
+          <div key={s.label} style={ps.card}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--brand-text-secondary)" }}>{s.label}</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: s.color, marginTop: 6 }}>{s.value}</div>
+          </div>
+        ))}
       </div>
 
-      <div style={s.controlBar}>
-        <div style={s.searchWrap}>
-          <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#9CA3AF" }} />
-          <input type="text" style={s.input} placeholder={t("incidents.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
+      <div style={{ ...ps.card, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ position: "relative", flex: 1, minWidth: 240, maxWidth: 360 }}>
+          <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--brand-text-secondary)" }} />
+          <input type="text" style={{ ...ps.input, paddingLeft: 40 }} placeholder={t("incidents.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <select style={{ padding: "10px 12px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, fontSize: 13, color: "#F9FAFB" }} value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}>
+        <select style={ps.select} value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}>
           <option value="all">{t("incidents.allSeverities")}</option>
           <option value="critical">{t("common.critical")}</option>
           <option value="high">{t("common.high")}</option>
@@ -101,67 +135,152 @@ export default function Incidents() {
         </select>
       </div>
 
-      <div style={s.table}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #1F2937", background: "rgba(255,255,255,0.01)" }}>
-              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("incidents.caseId")}</th>
-              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("common.title")}</th>
-              <th style={{ padding: 16, textAlign: "center", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("incidents.severity")}</th>
-              <th style={{ padding: 16, textAlign: "center", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("incidents.status")}</th>
-              <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>{t("incidents.created")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((inc) => {
-              const sevColor = getSeverityColor(inc.severity);
-              return (
-                <tr key={inc.id} style={{ borderBottom: "1px solid rgba(31,41,55,0.4)", transition: "background 0.2s" }} onMouseOver={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")} onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}>
-                  <td style={{ padding: 16, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: "#3B82F6" }}>{inc.id}</td>
-                  <td style={{ padding: 16, color: "#F9FAFB", fontWeight: 600 }}>
-                    <div>{inc.title}</div>
-                    <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 4 }}>{inc.description}</div>
-                  </td>
-                  <td style={{ padding: 16, textAlign: "center" }}>
-                    <span style={{ ...s.badge, background: sevColor.bg, color: sevColor.color, border: `1px solid ${sevColor.border}` }}>
-                      {t(`common.${inc.severity}`)}
-                    </span>
-                  </td>
-                  <td style={{ padding: 16, textAlign: "center", fontSize: 11, color: "#10B981", fontWeight: 700, textTransform: "uppercase" }}>{t(`common.${inc.status}`)}</td>
-                  <td style={{ padding: 16, fontSize: 11, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>
-                    {new Date(inc.created_at).toLocaleString()}
-                  </td>
+      <div style={{ display: "grid", gridTemplateColumns: selected ? "1fr 340px" : "1fr", gap: 20, alignItems: "start" }}>
+        <div style={ps.table}>
+          {loading ? (
+            <div style={{ padding: 32, textAlign: "center", ...ps.muted }}>{t("common.loading")}</div>
+          ) : filtered.length === 0 ? (
+            <div style={{ padding: 32, textAlign: "center", ...ps.muted }}>{t("incidents.noIncidents")}</div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--brand-border)" }}>
+                  {[t("incidents.caseId"), t("common.title"), t("incidents.severity"), t("incidents.status"), t("incidents.created")].map((h) => (
+                    <th key={h} style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "var(--brand-text-secondary)", textTransform: "uppercase" }}>{h}</th>
+                  ))}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {filtered.map((inc) => {
+                  const sev = severityColors[inc.severity];
+                  const isSelected = selected?.id === inc.id;
+                  return (
+                    <tr
+                      key={inc.id}
+                      onClick={() => setSelected(inc)}
+                      style={{
+                        ...ps.rowHover,
+                        borderBottom: "1px solid var(--brand-border)",
+                        background: isSelected ? "var(--theme-white-bg-tint)" : "transparent",
+                      }}
+                    >
+                      <td style={{ padding: 16, ...ps.mono, fontWeight: 700, color: "var(--brand-cyan)" }}>{inc.id}</td>
+                      <td style={{ padding: 16, color: "var(--brand-text-primary)", fontWeight: 600 }}>
+                        <div>{inc.title}</div>
+                        {inc.description && <div style={{ ...ps.muted, marginTop: 4, fontSize: 11 }}>{inc.description}</div>}
+                      </td>
+                      <td style={{ padding: 16 }}>
+                        <span style={{ ...ps.badge, background: sev.bg, color: sev.color, border: `1px solid ${sev.border}` }}>
+                          {t(`common.${inc.severity}`)}
+                        </span>
+                      </td>
+                      <td style={{ padding: 16, fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: inc.status === "resolved" ? "var(--brand-emerald)" : "var(--brand-cyan)" }}>
+                        {t(`common.${inc.status}`)}
+                      </td>
+                      <td style={{ padding: 16, ...ps.mono, fontSize: 11, color: "var(--brand-text-secondary)" }}>
+                        {new Date(inc.created_at).toLocaleString()}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {selected && (
+          <div style={{ ...ps.card, position: "sticky", top: 0 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <h3 style={{ fontWeight: 700, color: "var(--brand-text-primary)", fontSize: 16 }}>{selected.id}</h3>
+              <button type="button" onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--brand-text-secondary)" }}>
+                <X size={18} />
+              </button>
+            </div>
+            <p style={{ fontWeight: 600, marginBottom: 8, color: "var(--brand-text-primary)" }}>{selected.title}</p>
+            {selected.description && <p style={{ ...ps.muted, marginBottom: 16, lineHeight: 1.5 }}>{selected.description}</p>}
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={ps.label}>{t("incidents.status")}</label>
+              <select
+                style={ps.select}
+                value={selected.status}
+                onChange={(e) => updateStatus(selected.id, e.target.value as Incident["status"])}
+              >
+                <option value="open">{t("common.open")}</option>
+                <option value="triage">{t("common.triage")}</option>
+                <option value="resolved">{t("common.resolved")}</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={ps.label}>{t("incidents.severity")}</label>
+              <select
+                style={ps.select}
+                value={selected.severity}
+                onChange={(e) => updateSeverity(selected.id, e.target.value as Incident["severity"])}
+              >
+                {(["low", "medium", "high", "critical"] as const).map((s) => (
+                  <option key={s} value={s}>{t(`common.${s}`)}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <button
+                type="button"
+                style={ps.btnSecondary}
+                onClick={() => navigate(`/timeline?incident=${selected.id}`)}
+              >
+                <Clock size={14} />
+                {t("incidents.viewTimeline")}
+                <ChevronRight size={14} style={{ marginLeft: "auto" }} />
+              </button>
+              <button
+                type="button"
+                style={ps.btnSecondary}
+                onClick={() => navigate("/evidence")}
+              >
+                <Database size={14} />
+                {t("incidents.linkEvidence")}
+                <ChevronRight size={14} style={{ marginLeft: "auto" }} />
+              </button>
+              <button
+                type="button"
+                style={ps.btnPrimary}
+                onClick={() => navigate(`/analysis`)}
+              >
+                {t("incidents.analyzeArtifact")}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {isModalOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(10px)" }} onClick={() => setIsModalOpen(false)} />
-          <div style={{ position: "relative", background: "#111827", border: "1px solid #1F2937", borderRadius: 12, padding: 20, maxWidth: 440, width: "100%", zIndex: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #1F2937" }}>
-              <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 18, color: "#F9FAFB" }}>{t("incidents.modalTitle")}</h3>
-              <button onClick={() => setIsModalOpen(false)} style={{ background: "none", border: "none", color: "#9CA3AF", cursor: "pointer", fontSize: 22 }}>×</button>
-            </div>
-            <form style={{ display: "flex", flexDirection: "column", gap: 16 }} onSubmit={(e) => { e.preventDefault(); setIsModalOpen(false); }}>
+        <div style={ps.modalOverlay}>
+          <div style={ps.modalBackdrop} onClick={() => setIsModalOpen(false)} />
+          <div style={ps.modal}>
+            <h3 style={{ fontWeight: 700, fontSize: 18, color: "var(--brand-text-primary)", marginBottom: 16 }}>{t("incidents.modalTitle")}</h3>
+            <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
-                <label style={{ fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("common.title")}</label>
-                <input type="text" style={s.input} placeholder={t("incidents.titlePlaceholder")} value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+                <label style={ps.label}>{t("common.title")}</label>
+                <input type="text" style={ps.input} placeholder={t("incidents.titlePlaceholder")} value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required />
               </div>
               <div>
-                <label style={{ fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{t("incidents.severity")}</label>
-                <select style={s.input} value={newSeverity} onChange={(e) => setNewSeverity(e.target.value as Incident["severity"])}>
-                  <option value="low">{t("common.low")}</option>
-                  <option value="medium">{t("common.medium")}</option>
-                  <option value="high">{t("common.high")}</option>
-                  <option value="critical">{t("common.critical")}</option>
+                <label style={ps.label}>{t("incidents.description")}</label>
+                <textarea style={{ ...ps.input, minHeight: 80, resize: "vertical" }} value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder={t("incidents.descPlaceholder")} />
+              </div>
+              <div>
+                <label style={ps.label}>{t("incidents.severity")}</label>
+                <select style={ps.input} value={newSeverity} onChange={(e) => setNewSeverity(e.target.value as Incident["severity"])}>
+                  {(["low", "medium", "high", "critical"] as const).map((s) => (
+                    <option key={s} value={s}>{t(`common.${s}`)}</option>
+                  ))}
                 </select>
               </div>
-              <button style={{ padding: 12, background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, cursor: "pointer" }}>
-                {t("incidents.createIncident")}
+              {error && <div style={{ ...ps.danger, fontSize: 12 }}>{error}</div>}
+              <button type="submit" style={ps.btnPrimary} disabled={saving}>
+                {saving ? t("common.loading") : t("incidents.createIncident")}
               </button>
             </form>
           </div>

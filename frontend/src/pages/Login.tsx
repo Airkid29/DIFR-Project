@@ -101,7 +101,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="analyste@forensiguard.com"
+              placeholder="rach@forensiguard.com"
               style={authStyles.fieldInput}
               disabled={loading}
               required

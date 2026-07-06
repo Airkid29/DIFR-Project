@@ -154,10 +154,12 @@ export default function Layout() {
     { name: t("nav.settings"), path: "/settings", icon: SettingsIcon, group: "admin" },
   ];
 
+  const isAdminUser = user?.role === "Admin" || user?.role === "SuperAdmin";
+
   // Filter menu items by user role if user profile is available
   const visibleMenuItems = menuItems.filter(item => {
     if (item.adminOnly) {
-      return user?.role === "Admin";
+      return isAdminUser;
     }
     return true;
   });

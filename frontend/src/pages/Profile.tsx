@@ -1,6 +1,6 @@
 // PROFILE PAGE — API-backed with password change
 import React, { useEffect, useState } from "react";
-import { User, Smartphone, ShieldCheck, Clock3, KeyRound, Building2 } from "lucide-react";
+import { User, ShieldCheck, Clock3, KeyRound, Building2 } from "lucide-react";
 import { api } from "../utils/api";
 import { ps } from "../utils/pageStyles";
 import { t } from "../i18n";
@@ -13,6 +13,7 @@ interface UserProfile {
   account_type: string;
   organization_name?: string;
   mfa_enabled: boolean;
+  onboarding_completed?: boolean;
   last_login?: string;
 }
 
@@ -33,6 +34,12 @@ export default function Profile() {
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [mfaMessage, setMfaMessage] = useState("");
+  const [mfaError, setMfaError] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
+  const [setupSecret, setSetupSecret] = useState<string | null>(null);
+  const [setupUri, setSetupUri] = useState<string | null>(null);
+  const [isConfiguringMfa, setIsConfiguringMfa] = useState(false);
 
   useEffect(() => {
     api.get("/api/auth/me").then((data) => {
@@ -54,6 +61,63 @@ export default function Profile() {
       window.setTimeout(() => setAccountMessage(""), 3200);
     } catch {
       setAccountMessage(t("common.serverError"));
+    }
+  };
+
+  const handleStartMfaSetup = async () => {
+    setMfaError("");
+    setMfaMessage("");
+    setIsConfiguringMfa(true);
+
+    try {
+      const data = await api.post("/api/auth/mfa/setup");
+      setSetupSecret(data.secret);
+      setSetupUri(data.otpauth_uri);
+    } catch (err: unknown) {
+      setMfaError(err instanceof Error ? err.message : t("common.serverError"));
+    } finally {
+      setIsConfiguringMfa(false);
+    }
+  };
+
+  const handleEnableMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMfaError("");
+    setMfaMessage("");
+
+    if (!mfaCode || mfaCode.length !== 6) {
+      setMfaError(t("auth.mfaInvalid"));
+      return;
+    }
+
+    try {
+      await api.post("/api/auth/mfa/enable", { code: mfaCode });
+      setMfaMessage(t("profile.mfaEnabledSuccess"));
+      setSetupSecret(null);
+      setSetupUri(null);
+      setMfaCode("");
+      setUser((prev) => (prev ? { ...prev, mfa_enabled: true } : prev));
+    } catch (err: unknown) {
+      setMfaError(err instanceof Error ? err.message : t("common.serverError"));
+    }
+  };
+
+  const handleDisableMfa = async () => {
+    setMfaError("");
+    setMfaMessage("");
+
+    if (!mfaCode || mfaCode.length !== 6) {
+      setMfaError(t("auth.mfaInvalid"));
+      return;
+    }
+
+    try {
+      await api.post("/api/auth/mfa/disable", { code: mfaCode });
+      setMfaMessage(t("profile.mfaDisabledSuccess"));
+      setMfaCode("");
+      setUser((prev) => (prev ? { ...prev, mfa_enabled: false } : prev));
+    } catch (err: unknown) {
+      setMfaError(err instanceof Error ? err.message : t("common.serverError"));
     }
   };
 
@@ -157,6 +221,80 @@ export default function Profile() {
           </form>
 
           <div style={{ marginTop: 20, borderTop: "1px solid var(--brand-border)", paddingTop: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 13, color: "var(--brand-text-primary)", marginBottom: 12 }}>
+              <ShieldCheck size={16} style={{ color: "var(--brand-emerald)" }} />
+              {t("profile.securitySettings")}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
+              <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid #1F2937", borderRadius: 12, padding: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#F9FAFB" }}>{t("profile.mfaTitle")}</div>
+                    <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 4 }}>{user.mfa_enabled ? t("profile.mfaEnabled") : t("profile.mfaDisabled")}</div>
+                  </div>
+                  {!user.mfa_enabled && (
+                    <button
+                      type="button"
+                      onClick={handleStartMfaSetup}
+                      style={{ ...ps.btnSecondary, minWidth: 160 }}
+                      disabled={isConfiguringMfa}
+                    >
+                      {t("profile.setupMfa")}
+                    </button>
+                  )}
+                </div>
+                {user.mfa_enabled ? (
+                  <div style={{ display: "grid", gap: 12, marginTop: 10 }}>
+                    <div style={{ fontSize: 12, color: "#D1D5DB" }}>{t("profile.mfaDisableInstructions")}</div>
+                    <form onSubmit={(e) => { e.preventDefault(); handleDisableMfa(); }} style={{ display: "grid", gap: 12 }}>
+                      <input
+                        type="text"
+                        value={mfaCode}
+                        onChange={(e) => setMfaCode(e.target.value)}
+                        placeholder="123456"
+                        style={ps.input}
+                        maxLength={6}
+                      />
+                      <button type="submit" style={ps.btnSecondary} disabled={isConfiguringMfa}>{t("profile.disableMfa")}</button>
+                    </form>
+                  </div>
+                ) : setupSecret ? (
+                  <div style={{ display: "grid", gap: 12, marginTop: 10 }}>
+                    <div style={{ fontSize: 12, color: "#D1D5DB" }}>{t("profile.mfaSetupInstructions")}</div>
+                    <div style={{ display: "grid", gap: 12, marginTop: 10 }}>
+                      <div style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 10, padding: 14, fontFamily: "'JetBrains Mono', monospace", color: "#F9FAFB" }}>
+                        <div style={{ marginBottom: 8, fontSize: 12, color: "#9CA3AF" }}>{t("profile.totpDesc")}</div>
+                        <div>{setupSecret}</div>
+                      </div>
+                      {setupUri && (
+                        <div style={{ display: "grid", gap: 8 }}>
+                          <img
+                            src={`https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=${encodeURIComponent(setupUri)}`}
+                            alt="MFA QR Code"
+                            style={{ width: 220, height: 220, borderRadius: 14, background: "#000" }}
+                          />
+                          <div style={{ fontSize: 12, color: "#9CA3AF" }}>{t("profile.scanQr")}</div>
+                        </div>
+                      )}
+                      <div style={{ fontSize: 12, color: "#9CA3AF" }}>{t("profile.mfaScanHint")}</div>
+                      <form onSubmit={handleEnableMfa} style={{ display: "grid", gap: 12 }}>
+                        <input
+                          type="text"
+                          value={mfaCode}
+                          onChange={(e) => setMfaCode(e.target.value)}
+                          placeholder="123456"
+                          style={ps.input}
+                          maxLength={6}
+                        />
+                        <button type="submit" style={ps.btnPrimary}>{t("profile.confirmMfaCode")}</button>
+                      </form>
+                    </div>
+                  </div>
+                ) : null}
+                {mfaMessage && <div style={{ ...ps.success, marginTop: 12 }}>{mfaMessage}</div>}
+                {mfaError && <div style={{ ...ps.danger, marginTop: 12 }}>{mfaError}</div>}
+              </div>
+            </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 13, color: "var(--brand-text-primary)", marginBottom: 12 }}>
               <ShieldCheck size={16} style={{ color: "var(--brand-emerald)" }} />
               {t("profile.latestActivities")}

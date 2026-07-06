@@ -1,9 +1,10 @@
 // DASHBOARD PAGE
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShieldAlert, Cpu, Database, Clock, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, MapPinned } from "lucide-react";
+import { ShieldAlert, Cpu, Database, Clock, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, MapPinned, Play, Sparkles, ArrowRight } from "lucide-react";
 import { t } from "../i18n";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, ScatterChart, Scatter, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
+import { api } from "../utils/api";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 
 const incidentData = [
   { day: "Mon", open: 3, resolved: 2, activity: 18 },
@@ -30,8 +31,104 @@ const incidentMap = [
   { region: "Abidjan", severity: 5 }
 ];
 
+interface UserProfile {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  account_type: string;
+  organization_name?: string;
+  mfa_enabled: boolean;
+  onboarding_completed: boolean;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [showInvestigationHub, setShowInvestigationHub] = useState(false);
+
+  useEffect(() => {
+    api.get("/api/auth/me")
+      .then((data) => setProfile(data))
+      .catch(console.error);
+  }, []);
+
+  const openOnboardingModal = () => {
+    setShowOnboardingModal(true);
+    setOnboardingStep(0);
+  };
+
+  const closeOnboardingModal = () => {
+    setShowOnboardingModal(false);
+  };
+
+  const finishOnboarding = async () => {
+    setShowOnboarding(false);
+    setShowOnboardingModal(false);
+    try {
+      await api.put("/api/auth/me", { onboarding_completed: true });
+      setProfile((prev) => (prev ? { ...prev, onboarding_completed: true } : prev));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const openInvestigationHub = () => {
+    setShowInvestigationHub(true);
+  };
+
+  const closeInvestigationHub = () => {
+    setShowInvestigationHub(false);
+  };
+
+  const runInvestigationFlow = (path: string) => {
+    setShowInvestigationHub(false);
+    navigate(path);
+  };
+
+  const onboardingSteps = [
+    {
+      title: t("dashboard.onboardingStep1Title"),
+      description: t("dashboard.onboardingStep1Desc"),
+      bullets: [
+        t("dashboard.onboardingStep1Bullet1"),
+        t("dashboard.onboardingStep1Bullet2"),
+      ],
+    },
+    {
+      title: t("dashboard.onboardingStep2Title"),
+      description: t("dashboard.onboardingStep2Desc"),
+      bullets: [
+        t("dashboard.onboardingStep2Bullet1"),
+        t("dashboard.onboardingStep2Bullet2"),
+      ],
+    },
+    {
+      title: t("dashboard.onboardingStep3Title"),
+      description: t("dashboard.onboardingStep3Desc"),
+      bullets: [
+        t("dashboard.onboardingStep3Bullet1"),
+        t("dashboard.onboardingStep3Bullet2"),
+      ],
+    },
+  ];
+
+  const investigationOptions = [
+    { label: t("dashboard.hubAnalyzeFile"), path: "/analysis", description: t("dashboard.hubAnalyzeFileDesc"), icon: Play },
+    { label: t("dashboard.hubCreateIncident"), path: "/incidents", description: t("dashboard.hubCreateIncidentDesc"), icon: ShieldAlert },
+    { label: t("dashboard.hubThreatSearch"), path: "/intel", description: t("dashboard.hubThreatSearchDesc"), icon: Sparkles },
+    { label: t("dashboard.hubReviewEvidence"), path: "/evidence", description: t("dashboard.hubReviewEvidenceDesc"), icon: Database },
+  ];
+
+  const actionButtons = [
+    { label: t("dashboard.startNewInvestigation"), onClick: () => navigate("/analysis"), icon: Play, description: t("dashboard.startNewInvestigationDesc") },
+    { label: t("dashboard.openIncident") , onClick: () => navigate("/incidents"), icon: ShieldAlert, description: t("dashboard.openIncidentDesc") },
+    { label: t("dashboard.searchThreatIntel"), onClick: () => navigate("/intel"), icon: Sparkles, description: t("dashboard.searchThreatIntelDesc") },
+  ];
+
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column", gap: 24 },
     header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 },
@@ -41,6 +138,8 @@ export default function Dashboard() {
     headerButtons: { display: "flex", gap: 12, flexWrap: "wrap" },
     btn: { padding: "12px 18px", background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 10, color: "#F9FAFB", fontWeight: 600, fontSize: 13, cursor: "pointer" },
     btnPrimary: { background: "#FFFFFF", border: "none", color: "#000000" },
+    modalBackdrop: { position: "fixed", inset: 0, zIndex: 50, display: "grid", placeItems: "center", background: "rgba(0, 0, 0, 0.72)", padding: 20 },
+    modalCard: { width: "min(1100px, 100%)", maxWidth: 1120, background: "#0F172A", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 28, boxShadow: "0 24px 80px rgba(15, 23, 42, 0.45)" },
     metricsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 },
     metricCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 14, padding: 20, display: "flex", justifyContent: "space-between", alignItems: "flex-start", minHeight: 124 },
     metricContent: { display: "flex", flexDirection: "column", gap: 8 },
@@ -94,10 +193,44 @@ export default function Dashboard() {
           <p style={s.desc}>{t("dashboard.desc")}</p>
         </div>
         <div style={s.headerButtons}>
+          <button style={s.btn} onClick={openInvestigationHub}>{t("dashboard.openInvestigationHub")}</button>
           <button style={s.btn} onClick={() => navigate('/incidents')}>{t("dashboard.manageIncidents")}</button>
           <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => navigate('/analysis')}>+ {t("dashboard.fileScanner")}</button>
         </div>
       </div>
+
+      {profile && !profile.onboarding_completed && showOnboarding && (
+        <div style={{ ...s.card, borderColor: "#3B82F6", background: "rgba(59,130,246,0.08)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#0F172A" }}>{t("dashboard.welcomeBack", { name: profile.name.split(" ")[0] })}</div>
+              <p style={{ fontSize: 13, color: "#0F172A", maxWidth: 760, marginTop: 8 }}>{t("dashboard.onboardingHint")}</p>
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button onClick={finishOnboarding} style={{ ...s.btnPrimary, background: "#0F172A", color: "#FFFFFF", borderRadius: 10, minWidth: 180 }}>
+                {t("dashboard.finishTour")}
+              </button>
+              <button onClick={openOnboardingModal} style={{ ...s.btn, borderRadius: 10, minWidth: 180 }}>
+                {t("dashboard.previewOnboarding")}
+              </button>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginTop: 24 }}>
+            {actionButtons.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button key={item.label} onClick={item.onClick} style={{ background: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: 14, padding: 18, textAlign: "left", cursor: "pointer", minHeight: 130, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                    <span style={{ width: 40, height: 40, display: "grid", placeItems: "center", borderRadius: 12, background: "rgba(59, 130, 246, 0.1)", color: "#2563EB" }}><Icon size={18} /></span>
+                    <div style={{ fontWeight: 700, color: "#0F172A", fontSize: 14 }}>{item.label}</div>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#4B5563" }}>{item.description}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div style={s.metricsGrid}>
         {metrics.map((m, i) => {
@@ -228,6 +361,79 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+
+      {showOnboardingModal && (
+        <div style={s.modalBackdrop}>
+          <div style={s.modalCard}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 22, color: "#F9FAFB" }}>{onboardingSteps[onboardingStep].title}</h2>
+                <p style={{ marginTop: 10, color: "#D1D5DB", fontSize: 14, maxWidth: 520 }}>{onboardingSteps[onboardingStep].description}</p>
+              </div>
+              <button onClick={closeOnboardingModal} style={{ ...s.btn, color: "#F9FAFB", background: "rgba(156,163,175,0.16)", borderRadius: 10 }}>
+                {t("dashboard.close")}
+              </button>
+            </div>
+            <div style={{ marginTop: 24, display: "grid", gap: 12 }}>
+              {onboardingSteps[onboardingStep].bullets.map((line, index) => (
+                <div key={index} style={{ padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <span style={{ color: "#F9FAFB", fontSize: 13 }}>{line}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 28, gap: 12, flexWrap: "wrap" }}>
+              <button
+                style={{ ...s.btn, minWidth: 140, opacity: onboardingStep === 0 ? 0.5 : 1, cursor: onboardingStep === 0 ? "not-allowed" : "pointer" }}
+                onClick={() => setOnboardingStep((step) => Math.max(0, step - 1))}
+                disabled={onboardingStep === 0}
+              >
+                {t("dashboard.previous")}
+              </button>
+              <div style={{ flex: 1 }} />
+              {onboardingStep < onboardingSteps.length - 1 ? (
+                <button style={{ ...s.btnPrimary, minWidth: 160 }} onClick={() => setOnboardingStep((step) => Math.min(onboardingSteps.length - 1, step + 1))}>
+                  {t("dashboard.nextStep")}
+                </button>
+              ) : (
+                <button style={{ ...s.btnPrimary, minWidth: 160 }} onClick={finishOnboarding}>
+                  {t("dashboard.completeOnboarding")}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showInvestigationHub && (
+        <div style={s.modalBackdrop}>
+          <div style={s.modalCard}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 22, color: "#F9FAFB" }}>{t("dashboard.investigationHubTitle")}</h2>
+                <p style={{ marginTop: 10, color: "#D1D5DB", fontSize: 14, maxWidth: 520 }}>{t("dashboard.investigationHubDesc")}</p>
+              </div>
+              <button onClick={closeInvestigationHub} style={{ ...s.btn, color: "#F9FAFB", background: "rgba(156,163,175,0.16)", borderRadius: 10 }}>
+                {t("dashboard.close")}
+              </button>
+            </div>
+            <div style={{ marginTop: 24, display: "grid", gap: 14 }}>
+              {investigationOptions.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button key={item.label} onClick={() => runInvestigationFlow(item.path)} style={{ display: "flex", gap: 14, alignItems: "center", padding: 18, borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", cursor: "pointer" }}>
+                    <span style={{ width: 44, height: 44, display: "grid", placeItems: "center", borderRadius: 12, background: "rgba(59,130,246,0.12)", color: "#3B82F6" }}><Icon size={20} /></span>
+                    <div style={{ textAlign: "left", flex: 1 }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#F9FAFB" }}>{item.label}</div>
+                      <div style={{ fontSize: 13, color: "#D1D5DB", marginTop: 4 }}>{item.description}</div>
+                    </div>
+                    <ArrowRight size={16} color="#9CA3AF" />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

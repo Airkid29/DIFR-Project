@@ -151,13 +151,13 @@ export default function Register() {
           <div style={authStyles.fieldLabel}>{t("common.fullName")}</div>
           <div style={authStyles.fieldWrap}>
             <FieldIcon path="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" />
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jean Dupont" style={authStyles.fieldInput} disabled={loading} required />
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" style={authStyles.fieldInput} disabled={loading} required />
           </div>
 
           <div style={authStyles.fieldLabel}>{t("common.email")}</div>
           <div style={authStyles.fieldWrap}>
             <FieldIcon path="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="rach@forensiguard.com" style={authStyles.fieldInput} disabled={loading} required />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@forensiguard.com" style={authStyles.fieldInput} disabled={loading} required />
           </div>
 
           <div style={authStyles.fieldLabel}>{t("common.password")}</div>

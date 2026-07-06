@@ -45,6 +45,7 @@ class UserRegister(BaseModel):
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
     organization_name: Optional[str] = None
+    onboarding_completed: Optional[bool] = None
 
 class PasswordChangeRequest(BaseModel):
     current_password: str
@@ -55,6 +56,7 @@ class UserResponse(UserBase):
     account_type: str = "professional"
     organization_name: Optional[str] = None
     mfa_enabled: bool
+    onboarding_completed: bool = False
     is_active: bool
     last_login: Optional[datetime]
 
@@ -96,6 +98,7 @@ class IncidentResponse(BaseModel):
     severity: str
     status: str
     owner_id: Optional[int]
+    organization_name: Optional[str] = None
     description: Optional[str]
     created_at: datetime
     closed_at: Optional[datetime]
@@ -133,6 +136,7 @@ class EvidenceResponse(BaseModel):
     custodian: str
     location: str
     verified: bool
+    organization_name: Optional[str] = None
     custody_chain: List[CustodyHistoryResponse] = []
 
     class Config:
@@ -176,6 +180,7 @@ class AuditLogResponse(BaseModel):
     resource: Optional[str]
     ip_address: Optional[str]
     status: str
+    organization_name: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -214,6 +219,7 @@ class YaraJobResponse(BaseModel):
     md5: Optional[str]
     sha1: Optional[str]
     sha256: Optional[str]
+    organization_name: Optional[str] = None
     created_at: datetime
     finished_at: Optional[datetime]
 

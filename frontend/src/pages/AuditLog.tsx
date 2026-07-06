@@ -1,28 +1,26 @@
 // AUDIT LOG PAGE
 import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Download } from "lucide-react";
+import { api } from "../utils/api";
 import { t } from "../i18n";
 
 interface AuditEntry {
-  id: string;
-  time: string;
-  user: string;
+  id: number;
+  timestamp: string;
+  user_email: string;
   action: string;
-  resource: string;
-  ip: string;
+  resource?: string;
+  ip_address?: string;
   status: "success" | "failure";
 }
 
 export default function AuditLog() {
   const [search, setSearch] = useState("");
-  const [logs] = useState<AuditEntry[]>([
-    { id: "AUD-1002", time: "2026-06-27 03:10:02.415", user: "rachcode@forensiguard.com", action: "MFA_LOGIN_SUCCESS", resource: "Session Token", ip: "192.168.1.15", status: "success" },
-    { id: "AUD-1001", time: "2026-06-27 02:52:18.910", user: "s.vance@forensiguard.com", action: "EVIDENCE_REGISTER", resource: "EVID-9022 (RAM Dump)", ip: "192.168.1.28", status: "success" },
-    { id: "AUD-1000", time: "2026-06-27 02:46:04.112", user: "s.vance@forensiguard.com", action: "YARA_SCAN_TRIGGER", resource: "cobalt_strike_beacon.dll", ip: "192.168.1.28", status: "success" },
-    { id: "AUD-0999", time: "2026-06-27 01:32:00.825", user: "a.jenkins@forensiguard.com", action: "EVIDENCE_TRANSFER", resource: "EVID-9021", ip: "192.168.1.42", status: "success" },
-    { id: "AUD-0998", time: "2026-06-27 01:14:10.510", user: "a.jenkins@forensiguard.com", action: "INCIDENT_CREATE", resource: "INC-2026-001", ip: "192.168.1.42", status: "success" },
-    { id: "AUD-0997", time: "2026-06-26 19:42:01.320", user: "m.chang@forensiguard.com", action: "MFA_LOGIN_FAILURE", resource: "Session Token", ip: "10.0.4.15", status: "failure" }
-  ]);
+  const { data: logs = [] } = useQuery<AuditEntry[]>({
+    queryKey: ["auditLogs"],
+    queryFn: () => api.get("/api/audit"),
+  });
 
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column" as const, gap: 24 },
@@ -51,7 +49,7 @@ export default function AuditLog() {
   const handleExportCsv = () => {
     const csvRows = [
       ["Audit ID", "Time", "User", "Action", "Resource", "IP", "Status"],
-      ...logs.map((log) => [log.id, log.time, log.user, log.action, log.resource, log.ip, log.status])
+      ...logs.map((log) => [log.id, log.timestamp, log.user_email, log.action, log.resource || "", log.ip_address || "", log.status])
     ];
     const csvContent = csvRows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -64,9 +62,9 @@ export default function AuditLog() {
   };
 
   const filtered = logs.filter(l =>
-    l.user.toLowerCase().includes(search.toLowerCase()) ||
+    l.user_email.toLowerCase().includes(search.toLowerCase()) ||
     l.action.toLowerCase().includes(search.toLowerCase()) ||
-    l.resource.toLowerCase().includes(search.toLowerCase())
+    (l.resource || "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -114,11 +112,11 @@ export default function AuditLog() {
             {filtered.map((log) => (
               <tr key={log.id} style={s.tr}>
                 <td style={{ ...s.td, ...s.tdCyan }}>{log.id}</td>
-                <td style={s.td}>{log.time}</td>
-                <td style={{ ...s.td, ...s.tdPrimary }}>{log.user}</td>
+                <td style={s.td}>{log.timestamp}</td>
+                <td style={{ ...s.td, ...s.tdPrimary }}>{log.user_email}</td>
                 <td style={{ ...s.td, color: "#F9FAFB", fontWeight: 600 }}>{log.action}</td>
                 <td style={s.td}>{log.resource}</td>
-                <td style={s.td}>{log.ip}</td>
+                <td style={s.td}>{log.ip_address}</td>
                 <td style={{ ...s.td, textAlign: "center" }}>
                   <span style={{ ...s.badge, ...(log.status === "success" ? s.badgeSuccess : s.badgeFailure) }}>
                     {log.status === "success" ? t("common.success") : t("common.fail")}

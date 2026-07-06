@@ -10,6 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import jwt, JWTError
+from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
 
 from .config import settings
@@ -17,6 +18,7 @@ from .database import get_db
 from .init_db import init_db
 from . import models, schemas, tasks
 from . import oauth as oauth_service
+from .mfa import generate_totp_secret, get_totp_uri, verify_totp_code
 from .threat_intel import (
     get_integration_setting,
     validate_virustotal_api_key,
@@ -79,10 +81,44 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
     return user
 
+
+def is_super_admin(user: models.User) -> bool:
+    return user.role == "SuperAdmin"
+
+
+def same_organization(user: models.User, target: models.User) -> bool:
+    if user.account_type != "enterprise" or target.account_type != "enterprise":
+        return False
+    return bool(user.organization_name and target.organization_name and user.organization_name == target.organization_name)
+
+
+def assert_same_org_or_super_admin(target_user: models.User, current_user: models.User):
+    if is_super_admin(current_user):
+        return
+    if current_user.account_type == "enterprise":
+        if not same_organization(current_user, target_user):
+            raise HTTPException(
+                status_code=403,
+                detail="Opération interdite. Cet utilisateur n'appartient pas à votre organisation.",
+            )
+    # non-enterprise Admins are allowed to manage all local users by design
+
+
+def assert_org_access_or_super_admin(resource_org: Optional[str], current_user: models.User):
+    if is_super_admin(current_user):
+        return
+    if current_user.account_type == "enterprise":
+        if not resource_org or resource_org != current_user.organization_name:
+            raise HTTPException(
+                status_code=403,
+                detail="Opération interdite. Cette ressource n'appartient pas à votre organisation.",
+            )
+
+
 # HELPER: RBAC role verification
 def require_role(allowed_roles: List[str]):
     def dependency(current_user: models.User = Depends(get_current_user)):
-        if current_user.role not in allowed_roles:
+        if not is_super_admin(current_user) and current_user.role not in allowed_roles:
             raise HTTPException(
                 status_code=403, 
                 detail="Operation prohibited. Insufficient RBAC clearance level."
@@ -148,17 +184,17 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
             user_email=request.email,
             action="LOGIN_FAILURE",
             resource="Credentials authentication",
-            status="failure"
+            status="failure",
+            organization_name=None
         )
         db.add(audit)
         db.commit()
         raise HTTPException(status_code=400, detail="E-mail ou mot de passe incorrect.")
 
-    # MFA Code challenge (TOTP static verify for MVP)
     if user.mfa_enabled:
         if not request.mfa_code:
             raise HTTPException(status_code=402, detail="Code MFA requis.")
-        if request.mfa_code != "123456" and request.mfa_code != "000000":
+        if not user.mfa_secret or not verify_totp_code(user.mfa_secret, request.mfa_code):
             raise HTTPException(status_code=400, detail="Code d'authentification multi-facteurs invalide.")
 
     token = create_access_token({"sub": user.email, "role": user.role})
@@ -169,12 +205,55 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
         user_email=user.email,
         action="LOGIN_SUCCESS",
         resource="Session Token Generated",
-        status="success"
+        status="success",
+        organization_name=user.organization_name if user.account_type == "enterprise" else None
     )
     db.add(audit)
     db.commit()
 
     return {"access_token": token, "token_type": "bearer"}
+
+@app.post("/api/auth/mfa/setup")
+def mfa_setup(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.mfa_enabled:
+        raise HTTPException(status_code=400, detail="L'authentification à deux facteurs est déjà activée.")
+    secret = generate_totp_secret()
+    current_user.mfa_secret = secret
+    db.commit()
+    db.refresh(current_user)
+    return {
+        "secret": secret,
+        "otpauth_uri": get_totp_uri(secret, current_user.email),
+    }
+
+
+class MfaEnableRequest(BaseModel):
+    code: str
+
+
+@app.post("/api/auth/mfa/enable")
+def mfa_enable(request: MfaEnableRequest, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.mfa_enabled:
+        raise HTTPException(status_code=400, detail="L'authentification à deux facteurs est déjà activée.")
+    if not current_user.mfa_secret:
+        raise HTTPException(status_code=400, detail="Aucun secret TOTP n'est configuré. Démarrez la configuration 2FA d'abord.")
+    if not verify_totp_code(current_user.mfa_secret, request.code):
+        raise HTTPException(status_code=400, detail="Code d'authentification multi-facteurs invalide.")
+    current_user.mfa_enabled = True
+    db.commit()
+    return {"status": "success", "detail": "2FA activé."}
+
+
+@app.post("/api/auth/mfa/disable")
+def mfa_disable(request: MfaEnableRequest, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.mfa_enabled:
+        raise HTTPException(status_code=400, detail="L'authentification à deux facteurs n'est pas activée.")
+    if not current_user.mfa_secret or not verify_totp_code(current_user.mfa_secret, request.code):
+        raise HTTPException(status_code=400, detail="Code d'authentification multi-facteurs invalide.")
+    current_user.mfa_enabled = False
+    db.commit()
+    return {"status": "success", "detail": "2FA désactivé."}
+
 
 @app.post("/api/auth/register", response_model=schemas.UserResponse)
 def register(request: schemas.UserRegister, db: Session = Depends(get_db)):
@@ -250,6 +329,7 @@ def oauth_callback(request: schemas.OAuthCallbackRequest, db: Session = Depends(
         action="LOGIN_SUCCESS",
         resource=f"OAuth {request.provider}",
         status="success",
+        organization_name=user.organization_name if user.account_type == "enterprise" else None,
     )
     db.add(audit)
     db.commit()
@@ -259,7 +339,10 @@ def oauth_callback(request: schemas.OAuthCallbackRequest, db: Session = Depends(
 
 @app.get("/api/incidents", response_model=List[schemas.IncidentResponse])
 def get_incidents(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return db.query(models.Incident).all()
+    query = db.query(models.Incident)
+    if current_user.account_type == "enterprise" and not is_super_admin(current_user):
+        query = query.filter(models.Incident.organization_name == current_user.organization_name)
+    return query.all()
 
 @app.post("/api/incidents", response_model=schemas.IncidentResponse)
 def create_incident(inc: schemas.IncidentCreate, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin", "Analyst", "Responder"]))):
@@ -270,6 +353,7 @@ def create_incident(inc: schemas.IncidentCreate, db: Session = Depends(get_db), 
         severity=inc.severity,
         status="open",
         owner_id=current_user.id,
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
         description=inc.description
     )
     db.add(new_inc)
@@ -281,7 +365,8 @@ def create_incident(inc: schemas.IncidentCreate, db: Session = Depends(get_db), 
         user_email=current_user.email,
         action="INCIDENT_CREATE",
         resource=new_id,
-        status="success"
+        status="success",
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
     )
     db.add(audit)
     db.commit()
@@ -302,6 +387,7 @@ def get_incident(incident_id: str, db: Session = Depends(get_db), current_user: 
     inc = db.query(models.Incident).filter(models.Incident.id == incident_id).first()
     if not inc:
         raise HTTPException(status_code=404, detail="Incident introuvable.")
+    assert_org_access_or_super_admin(inc.organization_name, current_user)
     return inc
 
 @app.patch("/api/incidents/{incident_id}", response_model=schemas.IncidentResponse)
@@ -314,6 +400,7 @@ def update_incident(
     inc = db.query(models.Incident).filter(models.Incident.id == incident_id).first()
     if not inc:
         raise HTTPException(status_code=404, detail="Incident introuvable.")
+    assert_org_access_or_super_admin(inc.organization_name, current_user)
 
     if update.status is not None:
         inc.status = update.status
@@ -334,6 +421,7 @@ def update_incident(
         action="INCIDENT_UPDATE",
         resource=incident_id,
         status="success",
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
     )
     db.add(audit)
     db.commit()
@@ -352,7 +440,10 @@ def update_incident(
 
 @app.get("/api/evidence", response_model=List[schemas.EvidenceResponse])
 def get_evidence(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return db.query(models.Evidence).all()
+    query = db.query(models.Evidence)
+    if current_user.account_type == "enterprise" and not is_super_admin(current_user):
+        query = query.filter(models.Evidence.organization_name == current_user.organization_name)
+    return query.all()
 
 @app.post("/api/evidence", response_model=schemas.EvidenceResponse)
 def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin", "Analyst", "Responder"]))):
@@ -365,7 +456,8 @@ def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db),
         sha256_hash=ev.sha256_hash,
         custodian=current_user.name,
         location=ev.location,
-        verified=True
+        verified=True,
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None
     )
     db.add(new_ev)
     
@@ -385,7 +477,8 @@ def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db),
         user_email=current_user.email,
         action="EVIDENCE_REGISTER",
         resource=new_id,
-        status="success"
+        status="success",
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None
     )
     db.add(audit)
     db.commit()
@@ -425,7 +518,8 @@ def transfer_custody(id: str, transfer: schemas.CustodyTransfer, db: Session = D
         user_email=current_user.email,
         action="EVIDENCE_TRANSFER",
         resource=f"{id} | From {old_custodian} to {transfer.transfer_to}",
-        status="success"
+        status="success",
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
     )
     db.add(audit)
     db.commit()
@@ -435,10 +529,11 @@ def transfer_custody(id: str, transfer: schemas.CustodyTransfer, db: Session = D
 import tempfile
 
 @app.get("/api/evidence/{id}/report")
-def get_evidence_pdf_report(id: str, db: Session = Depends(get_db)):
+def get_evidence_pdf_report(id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     ev = db.query(models.Evidence).filter(models.Evidence.id == id).first()
     if not ev:
         raise HTTPException(status_code=404, detail="Evidence material not found")
+    assert_org_access_or_super_admin(ev.organization_name, current_user)
 
     temp_dir = tempfile.gettempdir()
     output_path = os.path.join(temp_dir, f"forensiguard_report_{id}.pdf")
@@ -460,10 +555,18 @@ def get_evidence_pdf_report(id: str, db: Session = Depends(get_db)):
 
 @app.get("/api/timeline", response_model=List[schemas.TimelineEventResponse])
 def get_timeline(incident_id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    incident = db.query(models.Incident).filter(models.Incident.id == incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident introuvable.")
+    assert_org_access_or_super_admin(incident.organization_name, current_user)
     return db.query(models.TimelineEvent).filter(models.TimelineEvent.incident_id == incident_id).order_by(models.TimelineEvent.timestamp.desc()).all()
 
 @app.post("/api/timeline", response_model=schemas.TimelineEventResponse)
 def add_timeline_event(event: schemas.TimelineEventCreate, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin", "Analyst", "Responder"]))):
+    incident = db.query(models.Incident).filter(models.Incident.id == event.incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident introuvable.")
+    assert_org_access_or_super_admin(incident.organization_name, current_user)
     new_event = models.TimelineEvent(
         incident_id=event.incident_id,
         category=event.category,
@@ -492,7 +595,10 @@ def add_timeline_event(event: schemas.TimelineEventCreate, db: Session = Depends
 
 @app.get("/api/audit", response_model=List[schemas.AuditLogResponse])
 def get_audit_logs(db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin"]))):
-    return db.query(models.AuditLog).order_by(models.AuditLog.timestamp.desc()).all()
+    query = db.query(models.AuditLog).order_by(models.AuditLog.timestamp.desc())
+    if not is_super_admin(current_user) and current_user.account_type == "enterprise":
+        query = query.filter(models.AuditLog.organization_name == current_user.organization_name)
+    return query.all()
 
 # --- THREAT INTEL INTEGRATIONS ---
 
@@ -620,6 +726,7 @@ def trigger_yara_scan(file: UploadFile = File(...), db: Session = Depends(get_db
     job = models.YaraJob(
         id=job_id,
         user_id=current_user.id,
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
         filepath=filepath,
         status="pending"
     )
@@ -634,7 +741,8 @@ def trigger_yara_scan(file: UploadFile = File(...), db: Session = Depends(get_db
         user_email=current_user.email,
         action="YARA_SCAN_TRIGGER",
         resource=f"Job ID: {job_id} | File: {file.filename}",
-        status="success"
+        status="success",
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
     )
     db.add(audit)
     db.commit()
@@ -652,10 +760,11 @@ def trigger_yara_scan(file: UploadFile = File(...), db: Session = Depends(get_db
     return job
 
 @app.get("/api/yara/job/{id}", response_model=schemas.YaraJobResponse)
-def get_yara_job(id: str, db: Session = Depends(get_db)):
+def get_yara_job(id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     job = db.query(models.YaraJob).filter(models.YaraJob.id == id).first()
     if not job:
         raise HTTPException(status_code=404, detail="YARA scan job not found")
+    assert_org_access_or_super_admin(job.organization_name, current_user)
     return job
 
 # --- USER MANAGEMENT & PROFILE ENDPOINTS ---
@@ -674,6 +783,8 @@ def update_me(
         current_user.name = request.name.strip()
     if request.organization_name is not None and current_user.account_type == "enterprise":
         current_user.organization_name = request.organization_name.strip() or None
+    if request.onboarding_completed is not None:
+        current_user.onboarding_completed = request.onboarding_completed
     db.commit()
     db.refresh(current_user)
     return current_user
@@ -697,6 +808,7 @@ def change_password(
         action="PASSWORD_CHANGE",
         resource="User account",
         status="success",
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
     )
     db.add(audit)
     db.commit()
@@ -718,7 +830,10 @@ def get_activity_history(
 
 @app.get("/api/users", response_model=List[schemas.UserResponse])
 def get_users(db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin"]))):
-    return db.query(models.User).all()
+    query = db.query(models.User)
+    if not is_super_admin(current_user) and current_user.account_type == "enterprise":
+        query = query.filter(models.User.organization_name == current_user.organization_name)
+    return query.all()
 
 class RoleUpdateRequest(schemas.BaseModel):
     role: str
@@ -728,6 +843,7 @@ def update_user_role(user_id: int, request: RoleUpdateRequest, db: Session = Dep
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User account not found")
+    assert_same_org_or_super_admin(user, current_user)
     user.role = request.role
     db.commit()
     db.refresh(user)
@@ -740,6 +856,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: model
         raise HTTPException(status_code=404, detail="User account not found")
     if user.id == current_user.id:
         raise HTTPException(status_code=400, detail="Cannot revoke your own active admin session")
+    assert_same_org_or_super_admin(user, current_user)
     db.delete(user)
     db.commit()
     return {"status": "success", "detail": "User account revoked successfully"}
@@ -756,6 +873,8 @@ def create_invited_user(new_user: schemas.UserCreate, db: Session = Depends(get_
         email=new_user.email,
         password_hash=hashed_pw,
         role=new_user.role,
+        account_type=current_user.account_type,
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
         mfa_enabled=False,
         is_active=True
     )

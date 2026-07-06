@@ -24,14 +24,40 @@ def migrate_schema():
             conn.execute(text("ALTER TABLE users ADD COLUMN account_type VARCHAR(50) DEFAULT 'professional'"))
         if "organization_name" not in columns:
             conn.execute(text("ALTER TABLE users ADD COLUMN organization_name VARCHAR(255)"))
+        if "mfa_secret" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN mfa_secret VARCHAR(100)"))
+        if "mfa_enabled" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN mfa_enabled BOOLEAN DEFAULT FALSE"))
+        if "onboarding_completed" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE"))
         if dialect == "postgresql" and "password_hash" in columns:
             conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
+
+    if "audit_logs" in inspector.get_table_names():
+        audit_cols = {col["name"] for col in inspector.get_columns("audit_logs")}
+        with engine.begin() as conn:
+            if "organization_name" not in audit_cols:
+                conn.execute(text("ALTER TABLE audit_logs ADD COLUMN organization_name VARCHAR(255)"))
 
     if "yara_jobs" in inspector.get_table_names():
         yara_cols = {col["name"] for col in inspector.get_columns("yara_jobs")}
         with engine.begin() as conn:
             if "user_id" not in yara_cols:
                 conn.execute(text("ALTER TABLE yara_jobs ADD COLUMN user_id INTEGER REFERENCES users(id)"))
+            if "organization_name" not in yara_cols:
+                conn.execute(text("ALTER TABLE yara_jobs ADD COLUMN organization_name VARCHAR(255)"))
+
+    if "incidents" in inspector.get_table_names():
+        incident_cols = {col["name"] for col in inspector.get_columns("incidents")}
+        with engine.begin() as conn:
+            if "organization_name" not in incident_cols:
+                conn.execute(text("ALTER TABLE incidents ADD COLUMN organization_name VARCHAR(255)"))
+
+    if "evidence" in inspector.get_table_names():
+        evidence_cols = {col["name"] for col in inspector.get_columns("evidence")}
+        with engine.begin() as conn:
+            if "organization_name" not in evidence_cols:
+                conn.execute(text("ALTER TABLE evidence ADD COLUMN organization_name VARCHAR(255)"))
 
 def init_db():
     # Construct database schemas

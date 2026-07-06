@@ -157,7 +157,8 @@ def compute_hashes_and_yara_scan(job_id: str, filepath: str):
             action="FILE_TRIAGE_SUCCESS",
             resource=f"Job: {job_id} | Hash: {job.sha256}",
             ip_address="127.0.0.1",
-            status="success"
+            status="success",
+            organization_name=job.organization_name
         )
         db.add(audit)
         db.commit()
@@ -221,7 +222,10 @@ def generate_pdf_report(evidence_id: str, output_path: str):
 
         # Header Details
         story.append(Paragraph("ForensiGuard Digital Forensic Report", title_style))
+        story.append(Paragraph("CONFIDENTIAL", subtitle_style))
         story.append(Paragraph(f"Generated at: {datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC", subtitle_style))
+        if ev.organization_name:
+            story.append(Paragraph(f"Organization: {ev.organization_name}", subtitle_style))
         story.append(Spacer(1, 10))
 
         # Evidence Summary Table
@@ -229,7 +233,7 @@ def generate_pdf_report(evidence_id: str, output_path: str):
         summary_data = [
             ["Property", "Value"],
             ["Evidence ID", ev.id],
-            ["Name", ev.name],
+            ["Evidence Name", ev.name],
             ["Category", ev.category],
             ["Collector", ev.collector],
             ["Date Logged", ev.date_collected.strftime("%Y-%m-%d %H:%M")],

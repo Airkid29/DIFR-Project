@@ -17,6 +17,7 @@ class User(Base):
     organization_name = Column(String(255), nullable=True)
     mfa_secret = Column(String(100), nullable=True)
     mfa_enabled = Column(Boolean, default=False)
+    onboarding_completed = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     last_login = Column(DateTime, nullable=True)
 
@@ -32,6 +33,7 @@ class Incident(Base):
     severity = Column(String(50), default="medium")  # critical, high, medium, low
     status = Column(String(50), default="open")  # open, triage, resolved
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    organization_name = Column(String(255), nullable=True)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     closed_at = Column(DateTime, nullable=True)
@@ -54,6 +56,7 @@ class Evidence(Base):
     custodian = Column(String(100), nullable=False)
     location = Column(String(255), nullable=False)
     verified = Column(Boolean, default=True)
+    organization_name = Column(String(255), nullable=True)
 
     custody_chain = relationship("CustodyHistory", back_populates="evidence", cascade="all, delete-orphan")
 
@@ -96,6 +99,7 @@ class AuditLog(Base):
     resource = Column(String(255), nullable=True)
     ip_address = Column(String(50), nullable=True)
     status = Column(String(50), default="success")  # success, failure
+    organization_name = Column(String(255), nullable=True)
 
 
 class ActivityHistory(Base):
@@ -118,6 +122,7 @@ class YaraJob(Base):
 
     id = Column(String(100), primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    organization_name = Column(String(255), nullable=True)
     filepath = Column(String(255), nullable=False)
     status = Column(String(50), default="pending")  # pending, processing, completed, failed
     score = Column(Integer, default=0)

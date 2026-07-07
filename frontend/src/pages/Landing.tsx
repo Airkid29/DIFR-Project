@@ -2,10 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
 import { Sun, Moon } from "lucide-react";
+import { api } from "../utils/api";
 
 export default function Landing() {
   const { theme, toggleTheme, language, toggleLanguage } = useSettings();
   const [activeCodeTab, setActiveCodeTab] = useState<"curl" | "js" | "py">("curl");
+
+  // Track page visit
+  useEffect(() => {
+    api.post("/api/visitor/log").catch((err) => console.warn("Failed to log visit:", err));
+  }, []);
 
   // Scroll reveal Intersection Observer in React
   useEffect(() => {
@@ -228,7 +234,7 @@ export default function Landing() {
   ];
 
   return (
-    <div className="landing-root">
+    <div className="landing-root" data-theme={theme}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -1104,18 +1110,17 @@ export default function Landing() {
           {/* Router Demo Simulation */}
           <div className="hero-demo reveal">
             <div className="bar"><span></span><span></span><span></span></div>
-            <div className="screen">
-              <div className="router-anim">
-                <span className="chip">your agent</span> →{" "}
-                <span className="chip" style={{ color: "var(--gold)", borderColor: "rgba(242,169,59,0.4)" }}>
-                  router
-                </span>{" "}
-                →{" "}
-                <span className="chip" style={{ color: "var(--mint)", borderColor: "rgba(95,203,155,0.4)" }}>
-                  analyzers
-                </span>
-              </div>
-              <code>POST /api/v1/analyze · scan: "auto"</code>
+            <div className="screen" style={{ padding: 0, overflow: "hidden" }}>
+              <iframe 
+                width="100%" 
+                height="100%" 
+                src="https://www.youtube.com/embed/id-DxNv41DM" 
+                title="ForensiGuard Demo" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowFullScreen
+                style={{ border: "none", width: "100%", height: "100%", aspectRatio: "16/9" }}
+              ></iframe>
             </div>
           </div>
         </div>
@@ -1341,7 +1346,7 @@ export default function Landing() {
 
             <pre className={activeCodeTab === "js" ? "active" : ""}>
               <span className="c">// send your first analysis request</span><br />
-              <span className="k">const</span> res = <span className="k">await</span> fetch(<span class="s">"https://api.forensiguard.com/v1/analyze"</span>, &#123;<br />
+              <span className="k">const</span> res = <span className="k">await</span> fetch(<span className="s">"https://api.forensiguard.com/v1/analyze"</span>, &#123;<br />
               &nbsp;&nbsp;method: <span className="s">"POST"</span>,<br />
               &nbsp;&nbsp;headers: &#123; Authorization: <span className="s">`Bearer $&#123;FG_KEY&#125;`</span>, <span className="s">"Content-Type"</span>: <span className="s">"application/json"</span> &#125;,<br />
               &nbsp;&nbsp;body: JSON.stringify(&#123; file_url: <span className="s">"https://bucket/suspicious.bin"</span>, scan_type: <span className="s">"yara"</span> &#125;)<br />

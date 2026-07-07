@@ -1,6 +1,6 @@
 from sqlalchemy import inspect, text
 from .database import engine, Base
-from .models import User, Incident, Evidence, CustodyHistory, TimelineEvent, AuditLog, YaraJob, ActivityHistory
+from .models import User, Incident, Evidence, CustodyHistory, TimelineEvent, AuditLog, YaraJob, ActivityHistory, VisitorLog
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -30,8 +30,21 @@ def migrate_schema():
             conn.execute(text("ALTER TABLE users ADD COLUMN mfa_enabled BOOLEAN DEFAULT FALSE"))
         if "onboarding_completed" not in columns:
             conn.execute(text("ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE"))
+        if "slack_webhook_url" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN slack_webhook_url VARCHAR(512)"))
         if dialect == "postgresql" and "password_hash" in columns:
             conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
+
+    if "integration_settings" in inspector.get_table_names():
+        is_cols = {col["name"] for col in inspector.get_columns("integration_settings")}
+        with engine.begin() as conn:
+            if "user_id" not in is_cols:
+                conn.execute(text("ALTER TABLE integration_settings ADD COLUMN user_id INTEGER REFERENCES users(id)"))
+                # Drop the old unique constraint on name, since now name can be duplicated per user
+                try:
+                    conn.execute(text("ALTER TABLE integration_settings DROP CONSTRAINT IF EXISTS integration_settings_name_key"))
+                except Exception:
+                    pass
 
     if "audit_logs" in inspector.get_table_names():
         audit_cols = {col["name"] for col in inspector.get_columns("audit_logs")}

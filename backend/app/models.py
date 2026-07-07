@@ -12,7 +12,7 @@ class User(Base):
     password_hash = Column(String(255), nullable=True)
     oauth_provider = Column(String(50), nullable=True)
     oauth_subject = Column(String(255), nullable=True)
-    role = Column(String(50), default="Viewer")  # Admin, Analyst, Responder, Viewer
+    role = Column(String(50), default="Viewer")  # UltraAdmin, Admin, Analyst, Responder, Viewer
     account_type = Column(String(50), default="professional")  # professional, enterprise
     organization_name = Column(String(255), nullable=True)
     mfa_secret = Column(String(100), nullable=True)
@@ -20,9 +20,11 @@ class User(Base):
     onboarding_completed = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     last_login = Column(DateTime, nullable=True)
+    slack_webhook_url = Column(String(512), nullable=True)
 
     incidents = relationship("Incident", back_populates="owner")
     activity_history = relationship("ActivityHistory", back_populates="user", cascade="all, delete-orphan")
+    integration_settings = relationship("IntegrationSetting", back_populates="user", cascade="all, delete-orphan")
 
 
 class Incident(Base):
@@ -138,6 +140,18 @@ class IntegrationSetting(Base):
     __tablename__ = "integration_settings"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), unique=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # null means global
+    name = Column(String(50), nullable=False)
     api_key = Column(String(512), nullable=True)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="integration_settings")
+
+
+class VisitorLog(Base):
+    __tablename__ = "visitor_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ip_address = Column(String(50), nullable=True)
+    user_agent = Column(String(255), nullable=True)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)

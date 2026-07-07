@@ -131,29 +131,26 @@ export default function Dashboard() {
 
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column", gap: 24 },
-    header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 },
-    headerText: { flex: 1 },
-    title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 34, color: "#F9FAFB", letterSpacing: -1, marginBottom: 8 },
-    desc: { fontSize: 14, color: "#9CA3AF", lineHeight: 1.6 },
+    header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" },
+    headerText: { flex: "1 1 280px" },
+    title: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 800, fontSize: 34, color: "var(--brand-text-primary)", letterSpacing: -1, marginBottom: 8 },
+    desc: { fontSize: 14, color: "var(--brand-text-secondary)", lineHeight: 1.6 },
     headerButtons: { display: "flex", gap: 12, flexWrap: "wrap" },
-    btn: { padding: "12px 18px", background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 10, color: "#F9FAFB", fontWeight: 600, fontSize: 13, cursor: "pointer" },
-    btnPrimary: { background: "#FFFFFF", border: "none", color: "#000000" },
-    modalBackdrop: { position: "fixed", inset: 0, zIndex: 50, display: "grid", placeItems: "center", background: "rgba(0, 0, 0, 0.72)", padding: 20 },
-    modalCard: { width: "min(1100px, 100%)", maxWidth: 1120, background: "#0F172A", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: 28, boxShadow: "0 24px 80px rgba(15, 23, 42, 0.45)" },
+    btn: { padding: "12px 18px", background: "var(--theme-white-bg-tint)", border: "1px solid var(--brand-border)", borderRadius: 10, color: "var(--brand-text-primary)", fontWeight: 600, fontSize: 13, cursor: "pointer" },
+    btnPrimary: { background: "var(--brand-cyan)", border: "none", color: "#ffffff" },
+    modalBackdrop: { position: "fixed", inset: 0, zIndex: 50, display: "grid", placeItems: "center", background: "rgba(0, 0, 0, 0.6)", padding: 20 },
+    modalCard: { width: "min(1100px, 100%)", maxWidth: 1120, background: "var(--brand-card)", border: "1px solid var(--brand-border)", borderRadius: 24, padding: 28, boxShadow: "0 24px 80px rgba(0, 0, 0, 0.15)" },
     metricsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 },
-    metricCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 14, padding: 20, display: "flex", justifyContent: "space-between", alignItems: "flex-start", minHeight: 124 },
+    metricCard: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 14, padding: 20, display: "flex", justifyContent: "space-between", alignItems: "flex-start", minHeight: 124 },
     metricContent: { display: "flex", flexDirection: "column", gap: 8 },
-    metricLabel: { fontSize: 10, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: 0.6 },
-    metricValue: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 26, color: "#F9FAFB" },
-    metricTrend: { display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#9CA3AF" },
+    metricLabel: { fontSize: 10, fontWeight: 700, color: "var(--brand-text-secondary)", textTransform: "uppercase", letterSpacing: 0.6 },
+    metricValue: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 800, fontSize: 26, color: "var(--brand-text-primary)" },
+    metricTrend: { display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--brand-text-secondary)" },
     metricIcon: { width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 10, border: "1px solid" },
-    graphSection: { display: "grid", gridTemplateColumns: "1.7fr 1fr", gap: 16 },
-    bottomGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 },
-    tripleGrid: { display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: 16 },
-    card: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 14, padding: 20 },
-    cardTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 16, color: "#F9FAFB", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #1F2937" },
-    threatItem: { background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 10, padding: 12, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 },
-    listItem: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(31, 41, 55, 0.5)", fontSize: 12, color: "#D1D5DB" }
+    card: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 14, padding: 20 },
+    cardTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 16, color: "var(--brand-text-primary)", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid var(--brand-border)" },
+    threatItem: { background: "var(--theme-subtle-bg)", border: "1px solid var(--brand-border)", borderRadius: 10, padding: 12, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 },
+    listItem: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--brand-border)", fontSize: 12, color: "var(--brand-text-primary)" }
   };
 
   const metrics = [
@@ -200,14 +197,14 @@ export default function Dashboard() {
       </div>
 
       {profile && !profile.onboarding_completed && showOnboarding && (
-        <div style={{ ...s.card, borderColor: "#3B82F6", background: "rgba(59,130,246,0.08)" }}>
+        <div style={{ ...s.card, borderColor: "var(--brand-cyan)", background: "rgba(95, 203, 155, 0.08)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#0F172A" }}>{t("dashboard.welcomeBack", { name: profile.name.split(" ")[0] })}</div>
-              <p style={{ fontSize: 13, color: "#0F172A", maxWidth: 760, marginTop: 8 }}>{t("dashboard.onboardingHint")}</p>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "var(--brand-text-primary)" }}>{t("dashboard.welcomeBack", { name: profile.name.split(" ")[0] })}</div>
+              <p style={{ fontSize: 13, color: "var(--brand-text-secondary)", maxWidth: 760, marginTop: 8 }}>{t("dashboard.onboardingHint")}</p>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button onClick={finishOnboarding} style={{ ...s.btnPrimary, background: "#0F172A", color: "#FFFFFF", borderRadius: 10, minWidth: 180 }}>
+              <button onClick={finishOnboarding} style={{ ...s.btnPrimary, borderRadius: 10, minWidth: 180 }}>
                 {t("dashboard.finishTour")}
               </button>
               <button onClick={openOnboardingModal} style={{ ...s.btn, borderRadius: 10, minWidth: 180 }}>
@@ -219,12 +216,12 @@ export default function Dashboard() {
             {actionButtons.map((item) => {
               const Icon = item.icon;
               return (
-                <button key={item.label} onClick={item.onClick} style={{ background: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: 14, padding: 18, textAlign: "left", cursor: "pointer", minHeight: 130, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <button key={item.label} onClick={item.onClick} style={{ background: "var(--brand-card)", border: "1px solid var(--brand-border)", borderRadius: 14, padding: 18, textAlign: "left", cursor: "pointer", minHeight: 130, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                    <span style={{ width: 40, height: 40, display: "grid", placeItems: "center", borderRadius: 12, background: "rgba(59, 130, 246, 0.1)", color: "#2563EB" }}><Icon size={18} /></span>
-                    <div style={{ fontWeight: 700, color: "#0F172A", fontSize: 14 }}>{item.label}</div>
+                    <span style={{ width: 40, height: 40, display: "grid", placeItems: "center", borderRadius: 12, background: "rgba(95, 203, 155, 0.1)", color: "var(--brand-cyan)" }}><Icon size={18} /></span>
+                    <div style={{ fontWeight: 700, color: "var(--brand-text-primary)", fontSize: 14 }}>{item.label}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: "#4B5563" }}>{item.description}</div>
+                  <div style={{ fontSize: 12, color: "var(--brand-text-secondary)" }}>{item.description}</div>
                 </button>
               );
             })}
@@ -254,7 +251,7 @@ export default function Dashboard() {
         })}
       </div>
 
-      <div style={s.graphSection}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1.7fr_1fr] gap-4">
         <div style={s.card}>
           <h3 style={s.cardTitle}>{t("dashboard.incidentVolume")}</h3>
           <div style={{ height: 300 }}>
@@ -262,15 +259,15 @@ export default function Dashboard() {
               <AreaChart data={incidentData}>
                 <defs>
                   <linearGradient id="colorOpen" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.18}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--brand-cyan)" stopOpacity={0.18}/>
+                    <stop offset="95%" stopColor="var(--brand-cyan)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="#1F2937" opacity={0.3} />
-                <XAxis dataKey="day" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" />
-                <Tooltip contentStyle={{ backgroundColor: "#111827", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB" }} />
-                <Area type="monotone" dataKey="open" stroke="#3B82F6" fill="url(#colorOpen)" />
+                <CartesianGrid stroke="var(--brand-border)" opacity={0.3} />
+                <XAxis dataKey="day" stroke="var(--brand-text-secondary)" />
+                <YAxis stroke="var(--brand-text-secondary)" />
+                <Tooltip contentStyle={{ backgroundColor: "var(--brand-card)", border: "1px solid var(--brand-border)", borderRadius: 8, color: "var(--brand-text-primary)" }} />
+                <Area type="monotone" dataKey="open" stroke="var(--brand-cyan)" fill="url(#colorOpen)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -283,14 +280,14 @@ export default function Dashboard() {
               <div key={i} style={s.threatItem}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <AlertTriangle size={14} style={{ color: "#F59E0B" }} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#F9FAFB" }}>{t.type}</span>
+                    <AlertTriangle size={14} style={{ color: "var(--brand-amber)" }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--brand-text-primary)" }}>{t.type}</span>
                   </div>
-                  <p style={{ fontSize: 11, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>{t.details}</p>
+                  <p style={{ fontSize: 11, color: "var(--brand-text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>{t.details}</p>
                 </div>
-                <div style={{ textAlign: "right", fontSize: 10 }}>
-                  <div style={{ color: "#3B82F6", fontWeight: 600, marginBottom: 4 }}>{t.source}</div>
-                  <span style={{ background: "rgba(239, 68, 68, 0.1)", color: "#EF4444", padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700 }}>{t.confidence}</span>
+                <div style={{ textAlign: "right", fontSize: 11 }}>
+                  <div style={{ color: "var(--brand-cyan)", fontWeight: 600, marginBottom: 4 }}>{t.source}</div>
+                  <span style={{ background: "rgba(255, 95, 95, 0.1)", color: "var(--brand-crimson)", padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700 }}>{t.confidence}</span>
                 </div>
               </div>
             ))}
@@ -298,17 +295,17 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={s.tripleGrid}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr] gap-4">
         <div style={s.card}>
           <h3 style={s.cardTitle}>{t("dashboard.activityTimeline")}</h3>
           <div style={{ height: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={incidentData}>
-                <CartesianGrid stroke="#1F2937" opacity={0.3} />
-                <XAxis dataKey="day" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" />
-                <Tooltip contentStyle={{ backgroundColor: "#111827", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB" }} />
-                <Line type="monotone" dataKey="activity" stroke="#10B981" strokeWidth={3} dot={{ r: 4 }} />
+                <CartesianGrid stroke="var(--brand-border)" opacity={0.3} />
+                <XAxis dataKey="day" stroke="var(--brand-text-secondary)" />
+                <YAxis stroke="var(--brand-text-secondary)" />
+                <Tooltip contentStyle={{ backgroundColor: "var(--brand-card)", border: "1px solid var(--brand-border)", borderRadius: 8, color: "var(--brand-text-primary)" }} />
+                <Line type="monotone" dataKey="activity" stroke="var(--brand-cyan)" strokeWidth={3} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -318,9 +315,9 @@ export default function Dashboard() {
           <h3 style={s.cardTitle}>{t("dashboard.incidentMapping")}</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {incidentMap.map((item) => (
-              <div key={item.region} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid #1F2937", borderRadius: 8, padding: 10 }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 8, color: "#F9FAFB", fontSize: 12 }}><MapPinned size={14} style={{ color: "#3B82F6" }} />{item.region}</span>
-                <span style={{ color: item.severity >= 4 ? "#EF4444" : "#F59E0B", fontWeight: 700, fontSize: 12 }}>{t("dashboard.severityLabel", { level: String(item.severity) })}</span>
+              <div key={item.region} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--theme-subtle-bg)", border: "1px solid var(--brand-border)", borderRadius: 8, padding: 10 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--brand-text-primary)", fontSize: 12 }}><MapPinned size={14} style={{ color: "var(--brand-cyan)" }} />{item.region}</span>
+                <span style={{ color: item.severity >= 4 ? "var(--brand-crimson)" : "var(--brand-amber)", fontWeight: 700, fontSize: 12 }}>{t("dashboard.severityLabel", { level: String(item.severity) })}</span>
               </div>
             ))}
           </div>
@@ -331,17 +328,17 @@ export default function Dashboard() {
           <div style={{ height: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={correlationData}>
-                <PolarGrid stroke="#374151" />
-                <PolarAngleAxis dataKey="name" tick={{ fill: "#9CA3AF", fontSize: 10 }} />
+                <PolarGrid stroke="var(--brand-border)" />
+                <PolarAngleAxis dataKey="name" tick={{ fill: "var(--brand-text-secondary)", fontSize: 10 }} />
                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
-                <Radar dataKey="value" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.25} />
+                <Radar dataKey="value" stroke="var(--brand-cyan)" fill="var(--brand-cyan)" fillOpacity={0.25} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      <div style={s.bottomGrid}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div style={s.card}>
           <h3 style={s.cardTitle}>{t("dashboard.caseQueue")}</h3>
           {caseQueue.map((item) => (
@@ -367,17 +364,17 @@ export default function Dashboard() {
           <div style={s.modalCard}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: 22, color: "#F9FAFB" }}>{onboardingSteps[onboardingStep].title}</h2>
-                <p style={{ marginTop: 10, color: "#D1D5DB", fontSize: 14, maxWidth: 520 }}>{onboardingSteps[onboardingStep].description}</p>
+                <h2 style={{ margin: 0, fontSize: 22, color: "var(--brand-text-primary)" }}>{onboardingSteps[onboardingStep].title}</h2>
+                <p style={{ marginTop: 10, color: "var(--brand-text-secondary)", fontSize: 14, maxWidth: 520 }}>{onboardingSteps[onboardingStep].description}</p>
               </div>
-              <button onClick={closeOnboardingModal} style={{ ...s.btn, color: "#F9FAFB", background: "rgba(156,163,175,0.16)", borderRadius: 10 }}>
+              <button onClick={closeOnboardingModal} style={{ ...s.btn, borderRadius: 10 }}>
                 {t("dashboard.close")}
               </button>
             </div>
             <div style={{ marginTop: 24, display: "grid", gap: 12 }}>
               {onboardingSteps[onboardingStep].bullets.map((line, index) => (
-                <div key={index} style={{ padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                  <span style={{ color: "#F9FAFB", fontSize: 13 }}>{line}</span>
+                <div key={index} style={{ padding: 14, borderRadius: 12, background: "var(--theme-white-bg-tint)", border: "1px solid var(--brand-border)" }}>
+                  <span style={{ color: "var(--brand-text-primary)", fontSize: 13 }}>{line}</span>
                 </div>
               ))}
             </div>
@@ -409,10 +406,10 @@ export default function Dashboard() {
           <div style={s.modalCard}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: 22, color: "#F9FAFB" }}>{t("dashboard.investigationHubTitle")}</h2>
-                <p style={{ marginTop: 10, color: "#D1D5DB", fontSize: 14, maxWidth: 520 }}>{t("dashboard.investigationHubDesc")}</p>
+                <h2 style={{ margin: 0, fontSize: 22, color: "var(--brand-text-primary)" }}>{t("dashboard.investigationHubTitle")}</h2>
+                <p style={{ marginTop: 10, color: "var(--brand-text-secondary)", fontSize: 14, maxWidth: 520 }}>{t("dashboard.investigationHubDesc")}</p>
               </div>
-              <button onClick={closeInvestigationHub} style={{ ...s.btn, color: "#F9FAFB", background: "rgba(156,163,175,0.16)", borderRadius: 10 }}>
+              <button onClick={closeInvestigationHub} style={{ ...s.btn, borderRadius: 10 }}>
                 {t("dashboard.close")}
               </button>
             </div>
@@ -420,13 +417,13 @@ export default function Dashboard() {
               {investigationOptions.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <button key={item.label} onClick={() => runInvestigationFlow(item.path)} style={{ display: "flex", gap: 14, alignItems: "center", padding: 18, borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", cursor: "pointer" }}>
-                    <span style={{ width: 44, height: 44, display: "grid", placeItems: "center", borderRadius: 12, background: "rgba(59,130,246,0.12)", color: "#3B82F6" }}><Icon size={20} /></span>
+                  <button key={item.label} onClick={() => runInvestigationFlow(item.path)} style={{ display: "flex", gap: 14, alignItems: "center", padding: 18, borderRadius: 16, border: "1px solid var(--brand-border)", background: "var(--theme-white-bg-tint)", cursor: "pointer" }}>
+                    <span style={{ width: 44, height: 44, display: "grid", placeItems: "center", borderRadius: 12, background: "rgba(95, 203, 155, 0.12)", color: "var(--brand-cyan)" }}><Icon size={20} /></span>
                     <div style={{ textAlign: "left", flex: 1 }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#F9FAFB" }}>{item.label}</div>
-                      <div style={{ fontSize: 13, color: "#D1D5DB", marginTop: 4 }}>{item.description}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "var(--brand-text-primary)" }}>{item.label}</div>
+                      <div style={{ fontSize: 13, color: "var(--brand-text-secondary)", marginTop: 4 }}>{item.description}</div>
                     </div>
-                    <ArrowRight size={16} color="#9CA3AF" />
+                    <ArrowRight size={16} color="var(--brand-text-secondary)" />
                   </button>
                 );
               })}

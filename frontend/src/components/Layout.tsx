@@ -149,15 +149,20 @@ export default function Layout() {
     { name: t("nav.evidence"), path: "/evidence", icon: Database, group: "investigation" },
     { name: t("nav.timeline"), path: "/timeline", icon: Clock, group: "investigation" },
     { name: t("nav.history"), path: "/history", icon: Archive, group: "investigation" },
+    { name: "Ultra Admin", path: "/ultra-admin", icon: ShieldCheck, ultraAdminOnly: true, group: "admin" },
     { name: t("nav.users"), path: "/users", icon: UsersIcon, adminOnly: true, group: "admin" },
     { name: t("nav.audit"), path: "/audit", icon: History, adminOnly: true, group: "admin" },
     { name: t("nav.settings"), path: "/settings", icon: SettingsIcon, group: "admin" },
   ];
 
-  const isAdminUser = user?.role === "Admin" || user?.role === "SuperAdmin";
+  const isAdminUser = user?.role === "Admin" || user?.role === "SuperAdmin" || user?.role === "UltraAdmin";
+  const isUltraAdminUser = user?.role === "UltraAdmin";
 
   // Filter menu items by user role if user profile is available
   const visibleMenuItems = menuItems.filter(item => {
+    if (item.ultraAdminOnly) {
+      return isUltraAdminUser;
+    }
     if (item.adminOnly) {
       return isAdminUser;
     }
@@ -189,25 +194,24 @@ export default function Layout() {
 
       {/* Sidebar */}
       <aside 
-        className={`fixed lg:static inset-y-0 left-0 ${
-          isSidebarOpen ? "w-64" : "w-20"
-        } shrink-0 border-r border-brand-border bg-brand-card flex flex-col justify-between transition-all duration-300 z-40`}
+        className={`fixed lg:static inset-y-0 left-0 transition-all duration-300 z-40 shrink-0 border-r border-brand-border bg-brand-card flex flex-col justify-between ${
+          isSidebarOpen ? "w-64 translate-x-0" : "-translate-x-full lg:translate-x-0 lg:w-20"
+        }`}
       >
         <div>
           {/* Brand Header */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-brand-border">
             <Link to="/dashboard" className="flex items-center space-x-3 overflow-hidden">
-              <div className="p-2 bg-brand-cyan rounded-lg text-white shadow-sm">
-                <ShieldCheck className="h-4.5 w-4.5" />
-              </div>
-              {isSidebarOpen && (
-                <motion.span 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="font-outfit font-bold text-base tracking-wide text-brand-text-primary"
-                >
-                  Forensi<span className="text-brand-cyan">Guard</span>
-                </motion.span>
+              {isSidebarOpen ? (
+                <img 
+                  src={theme === "light" ? "/logo-light.png" : "/logo-dark.png"} 
+                  alt="ForensiGuard" 
+                  style={{ height: "20px", width: "auto" }} 
+                />
+              ) : (
+                <div className="p-2 bg-brand-cyan rounded-lg text-white shadow-sm">
+                  <ShieldCheck className="h-4.5 w-4.5" />
+                </div>
               )}
             </Link>
             <button 

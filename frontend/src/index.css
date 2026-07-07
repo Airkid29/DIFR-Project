@@ -2,53 +2,53 @@
 @import "tailwindcss";
 
 :root {
-  /* Blue Palette System */
-  --brand-abyssal: #0f1623;
-  --brand-card: #1a2235;
-  --brand-border: #2a3a55;
-  --brand-text-primary: #F0F3FA;
-  --brand-text-secondary: #8AAEE0;
+  /* Clean Minimalist Palette System (RodiumAI / Vercel style) */
+  --brand-abyssal: #121412;
+  --brand-card: #191c19;
+  --brand-border: rgba(236, 234, 227, 0.10);
+  --brand-text-primary: #ECEAE3;
+  --brand-text-secondary: #9B9C93;
 
   /* Accent colors */
-  --brand-cyan: #638ECB;
-  --brand-emerald: #4a9e7a;
-  --brand-amber: #c49a3a;
-  --brand-crimson: #c45a6a;
-  --brand-info: #8AAEE0;
+  --brand-cyan: #5FCB9B; /* Mint Green primary accent */
+  --brand-emerald: #5FCB9B;
+  --brand-amber: #F2A93B; /* Gold accent */
+  --brand-crimson: #FF5F5F;
+  --brand-info: #9B9C93;
 
-  --glass-bg: rgba(15, 22, 35, 0.88);
+  --glass-bg: rgba(18, 20, 18, 0.88);
   --glass-border: var(--brand-border);
-  --theme-text-title: #F0F3FA;
-  --theme-white-bg-tint: rgba(176, 201, 239, 0.06);
-  --theme-subtle-bg: rgba(176, 201, 239, 0.02);
+  --theme-text-title: #ECEAE3;
+  --theme-white-bg-tint: rgba(236, 234, 227, 0.04);
+  --theme-subtle-bg: rgba(236, 234, 227, 0.02);
 
-  --glow-cyan-shadow: 0 4px 20px -2px rgba(99, 142, 203, 0.2);
-  --glow-emerald-shadow: 0 4px 20px -2px rgba(74, 158, 122, 0.1);
-  --glow-crimson-shadow: 0 4px 20px -2px rgba(196, 90, 106, 0.1);
+  --glow-cyan-shadow: 0 4px 20px -2px rgba(95, 203, 155, 0.15);
+  --glow-emerald-shadow: 0 4px 20px -2px rgba(95, 203, 155, 0.1);
+  --glow-crimson-shadow: 0 4px 20px -2px rgba(255, 95, 95, 0.08);
 }
 
 :root[data-theme="light"] {
-  --brand-abyssal: #E8EEF7;
-  --brand-card: #FFFFFF;
-  --brand-border: #C5D4EA;
-  --brand-text-primary: #1A2D4D;
-  --brand-text-secondary: #4A6B9A;
+  --brand-abyssal: #f9f9f7;
+  --brand-card: #ffffff;
+  --brand-border: rgba(18, 20, 18, 0.08);
+  --brand-text-primary: #121412;
+  --brand-text-secondary: #5a5c56;
 
-  --brand-cyan: #2B5A9E;
-  --brand-emerald: #1F7A52;
-  --brand-amber: #9A7220;
-  --brand-crimson: #B83248;
-  --brand-info: #3D6DB5;
+  --brand-cyan: #3b9c70; /* Mint Green light theme */
+  --brand-emerald: #3b9c70;
+  --brand-amber: #c07f28; /* Gold light theme */
+  --brand-crimson: #d32f2f;
+  --brand-info: #5a5c56;
 
-  --glass-bg: rgba(255, 255, 255, 0.95);
-  --glass-border: #C5D4EA;
-  --theme-text-title: #1A2D4D;
-  --theme-white-bg-tint: rgba(43, 90, 158, 0.06);
-  --theme-subtle-bg: rgba(43, 90, 158, 0.03);
+  --glass-bg: rgba(249, 249, 247, 0.95);
+  --glass-border: var(--brand-border);
+  --theme-text-title: #121412;
+  --theme-white-bg-tint: rgba(18, 20, 18, 0.04);
+  --theme-subtle-bg: rgba(18, 20, 18, 0.01);
 
-  --glow-cyan-shadow: 0 2px 8px rgba(43, 90, 158, 0.1);
-  --glow-emerald-shadow: 0 2px 8px rgba(31, 122, 82, 0.08);
-  --glow-crimson-shadow: 0 2px 8px rgba(184, 50, 72, 0.08);
+  --glow-cyan-shadow: 0 2px 8px rgba(59, 156, 112, 0.08);
+  --glow-emerald-shadow: 0 2px 8px rgba(59, 156, 112, 0.05);
+  --glow-crimson-shadow: 0 2px 8px rgba(211, 47, 47, 0.05);
 }
 
 @theme {
@@ -65,7 +65,7 @@
   --color-theme-tint: var(--theme-white-bg-tint);
   --color-theme-subtle: var(--theme-subtle-bg);
 
-  --font-outfit: "Outfit", "Inter", sans-serif;
+  --font-outfit: "Space Grotesk", "Inter", sans-serif;
   --font-inter: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 

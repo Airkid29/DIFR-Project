@@ -120,7 +120,7 @@ export default function Timeline() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
         <div style={{ borderLeft: "2px solid var(--brand-border)", paddingLeft: 20 }}>
           {loading ? (
             <div style={ps.muted}>{t("common.loading")}</div>

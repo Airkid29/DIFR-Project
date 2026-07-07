@@ -46,6 +46,7 @@ class ProfileUpdate(BaseModel):
     name: Optional[str] = None
     organization_name: Optional[str] = None
     onboarding_completed: Optional[bool] = None
+    slack_webhook_url: Optional[str] = None
 
 class PasswordChangeRequest(BaseModel):
     current_password: str
@@ -59,6 +60,21 @@ class UserResponse(UserBase):
     onboarding_completed: bool = False
     is_active: bool
     last_login: Optional[datetime]
+    slack_webhook_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+# Ultra Admin Schemas
+class UltraAdminStatsResponse(BaseModel):
+    total_users: int
+    total_incidents: int
+    total_evidence: int
+    total_visitors: int
+    active_users_today: int
+    incidents_by_severity: Dict[str, int]
+    users_by_role: Dict[str, int]
 
     class Config:
         from_attributes = True
@@ -189,11 +205,13 @@ class AuditLogResponse(BaseModel):
 class IntegrationSettingsResponse(BaseModel):
     virustotal_configured: bool
     otx_configured: bool
+    slack_configured: bool
 
 
 class IntegrationSettingsUpdate(BaseModel):
     virustotal_api_key: Optional[str] = None
     otx_api_key: Optional[str] = None
+    slack_webhook_url: Optional[str] = None
 
 
 class ThreatIntelHashLookup(BaseModel):

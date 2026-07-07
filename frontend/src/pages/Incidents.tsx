@@ -135,7 +135,7 @@ export default function Incidents() {
         </select>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: selected ? "1fr 340px" : "1fr", gap: 20, alignItems: "start" }}>
+      <div className={`grid grid-cols-1 ${selected ? "lg:grid-cols-[1fr_340px]" : ""} gap-5 items-start`}>
         <div style={ps.table}>
           {loading ? (
             <div style={{ padding: 32, textAlign: "center", ...ps.muted }}>{t("common.loading")}</div>

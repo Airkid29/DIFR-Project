@@ -2,16 +2,22 @@ import os
 import uuid
 import datetime
 import threading
+import requests
 from typing import List
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from .config import settings
 from .database import get_db
@@ -34,14 +40,33 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 app = FastAPI(title="ForensiGuard API", version="1.0.0")
 
+# Rate Limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Secure Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
 # Enable CORS for frontend API communications
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # In production, replace with your actual frontend domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(GZipMiddleware)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 @app.on_event("startup")
 def on_startup():
@@ -83,7 +108,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 
 def is_super_admin(user: models.User) -> bool:
-    return user.role == "SuperAdmin"
+    return user.role in ["SuperAdmin", "UltraAdmin"]
 
 
 def same_organization(user: models.User, target: models.User) -> bool:
@@ -380,6 +405,18 @@ def create_incident(inc: schemas.IncidentCreate, db: Session = Depends(get_db), 
         resource_id=new_id,
     )
 
+    # Send Slack notification if configured (user first, then global)
+    slack_webhook = current_user.slack_webhook_url
+    if not slack_webhook:
+        slack_setting = get_integration_setting(db, "slack")
+        if slack_setting:
+            slack_webhook = slack_setting.api_key
+    if slack_webhook:
+        send_slack_notification(
+            slack_webhook,
+            f"🚨 New Incident Created: {new_id}\nTitle: {inc.title}\nSeverity: {inc.severity}\nCreated by: {current_user.name}"
+        )
+
     return new_inc
 
 @app.get("/api/incidents/{incident_id}", response_model=schemas.IncidentResponse)
@@ -614,10 +651,28 @@ def upsert_integration_setting(db: Session, name: str, api_key: Optional[str]):
     return setting
 
 
+def send_slack_notification(webhook_url: str, message: str) -> bool:
+    try:
+        import json
+        payload = {
+            "text": message
+        }
+        response = requests.post(
+            webhook_url,
+            data=json.dumps(payload),
+            headers={"Content-Type": "application/json"}
+        )
+        return response.status_code == 200
+    except Exception as e:
+        print(f"[Slack] Failed to send notification: {str(e)}")
+        return False
+
+
 def get_integration_flags(db: Session) -> Dict[str, bool]:
     return {
         "virustotal_configured": bool(get_integration_setting(db, "virustotal") and get_integration_setting(db, "virustotal").api_key),
         "otx_configured": bool(get_integration_setting(db, "otx") and get_integration_setting(db, "otx").api_key),
+        "slack_configured": bool(get_integration_setting(db, "slack") and get_integration_setting(db, "slack").api_key),
     }
 
 
@@ -632,7 +687,29 @@ def save_integration_settings(request: schemas.IntegrationSettingsUpdate, db: Se
         upsert_integration_setting(db, "virustotal", request.virustotal_api_key.strip() or None)
     if request.otx_api_key is not None:
         upsert_integration_setting(db, "otx", request.otx_api_key.strip() or None)
+    if request.slack_webhook_url is not None:
+        upsert_integration_setting(db, "slack", request.slack_webhook_url.strip() or None)
     return get_integration_flags(db)
+
+
+class SlackNotificationRequest(BaseModel):
+    message: str
+
+
+@app.post("/api/integrations/slack/test")
+def test_slack_notification(request: SlackNotificationRequest, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin", "Analyst"]))):
+    slack_webhook = current_user.slack_webhook_url
+    if not slack_webhook:
+        slack_setting = get_integration_setting(db, "slack")
+        if slack_setting:
+            slack_webhook = slack_setting.api_key
+    if not slack_webhook:
+        raise HTTPException(status_code=400, detail="Slack webhook URL not configured")
+    success = send_slack_notification(slack_webhook, request.message)
+    return {
+        "success": success,
+        "message": "Slack notification sent successfully" if success else "Failed to send Slack notification"
+    }
 
 
 @app.post("/api/integrations/validate", response_model=schemas.ThreatIntelResponse)
@@ -785,6 +862,8 @@ def update_me(
         current_user.organization_name = request.organization_name.strip() or None
     if request.onboarding_completed is not None:
         current_user.onboarding_completed = request.onboarding_completed
+    if request.slack_webhook_url is not None:
+        current_user.slack_webhook_url = request.slack_webhook_url.strip() or None
     db.commit()
     db.refresh(current_user)
     return current_user
@@ -882,4 +961,108 @@ def create_invited_user(new_user: schemas.UserCreate, db: Session = Depends(get_
     db.commit()
     db.refresh(user)
     return user
+
+
+# --- VISITOR TRACKING ENDPOINTS ---
+
+@app.post("/api/visitor/log")
+def log_visitor(request: Request, db: Session = Depends(get_db)):
+    ip_address = request.client.host if request.client else None
+    # Support reverse proxies
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        ip_address = forwarded.split(",")[0].strip()
+    user_agent = request.headers.get("user-agent")
+    
+    log_entry = models.VisitorLog(
+        ip_address=ip_address,
+        user_agent=user_agent
+    )
+    db.add(log_entry)
+    db.commit()
+    return {"status": "success"}
+
+@app.get("/api/visitor/stats")
+def get_visitor_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.role not in ["Admin", "Analyst", "UltraAdmin"]:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
+    total_views = db.query(models.VisitorLog).count()
+    from sqlalchemy import func
+    unique_visitors = db.query(func.count(models.VisitorLog.ip_address.distinct())).scalar()
+    
+    return {
+        "total_views": total_views,
+        "unique_visitors": unique_visitors
+    }
+
+
+# --- ULTRA ADMIN ENDPOINTS ---
+
+@app.get("/api/ultra-admin/stats", response_model=schemas.UltraAdminStatsResponse)
+def get_ultra_admin_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.role != "UltraAdmin":
+        raise HTTPException(status_code=403, detail="Insufficient permissions. Only UltraAdmin can access this endpoint.")
+    
+    total_users = db.query(models.User).count()
+    total_incidents = db.query(models.Incident).count()
+    total_evidence = db.query(models.Evidence).count()
+    total_visitors = db.query(models.VisitorLog).count()
+    
+    # Active users today
+    today = datetime.datetime.utcnow().date()
+    active_users_today = db.query(models.User).filter(models.User.last_login >= today).count()
+    
+    # Incidents by severity
+    from sqlalchemy import func
+    incidents_by_severity = dict(
+        db.query(models.Incident.severity, func.count(models.Incident.id))
+        .group_by(models.Incident.severity)
+        .all()
+    )
+    
+    # Users by role
+    users_by_role = dict(
+        db.query(models.User.role, func.count(models.User.id))
+        .group_by(models.User.role)
+        .all()
+    )
+    
+    return {
+        "total_users": total_users,
+        "total_incidents": total_incidents,
+        "total_evidence": total_evidence,
+        "total_visitors": total_visitors,
+        "active_users_today": active_users_today,
+        "incidents_by_severity": incidents_by_severity,
+        "users_by_role": users_by_role
+    }
+
+
+@app.get("/api/ultra-admin/users", response_model=List[schemas.UserResponse])
+def get_all_users_ultra_admin(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.role != "UltraAdmin":
+        raise HTTPException(status_code=403, detail="Insufficient permissions. Only UltraAdmin can access this endpoint.")
+    return db.query(models.User).all()
+
+
+@app.get("/api/ultra-admin/incidents", response_model=List[schemas.IncidentResponse])
+def get_all_incidents_ultra_admin(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.role != "UltraAdmin":
+        raise HTTPException(status_code=403, detail="Insufficient permissions. Only UltraAdmin can access this endpoint.")
+    return db.query(models.Incident).all()
+
+
+@app.get("/api/ultra-admin/audit", response_model=List[schemas.AuditLogResponse])
+def get_all_audit_logs_ultra_admin(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.role != "UltraAdmin":
+        raise HTTPException(status_code=403, detail="Insufficient permissions. Only UltraAdmin can access this endpoint.")
+    return db.query(models.AuditLog).order_by(models.AuditLog.timestamp.desc()).all()
+
+
+@app.get("/api/ultra-admin/evidence", response_model=List[schemas.EvidenceResponse])
+def get_all_evidence_ultra_admin(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.role != "UltraAdmin":
+        raise HTTPException(status_code=403, detail="Insufficient permissions. Only UltraAdmin can access this endpoint.")
+    return db.query(models.Evidence).all()
 

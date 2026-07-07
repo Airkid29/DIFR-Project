@@ -22,6 +22,7 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import History from "./pages/History";
 import ThreatIntel from "./pages/ThreatIntel";
+import UltraAdmin from "./pages/UltraAdmin";
 
 // Initialize Query Client for TanStack Query API calls
 const queryClient = new QueryClient({
@@ -79,6 +80,7 @@ export default function App() {
             <Route path="audit" element={<AuditLog />} />
             <Route path="settings" element={<Settings />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="ultra-admin" element={<UltraAdmin />} />
           </Route>
 
           {/* Fallback routing */}

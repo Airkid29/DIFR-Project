@@ -15,3 +15,5 @@ bcrypt==4.2.0
 pyotp==2.9.0
 requests==2.32.3
 email-validator>=2.0.0
+slowapi==0.1.9
+limits==3.13.0

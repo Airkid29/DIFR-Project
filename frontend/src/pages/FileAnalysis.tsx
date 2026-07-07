@@ -134,24 +134,24 @@ export default function FileAnalysis() {
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 980, margin: "0 auto" },
     header: { display: "flex", flexDirection: "column" as const, gap: 8 },
-    title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 32, color: "#F9FAFB", letterSpacing: -0.5, marginBottom: 8 },
-    desc: { fontSize: 14, color: "#9CA3AF", lineHeight: 1.7 },
-    uploadZone: { border: "2px dashed #1F2937", borderRadius: 14, padding: 70, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 16, cursor: "pointer", transition: "all 0.2s" },
-    uploadZoneActive: { borderColor: "#3B82F6", background: "rgba(59, 130, 246, 0.05)" },
-    uploadIcon: { width: 46, height: 46, color: "#9CA3AF", animation: "pulse 2s infinite" },
+    title: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 800, fontSize: 32, color: "var(--brand-text-primary)", letterSpacing: -0.5, marginBottom: 8 },
+    desc: { fontSize: 14, color: "var(--brand-text-secondary)", lineHeight: 1.7 },
+    uploadZone: { border: "2px dashed var(--brand-border)", borderRadius: 14, padding: 70, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 16, cursor: "pointer", transition: "all 0.2s" },
+    uploadZoneActive: { borderColor: "var(--brand-cyan)", background: "var(--theme-white-bg-tint)" },
+    uploadIcon: { width: 46, height: 46, color: "var(--brand-text-secondary)", animation: "pulse 2s infinite" },
     uploadText: { textAlign: "center" as const },
-    uploadTextMain: { fontSize: 15, fontWeight: 600, color: "#F9FAFB", marginBottom: 6 },
-    uploadTextSub: { fontSize: 12, color: "#9CA3AF" },
-    fileInfo: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 14, padding: 24, display: "flex", flexDirection: "column" as const, gap: 16 },
-    progressBar: { width: "100%", height: 6, background: "#1F2937", borderRadius: 3, overflow: "hidden" },
-    progressFill: { height: "100%", background: "#3B82F6", transition: "width 0.3s" },
+    uploadTextMain: { fontSize: 15, fontWeight: 600, color: "var(--brand-text-primary)", marginBottom: 6 },
+    uploadTextSub: { fontSize: 12, color: "var(--brand-text-secondary)" },
+    fileInfo: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 14, padding: 24, display: "flex", flexDirection: "column" as const, gap: 16 },
+    progressBar: { width: "100%", height: 6, background: "var(--brand-border)", borderRadius: 3, overflow: "hidden" },
+    progressFill: { height: "100%", background: "var(--brand-cyan)", transition: "width 0.3s" },
     resultsGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 },
-    resultCard: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column" as const, gap: 12 },
-    threatBig: { fontFamily: "'Outfit', sans-serif", fontWeight: 900, fontSize: 34, lineHeight: 1 },
+    resultCard: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column" as const, gap: 12 },
+    threatBig: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 900, fontSize: 34, lineHeight: 1 },
     badge: { display: "inline-block", padding: "4px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const },
-    badgeMalicious: { background: "rgba(239, 68, 68, 0.1)", color: "#EF4444", border: "1px solid rgba(239, 68, 68, 0.2)" },
-    badgeClean: { background: "rgba(16, 185, 129, 0.1)", color: "#10B981", border: "1px solid rgba(16, 185, 129, 0.2)" },
-    hashBox: { background: "#0A0E1A", border: "1px solid #1F2937", padding: 12, borderRadius: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#9CA3AF", wordBreak: "break-all" as const, marginTop: 4 },
+    badgeMalicious: { background: "rgba(255,95,95,0.1)", color: "var(--brand-crimson)", border: "1px solid rgba(255,95,95,0.2)" },
+    badgeClean: { background: "rgba(95,203,155,0.1)", color: "var(--brand-cyan)", border: "1px solid rgba(95,203,155,0.2)" },
+    hashBox: { background: "var(--brand-abyssal)", border: "1px solid var(--brand-border)", padding: 12, borderRadius: 8, fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--brand-text-secondary)", wordBreak: "break-all" as const, marginTop: 4 },
   };
 
   const pollYaraJob = async (jobId: string): Promise<YaraJob> => {
@@ -241,16 +241,16 @@ export default function FileAnalysis() {
       ) : (
         <div style={s.fileInfo}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-            <File size={34} style={{ color: "#3B82F6" }} />
+            <File size={34} style={{ color: "var(--brand-cyan)" }} />
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "#F9FAFB" }}>{file?.name}</span>
-                <span style={{ fontSize: 11, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace" }}>{((file?.size || 0) / 1024).toFixed(2)} KB</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-text-primary)" }}>{file?.name}</span>
+                <span style={{ fontSize: 11, color: "var(--brand-text-secondary)", fontFamily: "var(--font-mono)" }}>{((file?.size || 0) / 1024).toFixed(2)} KB</span>
               </div>
               <div style={s.progressBar}>
                 <div style={{ ...s.progressFill, width: `${progress}%` }} />
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#9CA3AF", marginTop: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--brand-text-secondary)", marginTop: 8 }}>
                 <span>
                   {status === "scanning" && t("fileAnalysis.scanning")}
                   {status === "done" && t("fileAnalysis.scanComplete")}
@@ -262,7 +262,7 @@ export default function FileAnalysis() {
           </div>
 
           {status === "error" && (
-            <div style={{ padding: 12, borderRadius: 8, background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", color: "#FCA5A5", fontSize: 13 }}>
+            <div style={{ padding: 12, borderRadius: 8, background: "rgba(255,95,95,0.08)", border: "1px solid rgba(255,95,95,0.2)", color: "var(--brand-crimson)", fontSize: 13 }}>
               {errorMessage}
             </div>
           )}
@@ -270,50 +270,50 @@ export default function FileAnalysis() {
           {status === "done" && (
             <div style={s.resultsGrid}>
               <div style={s.resultCard}>
-                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 15, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 12, marginBottom: 12 }}>{t("fileAnalysis.threatAssessment")}</h3>
+                <h3 style={{ fontFamily: "var(--font-outfit)", fontWeight: 700, fontSize: 15, color: "var(--brand-text-primary)", borderBottom: "1px solid var(--brand-border)", paddingBottom: 12, marginBottom: 12 }}>{t("fileAnalysis.threatAssessment")}</h3>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                   {result.threat > 50 ? (
                     <>
-                      <AlertTriangle size={28} style={{ color: "#EF4444" }} />
+                      <AlertTriangle size={28} style={{ color: "var(--brand-crimson)" }} />
                       <div>
-                        <div style={{ ...s.threatBig, color: "#EF4444" }}>{result.threat}/100</div>
+                        <div style={{ ...s.threatBig, color: "var(--brand-crimson)" }}>{result.threat}/100</div>
                         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                           <span style={{ ...s.badge, ...s.badgeMalicious }}>{result.severity}</span>
-                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>{t("fileAnalysis.yaraIntel")}</span>
+                          <span style={{ ...s.badge, background: "var(--theme-white-bg-tint)", color: "var(--brand-text-primary)", border: "1px solid var(--brand-border)" }}>{t("fileAnalysis.yaraIntel")}</span>
                         </div>
                       </div>
                     </>
                   ) : (
                     <>
-                      <CheckCircle size={28} style={{ color: "#10B981" }} />
+                      <CheckCircle size={28} style={{ color: "var(--brand-cyan)" }} />
                       <div>
-                        <div style={{ ...s.threatBig, color: "#10B981" }}>{result.threat}/100</div>
+                        <div style={{ ...s.threatBig, color: "var(--brand-cyan)" }}>{result.threat}/100</div>
                         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                           <span style={{ ...s.badge, ...s.badgeClean }}>{result.severity}</span>
-                          <span style={{ ...s.badge, background: "rgba(255,255,255,0.05)", color: "#F9FAFB", border: "1px solid #1F2937" }}>{t("fileAnalysis.yaraIntel")}</span>
+                          <span style={{ ...s.badge, background: "var(--theme-white-bg-tint)", color: "var(--brand-text-primary)", border: "1px solid var(--brand-border)" }}>{t("fileAnalysis.yaraIntel")}</span>
                         </div>
                       </div>
                     </>
                   )}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {result.matches.length > 0 ? result.matches.map((match) => <div key={match} style={{ fontSize: 12, color: "#F9FAFB" }}>• {match}</div>) : <div style={{ fontSize: 12, color: "#9CA3AF" }}>{t("fileAnalysis.noSignatureMatch")}</div>}
+                  {result.matches.length > 0 ? result.matches.map((match) => <div key={match} style={{ fontSize: 12, color: "var(--brand-text-primary)" }}>• {match}</div>) : <div style={{ fontSize: 12, color: "var(--brand-text-secondary)" }}>{t("fileAnalysis.noSignatureMatch")}</div>}
                 </div>
               </div>
 
               <div style={s.resultCard}>
-                <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 15, color: "#F9FAFB", borderBottom: "1px solid #1F2937", paddingBottom: 12, marginBottom: 12 }}>{t("fileAnalysis.digitalFingerprints")}</h3>
+                <h3 style={{ fontFamily: "var(--font-outfit)", fontWeight: 700, fontSize: 15, color: "var(--brand-text-primary)", borderBottom: "1px solid var(--brand-border)", paddingBottom: 12, marginBottom: 12 }}>{t("fileAnalysis.digitalFingerprints")}</h3>
                 <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
                   <div>
-                    <span style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>MD5</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: "var(--brand-text-secondary)", textTransform: "uppercase" }}>MD5</span>
                     <div style={s.hashBox}>{result.hashes.md5 || "—"}</div>
                   </div>
                   <div>
-                    <span style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>SHA-1</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: "var(--brand-text-secondary)", textTransform: "uppercase" }}>SHA-1</span>
                     <div style={s.hashBox}>{result.hashes.sha1 || "—"}</div>
                   </div>
                   <div>
-                    <span style={{ fontSize: 9, fontWeight: 600, color: "#6B7280", textTransform: "uppercase" }}>SHA-256</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: "var(--brand-text-secondary)", textTransform: "uppercase" }}>SHA-256</span>
                     <div style={s.hashBox}>{result.hashes.sha256 || "—"}</div>
                   </div>
                 </div>
@@ -321,12 +321,12 @@ export default function FileAnalysis() {
             </div>
           )}
 
-          <div style={{ display: "flex", gap: 12, marginTop: 20, borderTop: "1px solid #1F2937", paddingTop: 20, flexWrap: "wrap" }}>
-            <button onClick={handleReset} style={{ padding: "10px 16px", background: "rgba(255,255,255,0.05)", border: "1px solid #1F2937", borderRadius: 8, color: "#F9FAFB", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+          <div style={{ display: "flex", gap: 12, marginTop: 20, borderTop: "1px solid var(--brand-border)", paddingTop: 20, flexWrap: "wrap" }}>
+            <button onClick={handleReset} style={{ padding: "10px 16px", background: "var(--theme-white-bg-tint)", border: "1px solid var(--brand-border)", borderRadius: 8, color: "var(--brand-text-primary)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
               {t("fileAnalysis.scanAnother")}
             </button>
             {status === "done" && (
-              <button type="button" onClick={handleExportReport} style={{ padding: "10px 16px", background: "#FFFFFF", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+              <button type="button" onClick={handleExportReport} style={{ padding: "10px 16px", background: "var(--brand-text-primary)", border: "none", borderRadius: 8, color: "var(--brand-abyssal)", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
                 <Download size={14} />
                 <span>{t("fileAnalysis.exportReport")}</span>
               </button>
@@ -334,10 +334,10 @@ export default function FileAnalysis() {
           </div>
 
           {status === "done" && (
-            <div style={{ borderTop: "1px solid #1F2937", paddingTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#F9FAFB" }}>{t("fileAnalysis.operationalNotes")}</div>
+            <div style={{ borderTop: "1px solid var(--brand-border)", paddingTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-text-primary)" }}>{t("fileAnalysis.operationalNotes")}</div>
               {result.notes.map((note) => (
-                <div key={note} style={{ fontSize: 12, color: "#9CA3AF" }}>• {note}</div>
+                <div key={note} style={{ fontSize: 12, color: "var(--brand-text-secondary)" }}>• {note}</div>
               ))}
             </div>
           )}

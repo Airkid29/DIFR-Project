@@ -11,6 +11,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import "../styles/landingv2.css";
+import { api } from "../utils/api";
 
 export default function LandingV2() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
@@ -22,6 +23,14 @@ export default function LandingV2() {
       setTheme(newTheme);
     };
     window.addEventListener("storage", handleThemeChange);
+    
+    // Log visitor
+    try {
+      void api.post("/api/visitor/log");
+    } catch (error) {
+      console.error("Failed to log visitor:", error);
+    }
+    
     return () => window.removeEventListener("storage", handleThemeChange);
   }, []);
 

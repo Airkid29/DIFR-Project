@@ -5,7 +5,7 @@ export const ps: Record<string, React.CSSProperties> = {
   container: { display: "flex", flexDirection: "column", gap: 24 },
   header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 24, flexWrap: "wrap" },
   title: {
-    fontFamily: "'Outfit', sans-serif",
+    fontFamily: "'Space Grotesk', 'Outfit', sans-serif",
     fontWeight: 800,
     fontSize: 32,
     color: "var(--brand-text-primary)",

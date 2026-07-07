@@ -158,7 +158,7 @@ export default function Profile() {
         <p style={ps.desc}>{t("profile.desc")}</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div style={ps.card}>
           <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--brand-text-secondary)" }}>{t("profile.role")}</div>
           <div style={{ fontSize: 18, fontWeight: 800, color: "var(--brand-text-primary)", marginTop: 6 }}>{user.role}</div>
@@ -178,7 +178,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <div style={ps.card}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid var(--brand-border)", paddingBottom: 16, marginBottom: 20 }}>
             <div style={{ width: 52, height: 52, background: "rgba(99,142,203,0.1)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-cyan)" }}>

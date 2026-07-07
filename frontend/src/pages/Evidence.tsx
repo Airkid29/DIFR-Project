@@ -134,7 +134,7 @@ export default function Evidence() {
         <div style={{ ...ps.card, color: "var(--brand-emerald)", fontSize: 13 }}>{statusMessage}</div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
         <div>
           <div style={{ ...ps.card, marginBottom: 16, position: "relative" }}>
             <Search size={16} style={{ position: "absolute", left: 28, top: "50%", transform: "translateY(-50%)", color: "var(--brand-text-secondary)" }} />

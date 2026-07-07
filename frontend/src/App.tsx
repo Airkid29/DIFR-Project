@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Layout from "./components/Layout";
 import { SettingsProvider } from "./context/SettingsContext";
 import Landing from "./pages/Landing";
+import LandingV2 from "./pages/LandingV2";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import OAuthCallback from "./pages/OAuthCallback";
@@ -50,11 +51,12 @@ export default function App() {
       <SettingsProvider>
         <BrowserRouter>
           <Routes>
-{/* Public Marketing/Auth routes */}
-           <Route index element={isAuth ? <Navigate to="/dashboard" replace /> : <Landing />} />
-           <Route path="login" element={isAuth ? <Navigate to="/dashboard" replace /> : <Login />} />
-           <Route path="register" element={isAuth ? <Navigate to="/dashboard" replace /> : <Register />} />
-           <Route path="auth/callback" element={<OAuthCallback />} />
+            {/* Public Marketing/Auth routes */}
+            <Route index element={isAuth ? <Navigate to="/dashboard" replace /> : <Landing />} />
+            <Route path="landing-v2" element={<LandingV2 />} />
+            <Route path="login" element={isAuth ? <Navigate to="/dashboard" replace /> : <Login />} />
+            <Route path="register" element={isAuth ? <Navigate to="/dashboard" replace /> : <Register />} />
+            <Route path="auth/callback" element={<OAuthCallback />} />
 
           {/* Secure application shell */}
           <Route

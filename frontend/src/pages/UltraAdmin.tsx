@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useSettings } from '../context/SettingsContext';
-import api from '../utils/api';
+import { api } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 
 const UltraAdmin: React.FC = () => {
-  const { settings, t } = useSettings();
   const navigate = useNavigate();
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
@@ -168,7 +166,7 @@ const UltraAdmin: React.FC = () => {
                   {Object.entries(stats.incidents_by_severity || {}).map(([severity, count]) => (
                     <div key={severity} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ color: 'var(--brand-text-secondary)' }}>{severity}</span>
-                      <span style={{ color: 'var(--brand-text-primary)', fontWeight: 700 }}>{count}</span>
+                      <span style={{ color: 'var(--brand-text-primary)', fontWeight: 700 }}>{count as React.ReactNode}</span>
                     </div>
                   ))}
                 </div>
@@ -188,7 +186,7 @@ const UltraAdmin: React.FC = () => {
                   {Object.entries(stats.users_by_role || {}).map(([role, count]) => (
                     <div key={role} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ color: 'var(--brand-text-secondary)' }}>{role}</span>
-                      <span style={{ color: 'var(--brand-text-primary)', fontWeight: 700 }}>{count}</span>
+                      <span style={{ color: 'var(--brand-text-primary)', fontWeight: 700 }}>{count as React.ReactNode}</span>
                     </div>
                   ))}
                 </div>

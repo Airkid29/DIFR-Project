@@ -3,9 +3,9 @@
 
 :root {
   /* Clean Minimalist Palette System (RodiumAI / Vercel style) */
-  --brand-abyssal: #121412;
+  --brand-abyssal: #010101;
   --brand-card: #191c19;
-  --brand-border: rgba(236, 234, 227, 0.10);
+  --brand-border: rgba(0, 0, 0, 0.1);
   --brand-text-primary: #ECEAE3;
   --brand-text-secondary: #9B9C93;
 

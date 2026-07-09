@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Code, Zap, Shield, BarChart, ArrowRight, ExternalLink } from "lucide-react";
 import { api } from "../utils/api";
 
 export default function Landing() {
@@ -68,11 +68,6 @@ export default function Landing() {
         f4Title: "Real-time analytics",
         f4Desc: "Track scan latency, threat score distribution, and posture trends.",
         f4Link: "See dashboard →"
-      },
-      payments: {
-        kicker: "Payments",
-        title: "Pay the way Africa pays",
-        desc: "Top up your credit balance directly with Mobile Money — no international card required, no currency friction."
       },
       howItWorks: {
         kicker: "How it works",
@@ -228,8 +223,8 @@ export default function Landing() {
 
   // Marquee list of tool logos
   const tools = [
-    "VS Code", "Cursor", "Windsurf", "JetBrains", "Zed", "n8n", "Zapier", 
-    "Make", "Python", "Node.js", "Flutter", "Splunk", "CrowdStrike", 
+    "VS Code", "Cursor", "Windsurf", "Zed", "n8n", "Zapier", 
+    "Make", "Python", "Node.js", "Splunk", "CrowdStrike", 
     "SentinelOne", "Slack", "Jira", "Docker", "Git", "GitHub", "Kubernetes"
   ];
 
@@ -240,7 +235,7 @@ export default function Landing() {
 
         /* Minimalist Vercel / RodiumAI variables */
         .landing-root {
-          --ink: #121412;
+          --ink: #050505;
           --panel: #191c19;
           --panel-2: #20241f;
           --line: rgba(236, 234, 227, 0.10);
@@ -271,7 +266,7 @@ export default function Landing() {
 
         /* Light Mode adaptation of the exact same palette layout */
         .landing-root[data-theme="light"] {
-          --ink: #f9f9f7;
+          --ink: #f0f4f8 ;
           --panel: #ffffff;
           --panel-2: #f1f3f0;
           --line: rgba(18, 20, 18, 0.08);
@@ -292,7 +287,7 @@ export default function Landing() {
           scroll-behavior: smooth;
         }
         .landing-root a {
-          color: inherit;
+          color: #000000;
           text-decoration: none;
         }
         .landing-root ul {
@@ -1010,21 +1005,27 @@ export default function Landing() {
         }
 
         /* Responsive Breakpoints matching template style */
-        @media (max-width: 900px) {
-          .landing-root .nav-links { display: none; }
-          .landing-root .grid-4 { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 1024px) {
+          .landing-root .grid-4 { grid-template-columns: repeat(2, 1fr); }
           .landing-root .money-layout { grid-template-columns: 1fr; gap: 40px; }
-          .landing-root .flow { grid-template-columns: 1fr 1fr; }
+          .landing-root .flow { grid-template-columns: repeat(2, 1fr); }
           .landing-root .flow-arrow { display: none; }
-          .landing-root .grid-2 { grid-template-columns: 1fr; }
-          .landing-root .foot-top { grid-template-columns: 1fr 1fr; }
+          .landing-root .foot-top { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+          .landing-root .nav-links { display: none; }
+          .landing-root .hero { padding: 80px 0 40px; }
+          .landing-root .hero h1 { font-size: clamp(2rem, 6vw, 3rem); }
+          .landing-root .provider-row { justify-content: center; }
         }
         @media (max-width: 560px) {
-          .landing-root .wrap { padding: 0 20px; }
+          .landing-root .wrap { padding: 0 16px; }
+          .landing-root .nav { height: auto; padding: 12px 0; gap: 12px; flex-wrap: wrap; }
           .landing-root .grid-4 { grid-template-columns: 1fr; }
           .landing-root .flow { grid-template-columns: 1fr; }
           .landing-root .hero-ctas { flex-direction: column; align-items: stretch; }
           .landing-root .foot-top { grid-template-columns: 1fr; }
+          .landing-root .brand { gap: 8px; }
         }
       `}</style>
 
@@ -1047,7 +1048,7 @@ export default function Landing() {
             <a href="#features">{currentStrings.nav.features}</a>
             <a href="#payment">{currentStrings.nav.pricing}</a>
             <a href="#how">{currentStrings.nav.insights}</a>
-            <a href="#docs">{currentStrings.nav.docs}</a>
+            <Link to="/docs">{currentStrings.nav.docs}</Link>
             <a href="#usecases">{currentStrings.nav.about}</a>
             <a href="#help">{currentStrings.nav.help}</a>
           </nav>
@@ -1093,9 +1094,9 @@ export default function Landing() {
             <Link to="/register" className="btn btn-primary btn-lg">
               {currentStrings.meta.startTrial}
             </Link>
-            <a href="#docs" className="btn btn-ghost btn-lg" style={{ border: "1px solid var(--line-strong)" }}>
+            <Link to="/docs" className="btn btn-ghost btn-lg" style={{ border: "1px solid var(--line-strong)" }}>
               {currentStrings.meta.viewDocs}
-            </a>
+            </Link>
           </div>
 
           {/* Provider Pills */}
@@ -1150,68 +1151,48 @@ export default function Landing() {
           <div className="grid-4 reveal">
             {/* Card 1 */}
             <div className="fcard">
-              <div className="ficon" style={{ color: "var(--gold)" }}>◆</div>
+              <div className="ficon" style={{ color: "var(--gold)" }}><Code size={20} /></div>
               <h3>{currentStrings.platform.f1Title}</h3>
               <p>{currentStrings.platform.f1Desc}</p>
-              <a className="flink" href="#docs">
-                {currentStrings.platform.f1Link}
-              </a>
+              <Link className="flink" to="/docs">
+              {currentStrings.platform.f1Link} <ArrowRight size={13} />
+            </Link>
             </div>
 
             {/* Card 2 */}
             <div className="fcard">
-              <div className="ficon" style={{ color: "var(--mint)" }}>◆</div>
+              <div className="ficon" style={{ color: "var(--mint)" }}><Shield size={20} /></div>
               <h3>{currentStrings.platform.f2Title}</h3>
               <p>{currentStrings.platform.f2Desc}</p>
               <a className="flink" href="#docs">
-                {currentStrings.platform.f2Link}
+                {currentStrings.platform.f2Link} <ArrowRight size={13} />
               </a>
             </div>
 
             {/* Card 3 */}
             <div className="fcard">
-              <div className="ficon" style={{ color: "var(--text)" }}>◆</div>
+              <div className="ficon" style={{ color: "var(--text)" }}><Zap size={20} /></div>
               <h3>{currentStrings.platform.f3Title}</h3>
               <p>{currentStrings.platform.f3Desc}</p>
               <Link className="flink" to="/register">
-                {currentStrings.platform.f3Link}
+                {currentStrings.platform.f3Link} <ArrowRight size={13} />
               </Link>
             </div>
 
             {/* Card 4 */}
             <div className="fcard">
-              <div className="ficon" style={{ color: "var(--metal-2)" }}>◆</div>
+              <div className="ficon" style={{ color: "var(--metal-2)" }}><BarChart size={20} /></div>
               <h3>{currentStrings.platform.f4Title}</h3>
               <p>{currentStrings.platform.f4Desc}</p>
               <Link className="flink" to="/login">
-                {currentStrings.platform.f4Link}
+                {currentStrings.platform.f4Link} <ArrowRight size={13} />
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Mobile Money Section */}
-      <section className="section money-section" id="payment">
-        <div className="wrap money-layout">
-          <div className="money-copy reveal">
-            <div className="kicker">{currentStrings.payments.kicker}</div>
-            <h2>{currentStrings.payments.title}</h2>
-            <p>{currentStrings.payments.desc}</p>
-            <Link to="/register" className="btn btn-primary">
-              {currentStrings.meta.topUp}
-            </Link>
-          </div>
-          <div className="money-grid reveal">
-            <div className="mchip"><div className="swatch" style={{ background: "#F2A93B" }}></div>MTN MoMo</div>
-            <div className="mchip"><div className="swatch" style={{ background: "#5FCB9B" }}></div>Orange Money</div>
-            <div className="mchip"><div className="swatch" style={{ background: "#9AA0A6" }}></div>Wave</div>
-            <div className="mchip"><div className="swatch" style={{ background: "#E7E9EA" }}></div>Airtel Money</div>
-            <div className="mchip"><div className="swatch" style={{ background: "#F2A93B" }}></div>Moov Money</div>
-            <div className="mchip"><div className="swatch" style={{ background: "#5FCB9B" }}></div>M-Pesa</div>
-          </div>
-        </div>
-      </section>
+      
 
       {/* How it Works Section */}
       <section className="section" id="how">
@@ -1394,7 +1375,10 @@ export default function Landing() {
               </div>
               <p>{currentStrings.footer.desc}</p>
               <div className="socials">
-                <a href="#">D</a><a href="#">L</a><a href="#">G</a><a href="#">X</a>
+                <a href="https://github.com/forensiguard" aria-label="GitHub">GH</a>
+                <a href="https://twitter.com/forensiguard" aria-label="X">X</a>
+                <a href="https://linkedin.com/company/forensiguard" aria-label="LinkedIn">LI</a>
+                <a href="https://join.slack.com/t/forensiguard/shared_invite/..." aria-label="Slack">SK</a>
               </div>
             </div>
             <div className="foot-col">

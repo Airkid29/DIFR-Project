@@ -197,35 +197,60 @@ const UltraAdmin: React.FC = () => {
 
         {activeTab === 'users' && (
           <div style={{
-            background: 'var(--glass-bg)',
-            border: '1px solid var(--brand-border)',
-            borderRadius: '16px',
-            padding: '24px',
-            backdropFilter: 'blur(12px)',
-            overflowX: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
           }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Name</th>
-                  <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Email</th>
-                  <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Role</th>
-                  <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Account Type</th>
-                  <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Organization</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map(user => (
-                  <tr key={user.id}>
-                    <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.name}</td>
-                    <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.email}</td>
-                    <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.role}</td>
-                    <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.account_type}</td>
-                    <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.organization_name || '-'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {(() => {
+              // Group users by organization
+              const groups: Record<string, any[]> = {};
+              users.forEach(user => {
+                const org = user.organization_name || 'Individual Users';
+                if (!groups[org]) groups[org] = [];
+                groups[org].push(user);
+              });
+              
+              return Object.entries(groups).map(([org, orgUsers]) => (
+                <div key={org} style={{
+                  background: 'var(--glass-bg)',
+                  border: '1px solid var(--brand-border)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  backdropFilter: 'blur(12px)',
+                  overflowX: 'auto',
+                }}>
+                  <h3 style={{
+                    fontFamily: 'Space Grotesk, Outfit, sans-serif',
+                    fontWeight: 700,
+                    color: 'var(--brand-text-primary)',
+                    marginBottom: '16px',
+                    fontSize: '20px'
+                  }}>
+                    {org} <span style={{ fontSize: '14px', color: 'var(--brand-text-secondary)', fontWeight: 400 }}>({orgUsers.length} users)</span>
+                  </h3>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Name</th>
+                        <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Email</th>
+                        <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Role</th>
+                        <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Account Type</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orgUsers.map(user => (
+                        <tr key={user.id}>
+                          <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.name}</td>
+                          <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.email}</td>
+                          <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.role}</td>
+                          <td style={{ padding: '12px', color: 'var(--brand-text-primary)', borderBottom: '1px solid var(--brand-border)' }}>{user.account_type}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ));
+            })()}
           </div>
         )}
 
@@ -333,8 +358,28 @@ const UltraAdmin: React.FC = () => {
           </div>
         )}
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .ultraadmin-container {
+            padding: 16px !important;
+          }
+          .ultraadmin-table {
+            font-size: 12px !important;
+          }
+          .ultraadmin-table th,
+          .ultraadmin-table td {
+            padding: 8px !important;
+          }
+        }
+        @media (max-width: 560px) {
+          .ultraadmin-tabs button {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+          }
+        }
+      `}</style>
     </div>
   );
-};
+}
 
 export default UltraAdmin;

@@ -471,6 +471,25 @@ def update_incident(
         description=f"Statut : {inc.status}, Sévérité : {inc.severity}",
         resource_id=incident_id,
     )
+    
+    # Send Slack notification if configured (user first, then global)
+    slack_webhook = current_user.slack_webhook_url
+    if not slack_webhook:
+        slack_setting = get_integration_setting(db, "slack")
+        if slack_setting:
+            slack_webhook = slack_setting.api_key
+    if slack_webhook:
+        if inc.status == "resolved":
+            send_slack_notification(
+                slack_webhook,
+                f"✅ Incident Resolved: {incident_id}\nTitle: {inc.title}\nResolved by: {current_user.name}"
+            )
+        else:
+            send_slack_notification(
+                slack_webhook,
+                f"📝 Incident Updated: {incident_id}\nTitle: {inc.title}\nStatus: {inc.status}\nSeverity: {inc.severity}\nUpdated by: {current_user.name}"
+            )
+
     return inc
 
 # --- EVIDENCE & CHAIN OF CUSTODY ENDPOINTS ---
@@ -528,6 +547,18 @@ def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db),
         description=ev.name,
         resource_id=new_id,
     )
+    
+    # Send Slack notification if configured (user first, then global)
+    slack_webhook = current_user.slack_webhook_url
+    if not slack_webhook:
+        slack_setting = get_integration_setting(db, "slack")
+        if slack_setting:
+            slack_webhook = slack_setting.api_key
+    if slack_webhook:
+        send_slack_notification(
+            slack_webhook,
+            f"📦 New Evidence Registered: {new_id}\nName: {ev.name}\nCategory: {ev.category}\nCollector: {current_user.name}"
+        )
 
     return new_ev
 
@@ -560,6 +591,18 @@ def transfer_custody(id: str, transfer: schemas.CustodyTransfer, db: Session = D
     )
     db.add(audit)
     db.commit()
+    
+    # Send Slack notification if configured (user first, then global)
+    slack_webhook = current_user.slack_webhook_url
+    if not slack_webhook:
+        slack_setting = get_integration_setting(db, "slack")
+        if slack_setting:
+            slack_webhook = slack_setting.api_key
+    if slack_webhook:
+        send_slack_notification(
+            slack_webhook,
+            f"🔄 Evidence Custody Transferred: {id}\nFrom: {old_custodian}\nTo: {transfer.transfer_to}\nAction: {transfer.action_taken}\nTransferred by: {current_user.name}"
+        )
 
     return ev
 

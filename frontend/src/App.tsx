@@ -23,6 +23,7 @@ import Profile from "./pages/Profile";
 import History from "./pages/History";
 import ThreatIntel from "./pages/ThreatIntel";
 import UltraAdmin from "./pages/UltraAdmin";
+import Documentation from "./pages/Documentation";
 
 // Initialize Query Client for TanStack Query API calls
 const queryClient = new QueryClient({
@@ -58,6 +59,7 @@ export default function App() {
             <Route path="login" element={isAuth ? <Navigate to="/dashboard" replace /> : <Login />} />
             <Route path="register" element={isAuth ? <Navigate to="/dashboard" replace /> : <Register />} />
             <Route path="auth/callback" element={<OAuthCallback />} />
+            <Route path="docs" element={<Documentation />} />
 
           {/* Secure application shell */}
           <Route

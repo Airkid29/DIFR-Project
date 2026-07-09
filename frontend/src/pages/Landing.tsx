@@ -2,6 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
 import { Sun, Moon, Code, Zap, Shield, BarChart, ArrowRight, ExternalLink } from "lucide-react";
+import SlackIcon from "../assets/slack-removebg-preview.png";
+import GitHubIcon from "../assets/github-removebg-preview.png";
+import LinkedinIcon from "../assets/linkedin-removebg-preview.png";
+import XIcon from "../assets/x-removebg-preview.png";
+import VirusTotalIcon from "../assets/virustotal.webp";
+import AlienVaultIcon from "../assets/alienvault.png";
+import YaraIcon from "../assets/Yara-removebg-preview.png";
 import { api } from "../utils/api";
 
 export default function Landing() {
@@ -1104,8 +1111,6 @@ export default function Landing() {
             <span className="pill"><i style={{ backgroundColor: "#5FCB9B" }}></i> YARA Engine</span>
             <span className="pill"><i style={{ backgroundColor: "#F2A93B" }}></i> VirusTotal</span>
             <span className="pill"><i style={{ backgroundColor: "#ECEAE3" }}></i> AlienVault OTX</span>
-            <span className="pill"><i style={{ backgroundColor: "#9AA0A6" }}></i> DeepSeek R1</span>
-            <span className="pill"><i style={{ backgroundColor: "#565b60" }}></i> Gemini 1.5</span>
           </div>
 
           {/* Router Demo Simulation */}
@@ -1374,11 +1379,19 @@ export default function Landing() {
                 />
               </div>
               <p>{currentStrings.footer.desc}</p>
-              <div className="socials">
-                <a href="https://github.com/forensiguard" aria-label="GitHub">GH</a>
-                <a href="https://twitter.com/forensiguard" aria-label="X">X</a>
-                <a href="https://linkedin.com/company/forensiguard" aria-label="LinkedIn">LI</a>
-                <a href="https://join.slack.com/t/forensiguard/shared_invite/..." aria-label="Slack">SK</a>
+              <div className="socials" style={{ display: "flex", gap: "12px" }}>
+                <a href="https://github.com/forensiguard" aria-label="GitHub">
+                  <img src={GitHubIcon} alt="GitHub" style={{ width: "24px", height: "24px" }} />
+                </a>
+                <a href="https://twitter.com/forensiguard" aria-label="X">
+                  <img src={XIcon} alt="X" style={{ width: "24px", height: "24px" }} />
+                </a>
+                <a href="https://linkedin.com/company/forensiguard" aria-label="LinkedIn">
+                  <img src={LinkedinIcon} alt="LinkedIn" style={{ width: "24px", height: "24px" }} />
+                </a>
+                <a href="https://join.slack.com/t/forensiguard/shared_invite/..." aria-label="Slack">
+                  <img src={SlackIcon} alt="Slack" style={{ width: "24px", height: "24px" }} />
+                </a>
               </div>
             </div>
             <div className="foot-col">
@@ -1402,7 +1415,7 @@ export default function Landing() {
           </div>
           <div className="foot-bottom">
             <span>© {new Date().getFullYear()} ForensiGuard. All rights reserved.</span>
-            <span>MTN MoMo · Orange Money · Wave · Airtel Money</span>
+            <span>Moyens de paiments bientot disponibles...</span>
           </div>
         </div>
       </footer>

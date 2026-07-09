@@ -93,7 +93,7 @@ The app proxies `/api` requests to the backend automatically.
 
 - Backend docs: `http://localhost:8000/docs`
 - Frontend app: `http://localhost:5173`
+- Documentation: 'http://localhost:5273/docs'
 
----
 
-If you want, I can now continue by wiring the frontend pages to the backend API endpoints and completing the remaining feature flows.
+Made by Abdoul-Rachid BAWA | June 2026 -- Today

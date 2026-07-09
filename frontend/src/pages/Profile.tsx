@@ -1,6 +1,7 @@
 // PROFILE PAGE — API-backed with password change
 import React, { useEffect, useState } from "react";
 import { User, ShieldCheck, Clock3, KeyRound, Building2 } from "lucide-react";
+import SlackIcon from "../assets/slack-removebg-preview.png";
 import { api } from "../utils/api";
 import { ps } from "../utils/pageStyles";
 import { t } from "../i18n";
@@ -15,6 +16,7 @@ interface UserProfile {
   mfa_enabled: boolean;
   onboarding_completed?: boolean;
   last_login?: string;
+  slack_webhook_url?: string | null;
 }
 
 interface ActivityItem {
@@ -27,12 +29,14 @@ export default function Profile() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [name, setName] = useState("");
   const [orgName, setOrgName] = useState("");
+  const [slackWebhookUrl, setSlackWebhookUrl] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [accountMessage, setAccountMessage] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [slackMessage, setSlackMessage] = useState("");
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [mfaMessage, setMfaMessage] = useState("");
   const [mfaError, setMfaError] = useState("");
@@ -46,6 +50,7 @@ export default function Profile() {
       setUser(data);
       setName(data.name);
       setOrgName(data.organization_name || "");
+      setSlackWebhookUrl(data.slack_webhook_url || "");
     }).catch(console.error);
     api.get("/api/history?limit=5").then(setActivity).catch(console.error);
   }, []);
@@ -61,6 +66,31 @@ export default function Profile() {
       window.setTimeout(() => setAccountMessage(""), 3200);
     } catch {
       setAccountMessage(t("common.serverError"));
+    }
+  };
+
+  const handleSaveSlack = async () => {
+    try {
+      const updated = await api.put("/api/auth/me", {
+        slack_webhook_url: slackWebhookUrl.trim() || null,
+      });
+      setUser(updated);
+      setSlackMessage("Slack webhook configuré avec succès!");
+      window.setTimeout(() => setSlackMessage(""), 3200);
+    } catch {
+      setSlackMessage("Erreur lors de la configuration de Slack.");
+      window.setTimeout(() => setSlackMessage(""), 3200);
+    }
+  };
+
+  const handleTestSlack = async () => {
+    try {
+      await api.post("/api/integrations/slack/test", { message: "Test de notification Slack depuis ForensiGuard!" });
+      setSlackMessage("Test de notification envoyé!");
+      window.setTimeout(() => setSlackMessage(""), 3200);
+    } catch {
+      setSlackMessage("Erreur lors de l'envoi du test.");
+      window.setTimeout(() => setSlackMessage(""), 3200);
     }
   };
 
@@ -219,6 +249,30 @@ export default function Profile() {
             {passwordMessage && <div style={{ ...ps.success, fontSize: 12 }}>{passwordMessage}</div>}
             <button type="submit" style={ps.btnPrimary}>{t("profile.updatePassword")}</button>
           </form>
+
+          <div style={{ marginTop: 20, borderTop: "1px solid var(--brand-border)", paddingTop: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 13, color: "var(--brand-text-primary)", marginBottom: 12 }}>
+              <img src={SlackIcon} alt="Slack" style={{ width: "16px", height: "16px" }} />
+              Notifications Slack
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <span style={ps.label}>URL du Webhook Slack</span>
+                <input 
+                  type="text" 
+                  style={ps.input} 
+                  value={slackWebhookUrl} 
+                  onChange={(e) => setSlackWebhookUrl(e.target.value)} 
+                  placeholder="https://hooks.slack.com/services/..." 
+                />
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button type="button" style={ps.btnPrimary} onClick={handleSaveSlack}>Sauvegarder</button>
+                {slackWebhookUrl && <button type="button" style={ps.btnSecondary} onClick={handleTestSlack}>Tester la notification</button>}
+              </div>
+              {slackMessage && <div style={{ ...ps.success, fontSize: 12 }}>{slackMessage}</div>}
+            </div>
+          </div>
 
           <div style={{ marginTop: 20, borderTop: "1px solid var(--brand-border)", paddingTop: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 13, color: "var(--brand-text-primary)", marginBottom: 12 }}>

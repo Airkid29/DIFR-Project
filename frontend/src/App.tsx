@@ -24,6 +24,8 @@ import History from "./pages/History";
 import ThreatIntel from "./pages/ThreatIntel";
 import UltraAdmin from "./pages/UltraAdmin";
 import Documentation from "./pages/Documentation";
+import MissionWizard from "./pages/MissionWizard";
+import NotFound from "./pages/NotFound";
 
 // Initialize Query Client for TanStack Query API calls
 const queryClient = new QueryClient({
@@ -83,10 +85,11 @@ export default function App() {
             <Route path="settings" element={<Settings />} />
             <Route path="profile" element={<Profile />} />
             <Route path="ultra-admin" element={<UltraAdmin />} />
+            <Route path="mission" element={<MissionWizard />} />
           </Route>
 
           {/* Fallback routing */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         </BrowserRouter>
       </SettingsProvider>

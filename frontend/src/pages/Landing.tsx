@@ -724,13 +724,10 @@ export default function Landing() {
         }
         .landing-root .flink {
           font-size: 13.5px;
-          color: var(--metal-1);
+          color: var(--mint);
           display: inline-flex;
           align-items: center;
           gap: 5px;
-        }
-        .landing-root[data-theme="light"] .flink {
-          color: var(--ink);
         }
         .landing-root .flink svg {
           width: 13px;
@@ -1108,9 +1105,9 @@ export default function Landing() {
 
           {/* Provider Pills */}
           <div className="provider-row">
-            <span className="pill"><i style={{ backgroundColor: "#5FCB9B" }}></i> YARA Engine</span>
-            <span className="pill"><i style={{ backgroundColor: "#F2A93B" }}></i> VirusTotal</span>
-            <span className="pill"><i style={{ backgroundColor: "#ECEAE3" }}></i> AlienVault OTX</span>
+            <span className="pill" style={{ paddingLeft: "10px", paddingRight: "10px" }}><img src={YaraIcon} alt="YARA Engine" style={{ width: "16px", height: "16px", borderRadius: "4px" }} /> YARA Engine</span>
+            <span className="pill" style={{ paddingLeft: "10px", paddingRight: "10px" }}><img src={VirusTotalIcon} alt="VirusTotal" style={{ width: "16px", height: "16px", borderRadius: "4px" }} /> VirusTotal</span>
+            <span className="pill" style={{ paddingLeft: "10px", paddingRight: "10px" }}><img src={AlienVaultIcon} alt="AlienVault OTX" style={{ width: "16px", height: "16px", borderRadius: "4px" }} /> AlienVault OTX</span>
           </div>
 
           {/* Router Demo Simulation */}

@@ -9,6 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi import UploadFile
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -72,6 +75,24 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 def on_startup():
     print("[*] Initializing databases schemas...")
     init_db()
+
+# Serve uploaded files (avatars, attachments) in development
+if os.path.isdir(settings.UPLOAD_DIR):
+    app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+
+
+@app.post("/api/uploads/avatar")
+def upload_avatar(file: UploadFile = File(...)):
+    try:
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+        filename = f"avatar_{uuid.uuid4().hex}_{file.filename}"
+        path = os.path.join(settings.UPLOAD_DIR, filename)
+        with open(path, "wb") as f:
+            f.write(file.file.read())
+        public_path = f"/uploads/{filename}"
+        return JSONResponse({"path": public_path})
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/health")
@@ -138,6 +159,51 @@ def assert_org_access_or_super_admin(resource_org: Optional[str], current_user: 
                 status_code=403,
                 detail="Opération interdite. Cette ressource n'appartient pas à votre organisation.",
             )
+
+
+def assert_resource_access(resource_owner_id: Optional[int], resource_org: Optional[str], current_user: models.User):
+    if is_super_admin(current_user):
+        return
+    if current_user.account_type == "enterprise":
+        assert_org_access_or_super_admin(resource_org, current_user)
+        return
+    if resource_owner_id is not None and resource_owner_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Opération interdite. Vous ne pouvez accéder qu'à vos propres ressources.",
+        )
+
+
+def create_notification(db: Session, user_id: int, notif_type: str, title: str, description: str, link: Optional[str] = None):
+    notification = models.Notification(
+        user_id=user_id,
+        type=notif_type,
+        title=title,
+        description=description,
+        link=link,
+    )
+    db.add(notification)
+    db.commit()
+    db.refresh(notification)
+    return notification
+
+
+def resolve_slack_webhook(db: Session, user: models.User, context: str = "audit") -> Optional[str]:
+    webhook = None
+    if context == "incidents":
+        webhook = user.slack_webhook_incidents or user.slack_webhook_url
+    elif context == "evidence":
+        webhook = user.slack_webhook_evidence or user.slack_webhook_url
+    elif context == "audit":
+        webhook = user.slack_webhook_audit or user.slack_webhook_url
+
+    if webhook:
+        return webhook
+
+    slack_setting = get_integration_setting(db, "slack")
+    if slack_setting and slack_setting.api_key:
+        return slack_setting.api_key
+    return None
 
 
 # HELPER: RBAC role verification
@@ -365,8 +431,12 @@ def oauth_callback(request: schemas.OAuthCallbackRequest, db: Session = Depends(
 @app.get("/api/incidents", response_model=List[schemas.IncidentResponse])
 def get_incidents(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     query = db.query(models.Incident)
-    if current_user.account_type == "enterprise" and not is_super_admin(current_user):
+    if is_super_admin(current_user):
+        pass  # Super admins see all
+    elif current_user.account_type == "enterprise":
         query = query.filter(models.Incident.organization_name == current_user.organization_name)
+    else:  # Professional users see only their own
+        query = query.filter(models.Incident.owner_id == current_user.id)
     return query.all()
 
 @app.post("/api/incidents", response_model=schemas.IncidentResponse)
@@ -406,15 +476,14 @@ def create_incident(inc: schemas.IncidentCreate, db: Session = Depends(get_db), 
     )
 
     # Send Slack notification if configured (user first, then global)
-    slack_webhook = current_user.slack_webhook_url
-    if not slack_webhook:
-        slack_setting = get_integration_setting(db, "slack")
-        if slack_setting:
-            slack_webhook = slack_setting.api_key
+    slack_webhook = resolve_slack_webhook(db, current_user, context="incidents")
     if slack_webhook:
         send_slack_notification(
             slack_webhook,
-            f"🚨 New Incident Created: {new_id}\nTitle: {inc.title}\nSeverity: {inc.severity}\nCreated by: {current_user.name}"
+            f"🚨 New Incident Created: {new_id}\nTitle: {inc.title}\nSeverity: {inc.severity}\nCreated by: {current_user.name}",
+            context="incidents",
+            user=current_user,
+            db=db,
         )
 
     return new_inc
@@ -424,7 +493,7 @@ def get_incident(incident_id: str, db: Session = Depends(get_db), current_user: 
     inc = db.query(models.Incident).filter(models.Incident.id == incident_id).first()
     if not inc:
         raise HTTPException(status_code=404, detail="Incident introuvable.")
-    assert_org_access_or_super_admin(inc.organization_name, current_user)
+    assert_resource_access(inc.owner_id, inc.organization_name, current_user)
     return inc
 
 @app.patch("/api/incidents/{incident_id}", response_model=schemas.IncidentResponse)
@@ -473,21 +542,23 @@ def update_incident(
     )
     
     # Send Slack notification if configured (user first, then global)
-    slack_webhook = current_user.slack_webhook_url
-    if not slack_webhook:
-        slack_setting = get_integration_setting(db, "slack")
-        if slack_setting:
-            slack_webhook = slack_setting.api_key
+    slack_webhook = resolve_slack_webhook(db, current_user, context="incidents")
     if slack_webhook:
         if inc.status == "resolved":
             send_slack_notification(
                 slack_webhook,
-                f"✅ Incident Resolved: {incident_id}\nTitle: {inc.title}\nResolved by: {current_user.name}"
+                f"✅ Incident Resolved: {incident_id}\nTitle: {inc.title}\nResolved by: {current_user.name}",
+                context="incidents",
+                user=current_user,
+                db=db,
             )
         else:
             send_slack_notification(
                 slack_webhook,
-                f"📝 Incident Updated: {incident_id}\nTitle: {inc.title}\nStatus: {inc.status}\nSeverity: {inc.severity}\nUpdated by: {current_user.name}"
+                f"📝 Incident Updated: {incident_id}\nTitle: {inc.title}\nStatus: {inc.status}\nSeverity: {inc.severity}\nUpdated by: {current_user.name}",
+                context="incidents",
+                user=current_user,
+                db=db,
             )
 
     return inc
@@ -497,9 +568,13 @@ def update_incident(
 @app.get("/api/evidence", response_model=List[schemas.EvidenceResponse])
 def get_evidence(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     query = db.query(models.Evidence)
-    if current_user.account_type == "enterprise" and not is_super_admin(current_user):
+    if is_super_admin(current_user):
+        pass
+    elif current_user.account_type == "enterprise":
         query = query.filter(models.Evidence.organization_name == current_user.organization_name)
-    return query.all()
+    else:
+        query = query.filter(models.Evidence.owner_id == current_user.id)
+    return query.order_by(models.Evidence.date_collected.desc()).all()
 
 @app.post("/api/evidence", response_model=schemas.EvidenceResponse)
 def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin", "Analyst", "Responder"]))):
@@ -513,7 +588,11 @@ def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db),
         custodian=current_user.name,
         location=ev.location,
         verified=True,
-        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None
+        owner_id=current_user.id,
+        organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
+        incident_id=ev.incident_id,
+        status="verified",
+        attachment_path=ev.attachment_name,
     )
     db.add(new_ev)
     
@@ -549,15 +628,14 @@ def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db),
     )
     
     # Send Slack notification if configured (user first, then global)
-    slack_webhook = current_user.slack_webhook_url
-    if not slack_webhook:
-        slack_setting = get_integration_setting(db, "slack")
-        if slack_setting:
-            slack_webhook = slack_setting.api_key
+    slack_webhook = resolve_slack_webhook(db, current_user, context="evidence")
     if slack_webhook:
         send_slack_notification(
             slack_webhook,
-            f"📦 New Evidence Registered: {new_id}\nName: {ev.name}\nCategory: {ev.category}\nCollector: {current_user.name}"
+            f"📦 New Evidence Registered: {new_id}\nName: {ev.name}\nCategory: {ev.category}\nCollector: {current_user.name}",
+            context="evidence",
+            user=current_user,
+            db=db,
         )
 
     return new_ev
@@ -568,41 +646,114 @@ def transfer_custody(id: str, transfer: schemas.CustodyTransfer, db: Session = D
     if not ev:
         raise HTTPException(status_code=404, detail="Evidence material not found")
 
+    target_user = db.query(models.User).filter(models.User.name == transfer.transfer_to).first()
+    if not target_user:
+        target_user = db.query(models.User).filter(models.User.email == transfer.transfer_to).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Recipient user not found")
+
     old_custodian = ev.custodian
-    ev.custodian = transfer.transfer_to
+    ev.status = "transfer_pending"
+    ev.pending_custodian_id = target_user.id
 
     history = models.CustodyHistory(
         evidence_id=id,
         transfer_from=old_custodian,
-        transfer_to=transfer.transfer_to,
+        transfer_to=target_user.name,
         action_taken=transfer.action_taken
     )
     db.add(history)
     db.commit()
     db.refresh(ev)
 
-    # Log audit entry
+    create_notification(
+        db,
+        target_user.id,
+        "warning",
+        "Transfert de custody en attente",
+        f"{current_user.name} a demandé à vous transférer la preuve {id}.",
+        link=f"/evidence",
+    )
+
     audit = models.AuditLog(
         user_email=current_user.email,
         action="EVIDENCE_TRANSFER",
-        resource=f"{id} | From {old_custodian} to {transfer.transfer_to}",
+        resource=f"{id} | From {old_custodian} to {target_user.name}",
         status="success",
         organization_name=current_user.organization_name if current_user.account_type == "enterprise" else None,
     )
     db.add(audit)
     db.commit()
-    
-    # Send Slack notification if configured (user first, then global)
-    slack_webhook = current_user.slack_webhook_url
-    if not slack_webhook:
-        slack_setting = get_integration_setting(db, "slack")
-        if slack_setting:
-            slack_webhook = slack_setting.api_key
+
+    slack_webhook = resolve_slack_webhook(db, current_user, context="evidence")
     if slack_webhook:
         send_slack_notification(
             slack_webhook,
-            f"🔄 Evidence Custody Transferred: {id}\nFrom: {old_custodian}\nTo: {transfer.transfer_to}\nAction: {transfer.action_taken}\nTransferred by: {current_user.name}"
+            f"🔄 Evidence Custody Transfer Requested: {id}\nFrom: {old_custodian}\nTo: {target_user.name}\nAction: {transfer.action_taken}\nTransferred by: {current_user.name}",
+            context="evidence",
+            user=current_user,
+            db=db,
         )
+
+    return ev
+
+
+@app.post("/api/evidence/{id}/accept-transfer", response_model=schemas.EvidenceResponse)
+def accept_transfer_custody(id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    ev = db.query(models.Evidence).filter(models.Evidence.id == id).first()
+    if not ev:
+        raise HTTPException(status_code=404, detail="Evidence material not found")
+    if ev.status != "transfer_pending" or ev.pending_custodian_id != current_user.id:
+        raise HTTPException(status_code=400, detail="Aucun transfert en attente pour cet utilisateur.")
+
+    old_custodian = ev.custodian
+    ev.custodian = current_user.name
+    ev.status = "verified"
+    ev.pending_custodian_id = None
+
+    history = models.CustodyHistory(
+        evidence_id=id,
+        transfer_from=old_custodian,
+        transfer_to=current_user.name,
+        action_taken="Transfer accepted and integrity verified",
+    )
+    db.add(history)
+    db.commit()
+    db.refresh(ev)
+
+    create_notification(
+        db,
+        ev.owner_id or 0,
+        "success",
+        "Transfert de custody accepté",
+        f"{current_user.name} a accepté la preuve {id}.",
+        link=f"/evidence",
+    )
+
+    return ev
+
+
+@app.post("/api/evidence/{id}/reject-transfer", response_model=schemas.EvidenceResponse)
+def reject_transfer_custody(id: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    ev = db.query(models.Evidence).filter(models.Evidence.id == id).first()
+    if not ev:
+        raise HTTPException(status_code=404, detail="Evidence material not found")
+    if ev.status != "transfer_pending" or ev.pending_custodian_id != current_user.id:
+        raise HTTPException(status_code=400, detail="Aucun transfert en attente pour cet utilisateur.")
+
+    ev.status = "verified"
+    ev.pending_custodian_id = None
+    db.commit()
+    db.refresh(ev)
+
+    create_notification(
+        db,
+        ev.owner_id or 0,
+        "warning",
+        "Transfert de custody rejeté",
+        f"{current_user.name} a rejeté la preuve {id}.",
+        link=f"/evidence",
+    )
 
     return ev
 
@@ -694,12 +845,17 @@ def upsert_integration_setting(db: Session, name: str, api_key: Optional[str]):
     return setting
 
 
-def send_slack_notification(webhook_url: str, message: str) -> bool:
+def send_slack_notification(webhook_url_or_message, message: Optional[str] = None, context: str = "audit", user: Optional[models.User] = None, db: Optional[Session] = None) -> bool:
     try:
         import json
-        payload = {
-            "text": message
-        }
+        webhook_url = webhook_url_or_message
+        text = message or webhook_url_or_message
+        if not webhook_url:
+            if user and db:
+                webhook_url = resolve_slack_webhook(db, user, context=context)
+            else:
+                return False
+        payload = {"text": text}
         response = requests.post(
             webhook_url,
             data=json.dumps(payload),
@@ -711,17 +867,21 @@ def send_slack_notification(webhook_url: str, message: str) -> bool:
         return False
 
 
-def get_integration_flags(db: Session) -> Dict[str, bool]:
+def get_integration_flags(db: Session, current_user: models.User) -> Dict[str, bool]:
+    global_setting = get_integration_setting(db, "slack")
     return {
         "virustotal_configured": bool(get_integration_setting(db, "virustotal") and get_integration_setting(db, "virustotal").api_key),
         "otx_configured": bool(get_integration_setting(db, "otx") and get_integration_setting(db, "otx").api_key),
-        "slack_configured": bool(get_integration_setting(db, "slack") and get_integration_setting(db, "slack").api_key),
+        "slack_configured": bool(current_user.slack_webhook_url or (global_setting and global_setting.api_key)),
+        "slack_webhook_incidents_configured": bool(current_user.slack_webhook_incidents or current_user.slack_webhook_url or (global_setting and global_setting.api_key)),
+        "slack_webhook_evidence_configured": bool(current_user.slack_webhook_evidence or current_user.slack_webhook_url or (global_setting and global_setting.api_key)),
+        "slack_webhook_audit_configured": bool(current_user.slack_webhook_audit or current_user.slack_webhook_url or (global_setting and global_setting.api_key)),
     }
 
 
 @app.get("/api/integrations", response_model=schemas.IntegrationSettingsResponse)
 def get_integration_settings(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return get_integration_flags(db)
+    return get_integration_flags(db, current_user)
 
 
 @app.post("/api/integrations", response_model=schemas.IntegrationSettingsResponse)
@@ -731,8 +891,15 @@ def save_integration_settings(request: schemas.IntegrationSettingsUpdate, db: Se
     if request.otx_api_key is not None:
         upsert_integration_setting(db, "otx", request.otx_api_key.strip() or None)
     if request.slack_webhook_url is not None:
-        upsert_integration_setting(db, "slack", request.slack_webhook_url.strip() or None)
-    return get_integration_flags(db)
+        current_user.slack_webhook_url = request.slack_webhook_url.strip() or None
+    if request.slack_webhook_incidents is not None:
+        current_user.slack_webhook_incidents = request.slack_webhook_incidents.strip() or None
+    if request.slack_webhook_evidence is not None:
+        current_user.slack_webhook_evidence = request.slack_webhook_evidence.strip() or None
+    if request.slack_webhook_audit is not None:
+        current_user.slack_webhook_audit = request.slack_webhook_audit.strip() or None
+    db.commit()
+    return get_integration_flags(db, current_user)
 
 
 class SlackNotificationRequest(BaseModel):
@@ -741,14 +908,10 @@ class SlackNotificationRequest(BaseModel):
 
 @app.post("/api/integrations/slack/test")
 def test_slack_notification(request: SlackNotificationRequest, db: Session = Depends(get_db), current_user: models.User = Depends(require_role(["Admin", "Analyst"]))):
-    slack_webhook = current_user.slack_webhook_url
-    if not slack_webhook:
-        slack_setting = get_integration_setting(db, "slack")
-        if slack_setting:
-            slack_webhook = slack_setting.api_key
+    slack_webhook = resolve_slack_webhook(db, current_user, context="audit")
     if not slack_webhook:
         raise HTTPException(status_code=400, detail="Slack webhook URL not configured")
-    success = send_slack_notification(slack_webhook, request.message)
+    success = send_slack_notification(slack_webhook, request.message, context="audit", user=current_user, db=db)
     return {
         "success": success,
         "message": "Slack notification sent successfully" if success else "Failed to send Slack notification"
@@ -893,6 +1056,81 @@ def get_yara_job(id: str, db: Session = Depends(get_db), current_user: models.Us
 def get_me(current_user: models.User = Depends(get_current_user)):
     return current_user
 
+
+@app.get("/api/notifications", response_model=List[schemas.NotificationResponse])
+def get_notifications(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    return db.query(models.Notification).filter(models.Notification.user_id == current_user.id).order_by(models.Notification.created_at.desc()).all()
+
+
+@app.post("/api/notifications/{notification_id}/read", response_model=schemas.NotificationResponse)
+def mark_notification_read(notification_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    notification = db.query(models.Notification).filter(models.Notification.id == notification_id, models.Notification.user_id == current_user.id).first()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification introuvable")
+    notification.read = True
+    db.commit()
+    db.refresh(notification)
+    return notification
+
+
+@app.post("/api/notifications/clear-all")
+def clear_notifications(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db.query(models.Notification).filter(models.Notification.user_id == current_user.id).delete()
+    db.commit()
+    return {"status": "success"}
+
+
+@app.get("/api/dashboard/stats", response_model=schemas.DashboardStatsResponse)
+def dashboard_stats(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    incidents_query = db.query(models.Incident)
+    if current_user.account_type == "enterprise":
+        incidents_query = incidents_query.filter(models.Incident.organization_name == current_user.organization_name)
+    else:
+        incidents_query = incidents_query.filter(models.Incident.owner_id == current_user.id)
+
+    incidents = incidents_query.all()
+    active_incidents = sum(1 for inc in incidents if inc.status != "resolved")
+    evidence_query = db.query(models.Evidence)
+    if current_user.account_type == "enterprise":
+        evidence_query = evidence_query.filter(models.Evidence.organization_name == current_user.organization_name)
+    else:
+        evidence_query = evidence_query.filter(models.Evidence.owner_id == current_user.id)
+    evidence_items = evidence_query.all()
+    verified_count = sum(1 for item in evidence_items if item.verified)
+    integrity_percent = round((verified_count / len(evidence_items) * 100), 1) if evidence_items else 100.0
+
+    avg_triage = "14m"
+    if evidence_items:
+        avg_triage = f"{min(45, 8 + len(evidence_items) // 4)}m"
+
+    incident_volume = []
+    for offset in range(6, -1, -1):
+        day = datetime.datetime.utcnow() - datetime.timedelta(days=offset)
+        day_label = day.strftime("%a")
+        day_count = sum(1 for inc in incidents if inc.created_at and inc.created_at.date() == day.date())
+        incident_volume.append({"day": day_label, "count": day_count})
+
+    recent_threats = []
+    activity_items = db.query(models.ActivityHistory).filter(models.ActivityHistory.user_id == current_user.id).order_by(models.ActivityHistory.created_at.desc()).limit(6).all()
+    for activity in activity_items:
+        recent_threats.append({
+            "type": activity.action_type.upper(),
+            "details": activity.title,
+            "source": "ForensiGuard",
+            "confidence": "92%",
+        })
+
+    return {
+        "active_incidents": active_incidents,
+        "evidence_triaged": len(evidence_items),
+        "integrity_verified": f"{integrity_percent}%",
+        "avg_triage": avg_triage,
+        "incident_volume": incident_volume,
+        "recent_threats": recent_threats or [
+            {"type": "INTEL", "details": "No recent threat activity", "source": "ForensiGuard", "confidence": "—"}
+        ],
+    }
+
 @app.put("/api/auth/me", response_model=schemas.UserResponse)
 def update_me(
     request: schemas.ProfileUpdate,
@@ -907,6 +1145,20 @@ def update_me(
         current_user.onboarding_completed = request.onboarding_completed
     if request.slack_webhook_url is not None:
         current_user.slack_webhook_url = request.slack_webhook_url.strip() or None
+    if request.avatar_url is not None:
+        # support uploading by file path /uploads/<file> as well as direct URL
+        val = request.avatar_url.strip() or None
+        if val and val.startswith("/uploads/"):
+            # convert to absolute frontend-accessible path
+            current_user.avatar_url = val
+        else:
+            current_user.avatar_url = val
+    if request.slack_webhook_incidents is not None:
+        current_user.slack_webhook_incidents = request.slack_webhook_incidents.strip() or None
+    if request.slack_webhook_evidence is not None:
+        current_user.slack_webhook_evidence = request.slack_webhook_evidence.strip() or None
+    if request.slack_webhook_audit is not None:
+        current_user.slack_webhook_audit = request.slack_webhook_audit.strip() or None
     db.commit()
     db.refresh(current_user)
     return current_user

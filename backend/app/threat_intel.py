@@ -3,6 +3,7 @@ import base64
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
+from urllib.parse import urlparse, quote
 from sqlalchemy.orm import Session
 
 from . import models
@@ -267,8 +268,22 @@ def lookup_indicator_intel(
 
     if otx_setting and otx_setting.api_key and indicator_type in ("domain", "ip", "url"):
         try:
-            otx_type = "domain" if indicator_type == "domain" else "IPv4" if indicator_type == "ip" else "url"
-            otx_url = f"https://otx.alienvault.com/api/v1/indicators/{otx_type}/{indicator}/general"
+            # Normalize indicator for OTX API paths
+            if indicator_type == "domain":
+                parsed = urlparse(indicator)
+                domain = parsed.netloc or parsed.path or indicator
+                domain = domain.strip().lower()
+                otx_indicator = domain
+                otx_type = "domain"
+            elif indicator_type == "ip":
+                otx_indicator = indicator.strip()
+                otx_type = "IPv4"
+            else:
+                # Quote the full URL so characters like ':' and '/' are safe in the path
+                otx_indicator = quote(indicator, safe="")
+                otx_type = "url"
+
+            otx_url = f"https://otx.alienvault.com/api/v1/indicators/{otx_type}/{otx_indicator}/general"
             response = requests.get(otx_url, headers={"X-OTX-API-KEY": otx_setting.api_key}, timeout=20)
             response.raise_for_status()
             data = response.json()

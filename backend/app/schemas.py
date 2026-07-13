@@ -31,6 +31,10 @@ class UserBase(BaseModel):
     name: str
     email: EmailStr
     role: str
+    avatar_url: Optional[str] = None
+    slack_webhook_incidents: Optional[str] = None
+    slack_webhook_evidence: Optional[str] = None
+    slack_webhook_audit: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
@@ -47,6 +51,10 @@ class ProfileUpdate(BaseModel):
     organization_name: Optional[str] = None
     onboarding_completed: Optional[bool] = None
     slack_webhook_url: Optional[str] = None
+    avatar_url: Optional[str] = None
+    slack_webhook_incidents: Optional[str] = None
+    slack_webhook_evidence: Optional[str] = None
+    slack_webhook_audit: Optional[str] = None
 
 class PasswordChangeRequest(BaseModel):
     current_password: str
@@ -61,6 +69,10 @@ class UserResponse(UserBase):
     is_active: bool
     last_login: Optional[datetime]
     slack_webhook_url: Optional[str] = None
+    avatar_url: Optional[str] = None
+    slack_webhook_incidents: Optional[str] = None
+    slack_webhook_evidence: Optional[str] = None
+    slack_webhook_audit: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -128,6 +140,8 @@ class EvidenceCreate(BaseModel):
     category: str
     sha256_hash: str
     location: str
+    incident_id: Optional[str] = None
+    attachment_name: Optional[str] = None
 
 class CustodyHistoryResponse(BaseModel):
     id: int
@@ -152,7 +166,12 @@ class EvidenceResponse(BaseModel):
     custodian: str
     location: str
     verified: bool
+    owner_id: Optional[int] = None
     organization_name: Optional[str] = None
+    incident_id: Optional[str] = None
+    status: str = "verified"
+    pending_custodian_id: Optional[int] = None
+    attachment_path: Optional[str] = None
     custody_chain: List[CustodyHistoryResponse] = []
 
     class Config:
@@ -206,12 +225,19 @@ class IntegrationSettingsResponse(BaseModel):
     virustotal_configured: bool
     otx_configured: bool
     slack_configured: bool
+    slack_webhook_incidents_configured: bool
+    slack_webhook_evidence_configured: bool
+    slack_webhook_audit_configured: bool
 
 
 class IntegrationSettingsUpdate(BaseModel):
     virustotal_api_key: Optional[str] = None
     otx_api_key: Optional[str] = None
     slack_webhook_url: Optional[str] = None
+    slack_webhook_incidents: Optional[str] = None
+    slack_webhook_evidence: Optional[str] = None
+    slack_webhook_audit: Optional[str] = None
+
 
 
 class ThreatIntelHashLookup(BaseModel):
@@ -243,3 +269,30 @@ class YaraJobResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class NotificationResponse(BaseModel):
+    id: int
+    user_id: int
+    type: str
+    title: str
+    description: str
+    created_at: datetime
+    read: bool
+    link: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class DashboardStatsResponse(BaseModel):
+    active_incidents: int
+    evidence_triaged: int
+    integrity_verified: str
+    avg_triage: str
+    incident_volume: List[Dict[str, Any]]
+    recent_threats: List[Dict[str, Any]]
+
+    class Config:
+        from_attributes = True
+

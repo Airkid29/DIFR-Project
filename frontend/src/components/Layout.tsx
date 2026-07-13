@@ -29,12 +29,13 @@ import NotificationDrawer from "./NotificationDrawer";
 import { t } from "../i18n";
 
 interface Notification {
-  id: string;
+  id: number;
   type: "critical" | "warning" | "success" | "info";
   title: string;
   description: string;
-  time: string;
+  created_at: string;
   read: boolean;
+  link?: string;
 }
 
 export default function Layout() {
@@ -45,7 +46,7 @@ export default function Layout() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
-  const [user, setUser] = useState<{ name: string; email: string; role: string; account_type?: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; role: string; account_type?: string; avatar_url?: string } | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") || "dark";
@@ -76,33 +77,13 @@ export default function Layout() {
     }
   };
 
-  // Mock notifications state
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "n-1",
-      type: "critical",
-      title: "Correspondance règles YARA",
-      description: "suspicious_payload.exe a correspondé à la règle CobaltStrike",
-      time: "il y a 2 min",
-      read: false
-    },
-    {
-      id: "n-2",
-      type: "success",
-      title: "Journal d'audit généré",
-      description: "Journal d'audit de l'incident INC-2026-001 généré avec succès",
-      time: "il y a 1 h",
-      read: true
-    },
-    {
-      id: "n-3",
-      type: "info",
-      title: "Nouveau membre d'équipe",
-      description: "Sarah Jenkins a été assignée à la réponse aux incidents L3",
-      time: "il y a 4 h",
-      read: true
-    }
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    api.get("/api/notifications")
+      .then((data) => setNotifications(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  }, []);
 
   // Handle Ctrl+K Command Palette
   useEffect(() => {
@@ -131,14 +112,22 @@ export default function Layout() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const handleMarkRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const handleMarkRead = async (id: number) => {
+    try {
+      await api.post(`/api/notifications/${id}/read`);
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleClearAll = () => {
-    setNotifications([]);
+  const handleClearAll = async () => {
+    try {
+      await api.post("/api/notifications/clear-all");
+      setNotifications([]);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const menuItems = [
@@ -270,7 +259,13 @@ export default function Layout() {
                 : "border-transparent text-brand-text-secondary hover:bg-theme-tint hover:text-brand-text-primary"
             }`}
           >
-            <User className="h-4.5 w-4.5 shrink-0" />
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt={user.name} className="h-8 w-8 rounded-full object-cover border border-brand-border" />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-brand-cyan/10 text-brand-cyan flex items-center justify-center text-sm font-semibold">
+                {(user?.name || "U").charAt(0).toUpperCase()}
+              </div>
+            )}
             {isSidebarOpen && (
               <div className="flex-1 text-left overflow-hidden">
                 <div className="flex items-center justify-between">
@@ -334,20 +329,21 @@ export default function Layout() {
             {/* Theme Toggle */}
             <button 
               onClick={toggleTheme}
-              className="p-1.5 hover:bg-theme-tint rounded-md text-brand-text-secondary hover:text-brand-text-primary transition-colors cursor-pointer"
+              className="p-2 hover:bg-theme-tint rounded-md text-brand-text-secondary hover:text-brand-text-primary transition-colors cursor-pointer"
               title={theme === "dark" ? t("nav.switchToLight") : t("nav.switchToDark")}
             >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
             {/* Notification Bell */}
             <button 
               onClick={() => setIsNotificationOpen(true)}
-              className="p-1.5 hover:bg-theme-tint rounded-md text-brand-text-secondary hover:text-brand-text-primary relative cursor-pointer"
+              className="ml-2 p-2 hover:bg-theme-tint rounded-md text-brand-text-secondary hover:text-brand-text-primary relative cursor-pointer"
+              aria-label="Notifications"
             >
-              <Bell className="h-4 w-4" />
+              <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 bg-brand-crimson text-white text-[8px] font-bold flex items-center justify-center rounded-full">
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-brand-crimson text-white text-[10px] font-bold flex items-center justify-center rounded-full">
                   {unreadCount}
                 </span>
               )}
@@ -373,8 +369,8 @@ export default function Layout() {
       <NotificationDrawer 
         isOpen={isNotificationOpen} 
         onClose={() => setIsNotificationOpen(false)}
-        notifications={notifications}
-        onMarkRead={handleMarkRead}
+        notifications={notifications.map((n) => ({ ...n, time: new Date(n.created_at).toLocaleString(), id: String(n.id) }))}
+        onMarkRead={(id) => handleMarkRead(Number(id))}
         onClearAll={handleClearAll}
       />
     </div>

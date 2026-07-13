@@ -6,16 +6,6 @@ import { t } from "../i18n";
 import { api } from "../utils/api";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-const incidentData = [
-  { day: "Mon", open: 3, resolved: 2, activity: 18 },
-  { day: "Tue", open: 5, resolved: 4, activity: 24 },
-  { day: "Wed", open: 7, resolved: 3, activity: 29 },
-  { day: "Thu", open: 4, resolved: 5, activity: 22 },
-  { day: "Fri", open: 9, resolved: 6, activity: 33 },
-  { day: "Sat", open: 2, resolved: 2, activity: 16 },
-  { day: "Sun", open: 1, resolved: 3, activity: 14 }
-];
-
 interface UserProfile {
   id: number;
   name: string;
@@ -30,10 +20,17 @@ interface UserProfile {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [stats, setStats] = useState<{ active_incidents: number; evidence_triaged: number; integrity_verified: string; avg_triage: string; incident_volume: Array<{ day: string; count: number }>; recent_threats: Array<{ type: string; details: string; source: string; confidence: string }> } | null>(null);
 
   useEffect(() => {
-    api.get("/api/auth/me")
-      .then((data) => setProfile(data))
+    Promise.all([
+      api.get("/api/auth/me"),
+      api.get("/api/dashboard/stats")
+    ])
+      .then(([userData, statsData]) => {
+        setProfile(userData);
+        setStats(statsData);
+      })
       .catch(console.error);
   }, []);
 
@@ -59,10 +56,10 @@ export default function Dashboard() {
   };
 
   const metrics = [
-    { title: t("dashboard.activeIncidents"), value: 12, change: t("dashboard.activeIncidentsChange"), trend: "up", icon: ShieldAlert, color: "#EF4444" },
-    { title: t("dashboard.evidenceTriaged"), value: 38, change: t("dashboard.evidenceTriagedChange"), trend: "up", icon: Cpu, color: "#3B82F6" },
-    { title: t("dashboard.integrityVerified"), value: "100%", change: t("dashboard.integrityChange"), trend: "up", icon: Database, color: "#10B981" },
-    { title: t("dashboard.avgTriage"), value: "14m", change: t("dashboard.avgTriageChange"), trend: "down", icon: Clock, color: "#06B6D4" },
+    { title: t("dashboard.activeIncidents"), value: stats?.active_incidents ?? 0, change: t("dashboard.activeIncidentsChange"), trend: "up", icon: ShieldAlert, color: "#EF4444" },
+    { title: t("dashboard.evidenceTriaged"), value: stats?.evidence_triaged ?? 0, change: t("dashboard.evidenceTriagedChange"), trend: "up", icon: Cpu, color: "#3B82F6" },
+    { title: t("dashboard.integrityVerified"), value: stats?.integrity_verified ?? "0%", change: t("dashboard.integrityChange"), trend: "up", icon: Database, color: "#10B981" },
+    { title: t("dashboard.avgTriage"), value: stats?.avg_triage ?? "0m", change: t("dashboard.avgTriageChange"), trend: "down", icon: Clock, color: "#06B6D4" },
   ];
 
   const quickActions = [
@@ -71,11 +68,7 @@ export default function Dashboard() {
     { label: t("dashboard.searchThreatIntel"), path: "/intel", icon: Sparkles, description: "Search threat intelligence" },
   ];
 
-  const threats = [
-    { type: "Malicious IP", details: "198.51.100.245 (C2)", source: "AlienVault OTX", confidence: "94%" },
-    { type: "Malware Hash", details: "f48a912c... (Mimikatz)", source: "VirusTotal", confidence: "100%" },
-    { type: "Domain indicator", details: "update-server-secure.org", source: "Threat Feed L2", confidence: "87%" },
-  ];
+  const threats = stats?.recent_threats ?? [];
 
   return (
     <div style={s.container}>
@@ -86,6 +79,7 @@ export default function Dashboard() {
         </div>
         <div style={s.headerButtons}>
           <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => navigate('/analysis')}>+ {t("dashboard.fileScanner")}</button>
+          <button style={s.btn} onClick={() => navigate('/mission')}>Commencer une nouvelle mission</button>
           <button style={s.btn} onClick={() => navigate('/incidents')}>{t("dashboard.manageIncidents")}</button>
         </div>
       </div>
@@ -131,7 +125,7 @@ export default function Dashboard() {
             <h3 style={s.cardTitle}>{t("dashboard.incidentVolume")}</h3>
             <div style={{ height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={incidentData}>
+                <AreaChart data={stats?.incident_volume?.map((item) => ({ day: item.day, open: item.count, resolved: Math.max(0, Math.floor(item.count / 2)) })) ?? []}>
                   <defs>
                     <linearGradient id="colorOpen" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--brand-cyan)" stopOpacity={0.18}/>
@@ -151,21 +145,25 @@ export default function Dashboard() {
           <div style={s.card}>
             <h3 style={s.cardTitle}>{t("dashboard.threatFeed")}</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {threats.map((t, i) => (
-                <div key={i} style={s.threatItem}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                      <AlertTriangle size={14} style={{ color: "var(--brand-amber)" }} />
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "var(--brand-text-primary)" }}>{t.type}</span>
+              {threats.length > 0 ? (
+                threats.map((t, i) => (
+                  <div key={i} style={s.threatItem}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                        <AlertTriangle size={14} style={{ color: "var(--brand-amber)" }} />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--brand-text-primary)" }}>{t.type}</span>
+                      </div>
+                      <p style={{ fontSize: 11, color: "var(--brand-text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>{t.details}</p>
                     </div>
-                    <p style={{ fontSize: 11, color: "var(--brand-text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>{t.details}</p>
+                    <div style={{ textAlign: "right", fontSize: 11 }}>
+                      <div style={{ color: "var(--brand-cyan)", fontWeight: 600, marginBottom: 4 }}>{t.source}</div>
+                      <span style={{ background: "rgba(255, 95, 95, 0.1)", color: "var(--brand-crimson)", padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700 }}>{t.confidence}</span>
+                    </div>
                   </div>
-                  <div style={{ textAlign: "right", fontSize: 11 }}>
-                    <div style={{ color: "var(--brand-cyan)", fontWeight: 600, marginBottom: 4 }}>{t.source}</div>
-                    <span style={{ background: "rgba(255, 95, 95, 0.1)", color: "var(--brand-crimson)", padding: "2px 6px", borderRadius: 4, fontSize: 9, fontWeight: 700 }}>{t.confidence}</span>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div style={{ color: "var(--brand-text-secondary)", fontSize: 12 }}>Aucune activité récente pour le moment.</div>
+              )}
               <button onClick={() => navigate('/intel')} style={{ ...s.btn, width: "100%", marginTop: 8 }}>
                 View all threats <ArrowRight size={12} style={{ marginLeft: 8 }} />
               </button>

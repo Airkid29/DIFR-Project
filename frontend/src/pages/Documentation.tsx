@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Code, Shield, Zap } from 'lucide-react';
+import { ArrowLeft, BookOpen, Code, Shield, Zap, Database, MessageSquareMore, Banknote } from 'lucide-react';
 
 const Documentation: React.FC = () => {
   const navigate = useNavigate();
@@ -139,21 +139,59 @@ const Documentation: React.FC = () => {
           </div>
         </div>
 
-        {/* Slack Integration Section */}
+        {/* Custody Workflow Section */}
         <div style={s.section}>
           <div style={s.sectionTitle}>
-            <Shield size={20} style={{ color: 'var(--brand-cyan)' }} />
-            Slack Integration
+            <Database size={20} style={{ color: 'var(--brand-cyan)' }} />
+            Custody Transfer Workflow
           </div>
           <ul style={{ paddingLeft: '20px' }}>
             <li style={s.listItem}>
-              <strong>Create a Slack webhook</strong>: Go to <code>https://api.slack.com/messaging/webhooks</code>
+              <strong>Initiate transfer</strong>: From Evidence, choose a custodian and record the action taken.
             </li>
             <li style={s.listItem}>
-              <strong>Configure in ForensiGuard</strong>: Add the webhook URL in Settings → Integrations
+              <strong>Pending acceptance</strong>: The new custodian receives a notification and must accept or reject the transfer.
             </li>
             <li style={s.listItem}>
-              <strong>Get notifications</strong>: Alerts for new incidents, updates, and evidence
+              <strong>Audit trail</strong>: Each transfer is logged with the signer, recipient, and timestamp.
+            </li>
+          </ul>
+        </div>
+
+        {/* Slack Integration Section */}
+        <div style={s.section}>
+          <div style={s.sectionTitle}>
+            <MessageSquareMore size={20} style={{ color: 'var(--brand-cyan)' }} />
+            Slack Routing
+          </div>
+          <ul style={{ paddingLeft: '20px' }}>
+            <li style={s.listItem}>
+              <strong>Dedicated webhooks</strong>: Configure separate endpoints for incidents, evidence, and audit channels.
+            </li>
+            <li style={s.listItem}>
+              <strong>Context-aware routing</strong>: A webhook is selected automatically based on the event type.
+            </li>
+            <li style={s.listItem}>
+              <strong>Operational visibility</strong>: Alerts can be sent to different Slack channels without cross-contamination.
+            </li>
+          </ul>
+        </div>
+
+        {/* Billing Section */}
+        <div style={s.section}>
+          <div style={s.sectionTitle}>
+            <Banknote size={20} style={{ color: 'var(--brand-cyan)' }} />
+            Mobile Money & Billing
+          </div>
+          <ul style={{ paddingLeft: '20px' }}>
+            <li style={s.listItem}>
+              <strong>Flexible billing</strong>: Mobile Money can be used as a payment method for enterprise or premium seats.
+            </li>
+            <li style={s.listItem}>
+              <strong>Invoice flow</strong>: Billing events and renewal reminders are surfaced in the admin experience.
+            </li>
+            <li style={s.listItem}>
+              <strong>Trust-first delivery</strong>: The platform keeps payment and operational data separate for audit readiness.
             </li>
           </ul>
         </div>

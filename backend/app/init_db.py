@@ -32,6 +32,14 @@ def migrate_schema():
             conn.execute(text("ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE"))
         if "slack_webhook_url" not in columns:
             conn.execute(text("ALTER TABLE users ADD COLUMN slack_webhook_url VARCHAR(512)"))
+        if "avatar_url" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN avatar_url VARCHAR(512)"))
+        if "slack_webhook_incidents" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN slack_webhook_incidents VARCHAR(512)"))
+        if "slack_webhook_evidence" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN slack_webhook_evidence VARCHAR(512)"))
+        if "slack_webhook_audit" not in columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN slack_webhook_audit VARCHAR(512)"))
         if dialect == "postgresql" and "password_hash" in columns:
             conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
 
@@ -71,6 +79,16 @@ def migrate_schema():
         with engine.begin() as conn:
             if "organization_name" not in evidence_cols:
                 conn.execute(text("ALTER TABLE evidence ADD COLUMN organization_name VARCHAR(255)"))
+            if "incident_id" not in evidence_cols:
+                conn.execute(text("ALTER TABLE evidence ADD COLUMN incident_id VARCHAR(50)"))
+            if "owner_id" not in evidence_cols:
+                conn.execute(text("ALTER TABLE evidence ADD COLUMN owner_id INTEGER"))
+            if "attachment_path" not in evidence_cols:
+                conn.execute(text("ALTER TABLE evidence ADD COLUMN attachment_path VARCHAR(512)"))
+            if "status" not in evidence_cols:
+                conn.execute(text("ALTER TABLE evidence ADD COLUMN status VARCHAR(50) DEFAULT 'verified'"))
+            if "pending_custodian_id" not in evidence_cols:
+                conn.execute(text("ALTER TABLE evidence ADD COLUMN pending_custodian_id INTEGER"))
 
 def init_db():
     # Construct database schemas
@@ -81,19 +99,21 @@ def init_db():
     from .database import SessionLocal
     db = SessionLocal()
     try:
-        admin_email = "r.jenkins@forensiguard.com"
         default_password = "securepassword123"
+        hashed_pw = pwd_context.hash(default_password)
+        
+        # 1. Seed Robert Jenkins (Admin)
+        admin_email = "r.jenkins@forensiguard.com"
         admin = db.query(User).filter(User.email == admin_email).first()
         if not admin:
-            # If old seeded admin still exists under a legacy email, update it.
             legacy_admin = db.query(User).filter(User.email == "rachcode@forensiguard.com").first()
             if legacy_admin:
                 legacy_admin.email = admin_email
-                legacy_admin.password_hash = pwd_context.hash(default_password)
+                legacy_admin.password_hash = hashed_pw
+                legacy_admin.avatar_url = "https://api.dicebear.com/7.x/avataaars/svg?seed=Robert"
                 db.commit()
                 print("[+] Updated legacy administrator email to the documented default.")
             else:
-                hashed_pw = pwd_context.hash(default_password)
                 admin_user = User(
                     name="Robert Jenkins",
                     email=admin_email,
@@ -101,21 +121,50 @@ def init_db():
                     role="Admin",
                     mfa_secret="JBSWY3DPEHPK3PXP",  # Example static secret
                     mfa_enabled=True,
-                    is_active=True
+                    is_active=True,
+                    avatar_url="https://api.dicebear.com/7.x/avataaars/svg?seed=Robert"
                 )
                 db.add(admin_user)
                 db.commit()
                 print("[+] Seeded default administrator account.")
         else:
+            # Sync password & avatar
+            admin.avatar_url = "https://api.dicebear.com/7.x/avataaars/svg?seed=Robert"
             try:
                 if not pwd_context.verify(default_password, admin.password_hash):
-                    admin.password_hash = pwd_context.hash(default_password)
-                    db.commit()
-                    print("[+] Reset default administrator password.")
+                    admin.password_hash = hashed_pw
             except Exception:
-                admin.password_hash = pwd_context.hash(default_password)
-                db.commit()
-                print("[+] Reset default administrator password after hash error.")
+                admin.password_hash = hashed_pw
+            db.commit()
+            print("[+] Synced default administrator account.")
+
+        # 2. Seed UltraAdmin
+        ultra_email = "ultra.admin@forensiguard.com"
+        ultra = db.query(User).filter(User.email == ultra_email).first()
+        if not ultra:
+            ultra_user = User(
+                name="Ultra Administrator",
+                email=ultra_email,
+                password_hash=hashed_pw,
+                role="UltraAdmin",
+                mfa_secret="JBSWY3DPEHPK3PXQ",
+                mfa_enabled=True,
+                is_active=True,
+                avatar_url="https://api.dicebear.com/7.x/avataaars/svg?seed=Ultra"
+            )
+            db.add(ultra_user)
+            db.commit()
+            print("[+] Seeded default UltraAdmin account.")
+        else:
+            ultra.avatar_url = "https://api.dicebear.com/7.x/avataaars/svg?seed=Ultra"
+            try:
+                if not pwd_context.verify(default_password, ultra.password_hash):
+                    ultra.password_hash = hashed_pw
+            except Exception:
+                ultra.password_hash = hashed_pw
+            db.commit()
+            print("[+] Synced default UltraAdmin account.")
+            
     except Exception as e:
         print(f"[-] Database seed failure: {e}")
     finally:

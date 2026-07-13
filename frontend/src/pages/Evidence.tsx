@@ -24,6 +24,8 @@ interface EvidenceItem {
   custodian: string;
   location: string;
   verified: boolean;
+  status?: string;
+  pending_custodian_id?: number | null;
   custody_chain: CustodyEntry[];
 }
 
@@ -115,6 +117,21 @@ export default function Evidence() {
     }
   };
 
+  const handleTransferDecision = async (decision: "accept" | "reject") => {
+    if (!selectedItem) return;
+    try {
+      const updated = decision === "accept"
+        ? await api.post(`/api/evidence/${selectedItem.id}/accept-transfer`)
+        : await api.post(`/api/evidence/${selectedItem.id}/reject-transfer`);
+      setEvidence((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+      setSelectedItem(updated);
+      setStatusMessage(decision === "accept" ? "Transfert accepté avec succès." : "Transfert rejeté.");
+      window.setTimeout(() => setStatusMessage(""), 3200);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const filtered = evidence.filter((e) => e.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -191,6 +208,13 @@ export default function Evidence() {
               <h3 style={{ fontWeight: 700, marginBottom: 12, color: "var(--brand-text-primary)" }}>{selectedItem.name}</h3>
               <div style={{ ...ps.mono, fontSize: 10, ...ps.muted, marginBottom: 16, wordBreak: "break-all" }}>{selectedItem.sha256_hash}</div>
 
+              {selectedItem.status === "transfer_pending" && (
+                <div style={{ marginBottom: 16, padding: 12, borderRadius: 10, border: "1px solid rgba(255, 191, 0, 0.35)", background: "rgba(255, 191, 0, 0.08)", color: "var(--brand-amber)" }}>
+                  <strong>Transfert de custody en attente</strong>
+                  <div style={{ fontSize: 12, marginTop: 4 }}>Vous pouvez accepter ou refuser ce transfert avant que la responsabilité de la preuve ne soit mise à jour.</div>
+                </div>
+              )}
+
               <label style={ps.label}>{t("evidence.custodyTimeline")}</label>
               <div style={{ borderLeft: "2px solid var(--brand-border)", paddingLeft: 16, marginBottom: 16 }}>
                 {selectedItem.custody_chain.map((hist) => (
@@ -203,10 +227,22 @@ export default function Evidence() {
                 ))}
               </div>
 
-              <button type="button" style={ps.btnPrimary} onClick={() => setIsTransferring(true)}>
-                <ArrowRightLeft size={14} />
-                {t("evidence.transferCustody")}
-              </button>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button type="button" style={ps.btnPrimary} onClick={() => setIsTransferring(true)}>
+                  <ArrowRightLeft size={14} />
+                  {t("evidence.transferCustody")}
+                </button>
+                {selectedItem.status === "transfer_pending" && (
+                  <>
+                    <button type="button" style={ps.btnSecondary} onClick={() => handleTransferDecision("accept")}>
+                      Accepter
+                    </button>
+                    <button type="button" style={ps.btnSecondary} onClick={() => handleTransferDecision("reject")}>
+                      Rejeter
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           ) : (
             <div style={{ ...ps.card, textAlign: "center", padding: 40 }}>

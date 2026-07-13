@@ -12,9 +12,13 @@ export default function Settings() {
   const [otxKey, setOtxKey] = useState("");
   const [slackWebhookUrl, setSlackWebhookUrl] = useState("");
   const [userSlackWebhookUrl, setUserSlackWebhookUrl] = useState("");
+  const [incidentWebhook, setIncidentWebhook] = useState("");
+  const [evidenceWebhook, setEvidenceWebhook] = useState("");
+  const [auditWebhook, setAuditWebhook] = useState("");
   const [slackTestMessage, setSlackTestMessage] = useState("Test notification from ForensiGuard!");
-  const [integrationStatus, setIntegrationStatus] = useState<{ virustotal_configured: boolean; otx_configured: boolean; slack_configured: boolean } | null>(null);
+  const [integrationStatus, setIntegrationStatus] = useState<{ virustotal_configured: boolean; otx_configured: boolean; slack_configured: boolean; slack_webhook_incidents_configured?: boolean; slack_webhook_evidence_configured?: boolean; slack_webhook_audit_configured?: boolean } | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -24,6 +28,10 @@ export default function Settings() {
       .then(([intData, userData]) => {
         setIntegrationStatus(intData);
         setUserSlackWebhookUrl(userData.slack_webhook_url || "");
+        setIncidentWebhook(userData.slack_webhook_incidents || "");
+        setEvidenceWebhook(userData.slack_webhook_evidence || "");
+        setAuditWebhook(userData.slack_webhook_audit || "");
+        setAvatarUrl(userData.avatar_url || null);
       })
       .catch(() => {
         setIntegrationStatus({ virustotal_configured: false, otx_configured: false, slack_configured: false });
@@ -45,10 +53,34 @@ export default function Settings() {
 
   const handleSaveUserSlack = async () => {
     try {
-      await api.put("/api/auth/me", { slack_webhook_url: userSlackWebhookUrl || null });
-      setStatusMessage("Personal Slack webhook saved successfully!");
+      await api.put("/api/auth/me", {
+        slack_webhook_url: userSlackWebhookUrl || null,
+        slack_webhook_incidents: incidentWebhook || null,
+        slack_webhook_evidence: evidenceWebhook || null,
+        slack_webhook_audit: auditWebhook || null,
+      });
+      setStatusMessage("Slack webhooks saved successfully!");
     } catch (error: any) {
       setStatusMessage(error.message || t("settings.validateError"));
+    }
+  };
+
+  const handleAvatarUpload = async (file: File | null) => {
+    if (!file) return;
+    const form = new FormData();
+    form.append("file", file);
+    try {
+      const res = await api.post("/api/uploads/avatar", form);
+      // API returns path like /uploads/filename
+      const path = res.path || res.url || null;
+      if (path) {
+        await api.put("/api/auth/me", { avatar_url: path });
+        setStatusMessage("Avatar mis à jour.");
+        setTimeout(() => setStatusMessage(""), 2400);
+      }
+    } catch (err) {
+      console.error(err);
+      setStatusMessage("Échec du téléversement de l'avatar.");
     }
   };
 
@@ -131,6 +163,20 @@ export default function Settings() {
         <div style={s.panel}>
           {activeTab === "general" && (
             <div style={{ animation: "fadeIn 0.2s" }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
+                <div style={{ width: 72, height: 72, borderRadius: 12, overflow: "hidden", background: "var(--brand-card)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <div style={{ color: "var(--brand-text-secondary)", fontSize: 12 }}>No avatar</div>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <input type="file" accept="image/*" onChange={(e) => handleAvatarUpload(e.target.files ? e.target.files[0] : null)} />
+                  <div style={{ fontSize: 12, color: "var(--brand-text-secondary)" }}>Upload a profile photo (png, jpg)</div>
+                </div>
+              </div>
               <h3 style={s.panelTitle}>{t("settings.generalConfig")}</h3>
               <div style={s.formGroup}>
                 <label style={s.label}>{t("settings.orgTitle")}</label>
@@ -193,7 +239,20 @@ export default function Settings() {
               </div>
 
               <div style={{ marginBottom: 0, padding: 16, background: "var(--brand-abyssal)", border: "1px solid var(--brand-border)", borderRadius: 12 }}>
-                <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-text-primary)", marginBottom: 16, textTransform: "uppercase" }}>Personal Slack</h4>
+                <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-text-primary)", marginBottom: 8, textTransform: "uppercase" }}>Webhooks Slack dédiés</h4>
+                <p style={{ fontSize: 12, color: "var(--brand-text-secondary)", marginBottom: 16 }}>Créez plusieurs webhooks entrants Slack et mappez-les par contexte : incidents, preuves et audit. Chaque canal reçoit un flux ciblé.</p>
+                <div style={s.formGroup}>
+                  <label style={s.label}>Webhook incidents — #incidents-alerts</label>
+                  <input type="password" style={s.input} placeholder="https://hooks.slack.com/services/..." value={incidentWebhook} onChange={(e) => setIncidentWebhook(e.target.value)} />
+                </div>
+                <div style={s.formGroup}>
+                  <label style={s.label}>Webhook preuves — #evidence-tracking</label>
+                  <input type="password" style={s.input} placeholder="https://hooks.slack.com/services/..." value={evidenceWebhook} onChange={(e) => setEvidenceWebhook(e.target.value)} />
+                </div>
+                <div style={s.formGroup}>
+                  <label style={s.label}>Webhook audit — #security-audit</label>
+                  <input type="password" style={s.input} placeholder="https://hooks.slack.com/services/..." value={auditWebhook} onChange={(e) => setAuditWebhook(e.target.value)} />
+                </div>
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
                   <div style={{ flex: 1, minWidth: 180, padding: 14, borderRadius: 12, background: "var(--brand-card)", border: "1px solid var(--brand-border)" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-text-secondary)", marginBottom: 8 }}>Your Slack</div>

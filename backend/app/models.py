@@ -20,7 +20,11 @@ class User(Base):
     onboarding_completed = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     last_login = Column(DateTime, nullable=True)
+    avatar_url = Column(String(512), nullable=True)
     slack_webhook_url = Column(String(512), nullable=True)
+    slack_webhook_incidents = Column(String(512), nullable=True)
+    slack_webhook_evidence = Column(String(512), nullable=True)
+    slack_webhook_audit = Column(String(512), nullable=True)
 
     incidents = relationship("Incident", back_populates="owner")
     activity_history = relationship("ActivityHistory", back_populates="user", cascade="all, delete-orphan")
@@ -58,9 +62,17 @@ class Evidence(Base):
     custodian = Column(String(100), nullable=False)
     location = Column(String(255), nullable=False)
     verified = Column(Boolean, default=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     organization_name = Column(String(255), nullable=True)
+    incident_id = Column(String(50), ForeignKey("incidents.id"), nullable=True)
+    status = Column(String(50), default="verified")  # verified, transfer_pending
+    pending_custodian_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    attachment_path = Column(String(512), nullable=True)
 
     custody_chain = relationship("CustodyHistory", back_populates="evidence", cascade="all, delete-orphan")
+    owner = relationship("User", foreign_keys=[owner_id])
+    incident = relationship("Incident")
+    pending_custodian = relationship("User", foreign_keys=[pending_custodian_id])
 
 
 class CustodyHistory(Base):
@@ -155,3 +167,19 @@ class VisitorLog(Base):
     ip_address = Column(String(50), nullable=True)
     user_agent = Column(String(255), nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    type = Column(String(50), default="info")  # critical, warning, success, info
+    title = Column(String(255), nullable=False)
+    description = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    read = Column(Boolean, default=False)
+    link = Column(String(255), nullable=True)
+
+    user = relationship("User")
+

@@ -53,7 +53,6 @@ export default function Landing() {
         help: "Help"
       },
       hero: {
-        eyebrow: "Africa's Forensic Infrastructure Platform",
         title1: "Access the world's best",
         title2: "forensic threat engines",
         subtitle: "One Platform. Fifty-plus engines. Pay the way Africa pays — with Mobile Money."
@@ -145,7 +144,6 @@ export default function Landing() {
         help: "Aide"
       },
       hero: {
-        eyebrow: "Plateforme d'infrastructure de tri forensique en Afrique",
         title1: "Accédez au meilleur du",
         title2: "tri forensique en Afrique",
         subtitle: "Une seule plateforme. Cinquante moteurs. Payez par Mobile Money."
@@ -456,21 +454,7 @@ export default function Landing() {
           pointer-events: none;
           background: radial-gradient(ellipse at center, rgba(154, 160, 166, 0.16), rgba(242, 169, 59, 0.05) 45%, transparent 70%);
         }
-        .landing-root .eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          font-family: var(--font-mono);
-          font-size: 12.5px;
-          color: var(--mint);
-          border: 1px solid var(--mint-dim);
-          background: var(--mint-dim);
-          padding: 6px 14px;
-          border-radius: 100px;
-          margin-bottom: 26px;
-          position: relative;
-          z-index: 2;
-        }
+        
         .landing-root .dot {
           width: 6px;
           height: 6px;
@@ -1085,9 +1069,7 @@ export default function Landing() {
       <section className="hero">
         <div className="hero-glow"></div>
         <div className="wrap">
-          <div className="eyebrow">
-            <span className="dot"></span> {currentStrings.hero.eyebrow}
-          </div>
+         
           <h1>
             {currentStrings.hero.title1}{" "}
             <span className="metallic">{currentStrings.hero.title2}</span>

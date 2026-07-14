@@ -77,19 +77,19 @@ def on_startup():
     init_db()
 
 # Serve uploaded files (avatars, attachments) in development
-if os.path.isdir(settings.UPLOAD_DIR):
-    app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 
 @app.post("/api/uploads/avatar")
-def upload_avatar(file: UploadFile = File(...)):
+def upload_avatar(request: Request, file: UploadFile = File(...)):
     try:
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
         filename = f"avatar_{uuid.uuid4().hex}_{file.filename}"
         path = os.path.join(settings.UPLOAD_DIR, filename)
         with open(path, "wb") as f:
             f.write(file.file.read())
-        public_path = f"/uploads/{filename}"
+        public_path = f"{str(request.base_url).rstrip('/')}/uploads/{filename}"
         return JSONResponse({"path": public_path})
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

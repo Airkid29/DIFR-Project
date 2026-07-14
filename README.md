@@ -94,6 +94,7 @@ The app proxies `/api` requests to the backend automatically.
 - Backend docs: `http://localhost:8000/docs`
 - Frontend app: `http://localhost:5173`
 - Documentation: 'http://localhost:5273/docs'
+- Slack and avatar setup guide: `docs/SLACK_AND_AVATAR_SETUP.md`
 
 
 Made by Abdoul-Rachid BAWA | June 2026 -- Today

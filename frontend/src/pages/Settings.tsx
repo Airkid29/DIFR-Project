@@ -71,10 +71,10 @@ export default function Settings() {
     form.append("file", file);
     try {
       const res = await api.post("/api/uploads/avatar", form);
-      // API returns path like /uploads/filename
       const path = res.path || res.url || null;
       if (path) {
         await api.put("/api/auth/me", { avatar_url: path });
+        setAvatarUrl(path);
         setStatusMessage("Avatar mis à jour.");
         setTimeout(() => setStatusMessage(""), 2400);
       }

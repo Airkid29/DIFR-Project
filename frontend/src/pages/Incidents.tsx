@@ -108,7 +108,7 @@ export default function Incidents() {
         </button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: t("incidents.openCases"), value: stats.open, color: "var(--brand-text-primary)" },
           { label: t("incidents.critical"), value: stats.critical, color: "var(--brand-crimson)" },
@@ -121,12 +121,12 @@ export default function Incidents() {
         ))}
       </div>
 
-      <div style={{ ...ps.card, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
-        <div style={{ position: "relative", flex: 1, minWidth: 240, maxWidth: 360 }}>
+      <div style={{ ...ps.card, display: undefined }} className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+        <div style={{ position: "relative", flex: 1, maxWidth: 360 }}>
           <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--brand-text-secondary)" }} />
           <input type="text" style={{ ...ps.input, paddingLeft: 40 }} placeholder={t("incidents.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <select style={ps.select} value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}>
+        <select style={ps.select} className="w-full sm:w-auto" value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}>
           <option value="all">{t("incidents.allSeverities")}</option>
           <option value="critical">{t("common.critical")}</option>
           <option value="high">{t("common.high")}</option>
@@ -142,7 +142,8 @@ export default function Incidents() {
           ) : filtered.length === 0 ? (
             <div style={{ padding: 32, textAlign: "center", ...ps.muted }}>{t("incidents.noIncidents")}</div>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <div className="table-responsive-container">
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--brand-border)" }}>
                   {[t("incidents.caseId"), t("common.title"), t("incidents.severity"), t("incidents.status"), t("incidents.created")].map((h) => (
@@ -184,7 +185,8 @@ export default function Incidents() {
                   );
                 })}
               </tbody>
-            </table>
+              </table>
+            </div>
           )}
         </div>
 

@@ -352,7 +352,7 @@ export default function Layout() {
         </header>
 
         {/* Dynamic Route View */}
-        <main className="flex-1 overflow-y-auto bg-transparent p-6 md:p-8 lg:p-10">
+        <main className="flex-1 overflow-y-auto bg-transparent p-4 sm:p-6 md:p-8 lg:p-10">
           <div className="max-w-7xl mx-auto space-y-6">
             <Outlet />
           </div>

@@ -56,8 +56,8 @@ export default function Users() {
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column" as const, gap: 24 },
     header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" },
-    title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 28, color: "var(--brand-text-primary)", letterSpacing: -1, marginBottom: 8 },
-    desc: { fontSize: 11, color: "var(--brand-text-secondary)" },
+    title: { fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: "var(--page-title-size, 28px)" as any, color: "var(--brand-text-primary)", letterSpacing: -1, marginBottom: 8 },
+    desc: { fontSize: "var(--page-desc-size, 11px)" as any, color: "var(--brand-text-secondary)" },
     btn: { padding: "10px 16px", background: "var(--brand-cyan)", border: "none", borderRadius: 8, color: "#0A0E1A", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 },
     controlBar: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 12, padding: 16 },
     table: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 12, overflow: "hidden" },
@@ -114,7 +114,7 @@ export default function Users() {
           <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--brand-text-secondary)" }} />
           <input
             type="text"
-            style={{ width: 320, padding: "8px 12px 8px 36px", background: "var(--brand-abyssal)", border: "1px solid var(--brand-border)", borderRadius: 8, fontSize: 12, color: "var(--brand-text-primary)", outline: "none" }}
+            style={{ width: "100%", maxWidth: 320, padding: "8px 12px 8px 36px", background: "var(--brand-abyssal)", border: "1px solid var(--brand-border)", borderRadius: 8, fontSize: 12, color: "var(--brand-text-primary)", outline: "none" }}
             placeholder={t("users.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -123,7 +123,8 @@ export default function Users() {
       </div>
 
       <div style={s.table}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+        <div className="table-responsive-container">
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--brand-border)", background: "var(--theme-subtle-bg)" }}>
               <th style={{ padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "var(--brand-text-secondary)", textTransform: "uppercase" }}>{t("users.userDetails")}</th>
@@ -179,7 +180,8 @@ export default function Users() {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
 
       {isInviteOpen && (

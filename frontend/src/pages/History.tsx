@@ -100,17 +100,19 @@ export default function History() {
               >
                 {typeIcons[item.action_type] || <Clock size={16} />}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, color: "var(--brand-text-primary)", fontSize: 14 }}>{item.title}</div>
-                {item.description && (
-                  <div style={{ ...ps.muted, marginTop: 4 }}>{item.description}</div>
-                )}
-                {item.resource_id && (
-                  <div style={{ ...ps.mono, ...ps.muted, marginTop: 6, fontSize: 11 }}>{item.resource_id}</div>
-                )}
-              </div>
-              <div style={{ ...ps.muted, whiteSpace: "nowrap", fontSize: 11 }}>
-                {new Date(item.created_at).toLocaleString()}
+              <div style={{ flex: 1, minWidth: 0 }} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, color: "var(--brand-text-primary)", fontSize: 14 }}>{item.title}</div>
+                  {item.description && (
+                    <div style={{ ...ps.muted, marginTop: 4 }}>{item.description}</div>
+                  )}
+                  {item.resource_id && (
+                    <div style={{ ...ps.mono, ...ps.muted, marginTop: 6, fontSize: 11 }}>{item.resource_id}</div>
+                  )}
+                </div>
+                <div style={{ ...ps.muted, fontSize: 11 }} className="shrink-0 text-left sm:text-right">
+                  {new Date(item.created_at).toLocaleString()}
+                </div>
               </div>
             </div>
           ))}

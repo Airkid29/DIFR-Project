@@ -110,7 +110,7 @@ export default function ThreatIntel() {
       </form>
 
       {result && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 16 }}>
           <div style={ps.card}>
             <h3 style={{ fontWeight: 700, marginBottom: 12, color: "var(--brand-text-primary)" }}>VirusTotal</h3>
             {vt ? (

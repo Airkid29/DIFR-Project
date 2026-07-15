@@ -6,8 +6,8 @@ import { useSettings } from "../../context/SettingsContext";
 export const authStyles: Record<string, React.CSSProperties> = {
   shell: { minHeight: "100vh", background: "var(--brand-abyssal)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "var(--font-inter)", transition: "background-color 200ms ease" },
   card: { display: "flex", width: "100%", maxWidth: 820, borderRadius: "var(--radius)", overflow: "hidden", boxShadow: "0 16px 40px rgba(0,0,0,0.12)", border: "1px solid var(--brand-border)", background: "var(--brand-card)" },
-  left: { width: 320, flexShrink: 0, background: "var(--brand-card)", borderRight: "1px solid var(--brand-border)", padding: "40px 32px", display: "flex", flexDirection: "column", justifyContent: "space-between" },
-  right: { flex: 1, background: "var(--brand-abyssal)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px" },
+  left: { width: 320, flexShrink: 0, background: "var(--brand-card)", borderRight: "1px solid var(--brand-border)", padding: "40px 32px", flexDirection: "column", justifyContent: "space-between" },
+  right: { flex: 1, background: "var(--brand-abyssal)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" },
   formContainer: { width: "100%", maxWidth: 320 },
   logoWrap: { display: "flex", alignItems: "center", gap: 10, marginBottom: 40 },
   headline: { fontSize: 26, fontWeight: 700, color: "var(--brand-text-primary)", fontFamily: "var(--font-outfit)", lineHeight: 1.25, letterSpacing: "-0.5px", marginBottom: 12 },
@@ -49,7 +49,7 @@ export function AuthShell({ children, title, subtitle, showSteps, step, showBack
   return (
     <div style={s.shell}>
       <div style={s.card}>
-        <div style={s.left}>
+        <div style={s.left} className="hidden md:flex flex-col">
           <div>
             <div style={s.logoWrap}>
               <img 
@@ -87,7 +87,7 @@ export function AuthShell({ children, title, subtitle, showSteps, step, showBack
             <div style={{ fontSize: 10, color: "var(--brand-text-secondary)", marginTop: 6, fontFamily: "var(--font-mono)" }}>{t("auth.lastScan")}</div>
           </div>
         </div>
-        <div style={s.right}>
+        <div style={s.right} className="p-6 sm:p-12 flex-1 flex flex-col items-center justify-center bg-brand-abyssal">
           <div style={s.formContainer}>
             {showBackHome && (
               <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--brand-text-secondary)", textDecoration: "none", marginBottom: 16 }}>

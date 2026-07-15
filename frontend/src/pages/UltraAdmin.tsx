@@ -76,26 +76,25 @@ const UltraAdmin: React.FC = () => {
     <div style={{
       background: 'var(--brand-bg)',
       minHeight: '100vh',
-      padding: '32px',
       fontFamily: 'Outfit, sans-serif',
-    }}>
+    }} className="ultraadmin-container p-4 md:p-8">
       <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
         <div style={{ marginBottom: '32px' }}>
           <h1 style={{
             fontFamily: 'Space Grotesk, Outfit, sans-serif',
             fontWeight: 800,
-            fontSize: '40px',
+            fontSize: 'var(--page-title-size, 32px)',
             color: 'var(--brand-text-primary)',
             marginBottom: '8px'
           }}>
             Ultra Admin Dashboard
           </h1>
-          <p style={{ color: 'var(--brand-text-secondary)', fontSize: '16px' }}>
+          <p style={{ color: 'var(--brand-text-secondary)', fontSize: 'var(--page-desc-size, 14px)' }}>
             Complete platform overview and management
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }} className="ultraadmin-tabs">
           {[
             { key: 'dashboard', label: 'Overview' },
             { key: 'users', label: 'Users' },
@@ -124,7 +123,7 @@ const UltraAdmin: React.FC = () => {
 
         {activeTab === 'dashboard' && stats && (
           <div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '20px', marginBottom: '32px' }}>
               {[
                 { label: 'Total Users', value: stats.total_users, color: 'var(--brand-blue)' },
                 { label: 'Total Incidents', value: stats.total_incidents, color: 'var(--brand-red)' },
@@ -151,7 +150,7 @@ const UltraAdmin: React.FC = () => {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px' }}>
               <div style={{
                 background: 'var(--glass-bg)',
                 border: '1px solid var(--brand-border)',
@@ -217,7 +216,6 @@ const UltraAdmin: React.FC = () => {
                   borderRadius: '16px',
                   padding: '24px',
                   backdropFilter: 'blur(12px)',
-                  overflowX: 'auto',
                 }}>
                   <h3 style={{
                     fontFamily: 'Space Grotesk, Outfit, sans-serif',
@@ -228,7 +226,8 @@ const UltraAdmin: React.FC = () => {
                   }}>
                     {org} <span style={{ fontSize: '14px', color: 'var(--brand-text-secondary)', fontWeight: 400 }}>({orgUsers.length} users)</span>
                   </h3>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <div className="table-responsive-container">
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }} className="ultraadmin-table">
                     <thead>
                       <tr>
                         <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Name</th>
@@ -248,6 +247,7 @@ const UltraAdmin: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               ));
             })()}
@@ -261,9 +261,9 @@ const UltraAdmin: React.FC = () => {
             borderRadius: '16px',
             padding: '24px',
             backdropFilter: 'blur(12px)',
-            overflowX: 'auto',
           }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="table-responsive-container">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }} className="ultraadmin-table">
               <thead>
                 <tr>
                   <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>ID</th>
@@ -285,6 +285,7 @@ const UltraAdmin: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
 
@@ -295,9 +296,9 @@ const UltraAdmin: React.FC = () => {
             borderRadius: '16px',
             padding: '24px',
             backdropFilter: 'blur(12px)',
-            overflowX: 'auto',
           }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="table-responsive-container">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }} className="ultraadmin-table">
               <thead>
                 <tr>
                   <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>ID</th>
@@ -319,6 +320,7 @@ const UltraAdmin: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
 
@@ -329,9 +331,9 @@ const UltraAdmin: React.FC = () => {
             borderRadius: '16px',
             padding: '24px',
             backdropFilter: 'blur(12px)',
-            overflowX: 'auto',
           }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="table-responsive-container">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }} className="ultraadmin-table">
               <thead>
                 <tr>
                   <th style={{ textAlign: 'left', padding: '12px', color: 'var(--brand-text-secondary)', borderBottom: '1px solid var(--brand-border)' }}>Timestamp</th>
@@ -355,6 +357,7 @@ const UltraAdmin: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

@@ -38,8 +38,8 @@ export default function Dashboard() {
     container: { display: "flex", flexDirection: "column", gap: 24 },
     header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" },
     headerText: { flex: "1 1 280px" },
-    title: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 800, fontSize: 34, color: "var(--brand-text-primary)", letterSpacing: -1, marginBottom: 8 },
-    desc: { fontSize: 14, color: "var(--brand-text-secondary)", lineHeight: 1.6 },
+    title: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 800, fontSize: "var(--page-title-size, 34px)" as any, color: "var(--brand-text-primary)", letterSpacing: -1, marginBottom: 8 },
+    desc: { fontSize: "var(--page-desc-size, 14px)" as any, color: "var(--brand-text-secondary)", lineHeight: 1.6 },
     headerButtons: { display: "flex", gap: 12, flexWrap: "wrap" },
     btn: { padding: "12px 18px", background: "var(--theme-white-bg-tint)", border: "1px solid var(--brand-border)", borderRadius: 10, color: "var(--brand-text-primary)", fontWeight: 600, fontSize: 13, cursor: "pointer" },
     btnPrimary: { background: "var(--brand-cyan)", border: "none", color: "#ffffff" },
@@ -84,7 +84,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {quickActions.map((item) => {
           const Icon = item.icon;
           return (
@@ -97,7 +97,7 @@ export default function Dashboard() {
         })}
       </div>
 
-      <div style={s.metricsGrid}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((m, i) => {
           const Icon = m.icon;
           return (
@@ -119,8 +119,7 @@ export default function Dashboard() {
         })}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div style={s.card}>
             <h3 style={s.cardTitle}>{t("dashboard.incidentVolume")}</h3>
             <div style={{ height: 260 }}>
@@ -170,7 +169,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

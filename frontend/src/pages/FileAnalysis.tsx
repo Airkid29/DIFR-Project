@@ -134,9 +134,9 @@ export default function FileAnalysis() {
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 980, margin: "0 auto" },
     header: { display: "flex", flexDirection: "column" as const, gap: 8 },
-    title: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 800, fontSize: 32, color: "var(--brand-text-primary)", letterSpacing: -0.5, marginBottom: 8 },
-    desc: { fontSize: 14, color: "var(--brand-text-secondary)", lineHeight: 1.7 },
-    uploadZone: { border: "2px dashed var(--brand-border)", borderRadius: 14, padding: 70, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 16, cursor: "pointer", transition: "all 0.2s" },
+    title: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 800, fontSize: "var(--page-title-size, 32px)" as any, color: "var(--brand-text-primary)", letterSpacing: -0.5, marginBottom: 8 },
+    desc: { fontSize: "var(--page-desc-size, 14px)" as any, color: "var(--brand-text-secondary)", lineHeight: 1.7 },
+    uploadZone: { border: "2px dashed var(--brand-border)", borderRadius: 14, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 16, cursor: "pointer", transition: "all 0.2s" },
     uploadZoneActive: { borderColor: "var(--brand-cyan)", background: "var(--theme-white-bg-tint)" },
     uploadIcon: { width: 46, height: 46, color: "var(--brand-text-secondary)", animation: "pulse 2s infinite" },
     uploadText: { textAlign: "center" as const },
@@ -145,7 +145,6 @@ export default function FileAnalysis() {
     fileInfo: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 14, padding: 24, display: "flex", flexDirection: "column" as const, gap: 16 },
     progressBar: { width: "100%", height: 6, background: "var(--brand-border)", borderRadius: 3, overflow: "hidden" },
     progressFill: { height: "100%", background: "var(--brand-cyan)", transition: "width 0.3s" },
-    resultsGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 },
     resultCard: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column" as const, gap: 12 },
     threatBig: { fontFamily: "'Space Grotesk', 'Outfit', sans-serif", fontWeight: 900, fontSize: 34, lineHeight: 1 },
     badge: { display: "inline-block", padding: "4px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const },
@@ -221,6 +220,7 @@ export default function FileAnalysis() {
       {status === "idle" ? (
         <div
           style={{ ...s.uploadZone, ...(dragActive ? s.uploadZoneActive : {}) }}
+          className="p-6 sm:p-16 md:p-20"
           onDragEnter={(e) => { e.preventDefault(); setDragActive(true); }}
           onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
           onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
@@ -268,7 +268,7 @@ export default function FileAnalysis() {
           )}
 
           {status === "done" && (
-            <div style={s.resultsGrid}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div style={s.resultCard}>
                 <h3 style={{ fontFamily: "var(--font-outfit)", fontWeight: 700, fontSize: 15, color: "var(--brand-text-primary)", borderBottom: "1px solid var(--brand-border)", paddingBottom: 12, marginBottom: 12 }}>{t("fileAnalysis.threatAssessment")}</h3>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
@@ -326,7 +326,7 @@ export default function FileAnalysis() {
               {t("fileAnalysis.scanAnother")}
             </button>
             {status === "done" && (
-              <button type="button" onClick={handleExportReport} style={{ padding: "10px 16px", background: "var(--brand-text-primary)", border: "none", borderRadius: 8, color: "var(--brand-abyssal)", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+              <button type="button" onClick={handleExportReport} style={{ padding: "10px 16px", background: "var(--brand-text-primary)", border: "none", borderRadius: 8, color: "var(--brand-abyssal)", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }} className="sm:ml-auto">
                 <Download size={14} />
                 <span>{t("fileAnalysis.exportReport")}</span>
               </button>

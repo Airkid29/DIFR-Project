@@ -25,15 +25,15 @@ export default function AuditLog() {
   const s: Record<string, React.CSSProperties> = {
     container: { display: "flex", flexDirection: "column" as const, gap: 24 },
     banner: { display: "flex", flexDirection: "column" as const, gap: 16 },
-    bannerTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 24, color: "#F9FAFB", letterSpacing: -0.5 },
-    bannerDesc: { fontSize: 12, color: "#9CA3AF" },
+    bannerTitle: { fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "var(--page-title-size, 24px)" as any, color: "var(--brand-text-primary)", letterSpacing: -0.5 },
+    bannerDesc: { fontSize: "var(--page-desc-size, 12px)" as any, color: "var(--brand-text-secondary)" },
     topBar: { display: "flex", justifyContent: "space-between", alignItems: "center" },
     exportBtn: { padding: "8px 16px", border: "1px solid #1F2937", background: "transparent", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#F9FAFB", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" },
-    controlPane: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, padding: 16, display: "flex", alignItems: "center", gap: 16 },
-    searchWrap: { position: "relative", flex: 1, maxWidth: 320 },
+    controlPane: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column" as const, alignItems: "stretch", gap: 16 },
+    searchWrap: { position: "relative", flex: 1, width: "100%", maxWidth: 320 },
     searchIcon: { position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#9CA3AF" },
-    searchInput: { width: "100%", padding: "8px 12px 8px 36px", background: "#0A0E1A", border: "1px solid #1F2937", borderRadius: 8, fontSize: 12, color: "#F9FAFB", outline: "none" },
-    tableWrap: { background: "rgba(17, 24, 39, 0.5)", border: "1px solid #1F2937", borderRadius: 12, overflow: "hidden" },
+    searchInput: { width: "100%", padding: "8px 12px 8px 36px", background: "var(--brand-abyssal)", border: "1px solid var(--brand-border)", borderRadius: 8, fontSize: 12, color: "var(--brand-text-primary)", outline: "none" },
+    tableWrap: { background: "var(--glass-bg)", border: "1px solid var(--brand-border)", borderRadius: 12, overflow: "hidden" },
     table: { width: "100%", borderCollapse: "collapse", fontSize: 12 },
     thead: { background: "rgba(255, 255, 255, 0.01)", borderBottom: "1px solid #1F2937" },
     th: { padding: 16, textAlign: "left", fontSize: 10, fontWeight: 600, color: "#6B7280", textTransform: "uppercase", letterSpacing: 0.5 },
@@ -131,7 +131,7 @@ export default function AuditLog() {
         </div>
       </div>
 
-      <div style={s.controlPane}>
+      <div style={s.controlPane} className="sm:flex-row sm:items-center">
         <div style={s.searchWrap}>
           <svg style={s.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx={11} cy={11} r={8}/><path d="m21 21-4.35-4.35"/></svg>
           <input
@@ -145,7 +145,8 @@ export default function AuditLog() {
       </div>
 
       <div style={s.tableWrap}>
-        <table style={s.table}>
+        <div className="table-responsive-container">
+          <table style={s.table}>
           <thead style={s.thead}>
             <tr>
               <th style={s.th}>{t("audit.auditId")}</th>
@@ -174,7 +175,8 @@ export default function AuditLog() {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
   );

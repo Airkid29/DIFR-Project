@@ -237,3 +237,21 @@ body {
 .btn-secondary:active:not(:disabled) {
   transform: scale(0.98);
 }
+
+:root {
+  --page-title-size: 24px;
+  --page-desc-size: 13px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-title-size: 32px;
+    --page-desc-size: 14px;
+  }
+}
+
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

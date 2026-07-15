@@ -7,12 +7,12 @@ export const ps: Record<string, React.CSSProperties> = {
   title: {
     fontFamily: "'Space Grotesk', 'Outfit', sans-serif",
     fontWeight: 800,
-    fontSize: 32,
+    fontSize: "var(--page-title-size, 32px)" as any,
     color: "var(--brand-text-primary)",
     letterSpacing: -1,
     marginBottom: 8,
   },
-  desc: { fontSize: 14, color: "var(--brand-text-secondary)", lineHeight: 1.6 },
+  desc: { fontSize: "var(--page-desc-size, 14px)" as any, color: "var(--brand-text-secondary)", lineHeight: 1.6 },
   card: {
     background: "var(--glass-bg)",
     border: "1px solid var(--brand-border)",
@@ -110,6 +110,7 @@ export const ps: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     overflow: "hidden",
   },
+  /** Wrap <table> in a div with className="table-responsive-container" for horizontal scroll on mobile. */
   rowHover: { cursor: "pointer", transition: "background 0.15s" },
   mono: { fontFamily: "'JetBrains Mono', monospace" },
   muted: { color: "var(--brand-text-secondary)", fontSize: 12 },

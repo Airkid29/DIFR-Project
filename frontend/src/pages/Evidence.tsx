@@ -175,7 +175,7 @@ export default function Evidence() {
               >
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <div>
-                    <div style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <span style={{ ...ps.mono, fontSize: 11, fontWeight: 700, color: "var(--brand-cyan)" }}>{item.id}</span>
                       <span style={{ ...ps.badge, background: "rgba(99,142,203,0.1)", color: "var(--brand-cyan)" }}>{item.category}</span>
                       {item.verified && <span style={{ ...ps.badge, color: "var(--brand-emerald)" }}>✓ {t("evidence.verified")}</span>}
@@ -193,9 +193,9 @@ export default function Evidence() {
         <div>
           {selectedItem ? (
             <div style={ps.card}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 8 }} className="flex-col sm:flex-row sm:items-center">
                 <span style={{ ...ps.mono, fontSize: 11, color: "var(--brand-cyan)" }}>{selectedItem.id}</span>
-                <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <button type="button" style={ps.btnSecondary} onClick={handleExportEvidencePdf}>
                     <Download size={14} /> PDF
                   </button>

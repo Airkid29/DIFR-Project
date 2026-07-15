@@ -37,6 +37,15 @@ from .database import SessionLocal
 from .models import YaraJob, AuditLog, Evidence, CustodyHistory
 from .threat_intel import lookup_hash_intel, intel_threat_boost, intel_rule_entries
 
+try:
+    import openpyxl
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.drawing.image import Image as XLImage
+    from openpyxl.utils import get_column_letter
+except Exception:
+    openpyxl = None
+
 
 class _CeleryStub:
     """Allows @celery_app.task decorators when Celery is unavailable."""
@@ -191,7 +200,7 @@ def generate_pdf_report(evidence_id: str, output_path: str):
             parent=styles['Heading1'],
             fontName='Helvetica-Bold',
             fontSize=22,
-            textColor=colors.HexColor('#00f2fe'),
+            textColor=colors.HexColor("#0C0B0B"),
             spaceAfter=20
         )
         subtitle_style = ParagraphStyle(
@@ -199,7 +208,7 @@ def generate_pdf_report(evidence_id: str, output_path: str):
             parent=styles['Normal'],
             fontName='Helvetica',
             fontSize=10,
-            textColor=colors.HexColor('#9ca3af'),
+            textColor=colors.HexColor("#131415"),
             spaceAfter=15
         )
         header_style = ParagraphStyle(
@@ -220,7 +229,19 @@ def generate_pdf_report(evidence_id: str, output_path: str):
             leading=14
         )
 
-        # Header Details
+        # Header Details with logo and boxed header
+        # Attempt to include a logo if present under settings.UPLOAD_DIR/logo.png
+        logo_path = os.path.join(settings.UPLOAD_DIR, "logo.png")
+        try:
+            from reportlab.platypus import Image
+            if os.path.exists(logo_path):
+                img = Image(logo_path, width=160, height=40)
+                story.append(img)
+        except Exception:
+            # Image support might not be available; continue without logo
+            pass
+
+        # Header text
         story.append(Paragraph("ForensiGuard Digital Forensic Report", title_style))
         story.append(Paragraph("CONFIDENTIAL", subtitle_style))
         story.append(Paragraph(f"Generated at: {datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC", subtitle_style))
@@ -244,15 +265,15 @@ def generate_pdf_report(evidence_id: str, output_path: str):
         
         t = Table(summary_data, colWidths=[150, 350])
         t.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (1,0), colors.HexColor('#1f2028')),
-            ('TEXTCOLOR', (0,0), (1,0), colors.HexColor('#00f2fe')),
+            ('BACKGROUND', (0,0), (1,0), colors.HexColor("#ffffff")),
+            ('TEXTCOLOR', (0,0), (1,0), colors.HexColor("#000000")),
             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
             ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
             ('BOTTOMPADDING', (0,0), (-1,-1), 6),
             ('TOPPADDING', (0,0), (-1,-1), 6),
-            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#2e303a')),
-            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#16171d')),
-            ('TEXTCOLOR', (0,1), (-1,-1), colors.HexColor('#f3f4f6')),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#000000")),
+            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#000000")),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.HexColor("#ffffff")),
         ]))
         story.append(t)
         story.append(Spacer(1, 20))
@@ -271,24 +292,121 @@ def generate_pdf_report(evidence_id: str, output_path: str):
                 hist.action_taken
             ])
 
-        t_chain = Table(chain_data, colWidths=[110, 110, 110, 170])
+        t_chain = Table(chain_data, colWidths=[110, 125, 80, 190])
         t_chain.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1f2028')),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor('#10b981')),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor("#F9F9F9")),
             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
             ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
             ('BOTTOMPADDING', (0,0), (-1,-1), 6),
             ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#2e303a')),
-            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#16171d')),
-            ('TEXTCOLOR', (0,1), (-1,-1), colors.HexColor('#f3f4f6')),
+            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#f0f2ff")),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.HexColor("#040404")),
         ]))
         story.append(t_chain)
         
-        # Build Document
-        doc.build(story)
+        # Add a simple page template to draw borders and footer
+        from reportlab.lib.units import mm
+        from reportlab.pdfgen import canvas as rl_canvas
+
+        def _add_page_frame(canvas_obj, doc_obj):
+            # Thin border around page
+            canvas_obj.saveState()
+            w, h = doc_obj.pagesize
+            margin = 18 * mm
+            canvas_obj.setStrokeColor(colors.HexColor('#2e303a'))
+            canvas_obj.setLineWidth(1)
+            canvas_obj.rect(margin/2, margin/2, w - margin, h - margin, stroke=1, fill=0)
+            # Footer
+            footer_text = f"ForensiGuard — Generated for {ev.organization_name or 'Unknown Organization'} | {datetime.datetime.utcnow().date.year}"
+            canvas_obj.setFont("Helvetica", 8)
+            canvas_obj.setFillColor(colors.HexColor('#9ca3af'))
+            canvas_obj.drawString(margin, 12 * mm, footer_text)
+            canvas_obj.restoreState()
+
+        doc.build(story, onFirstPage=_add_page_frame, onLaterPages=_add_page_frame)
         return True
     except Exception as e:
         print(f"[-] PDF generator Celery worker failure: {e}")
         return False
     finally:
         db.close()
+
+
+    def generate_audit_xlsx(rows=None):
+        """
+        Generate a styled XLSX workbook for audit logs.
+        `rows` should be a list of dicts with keys: id, timestamp, user_email, action, resource, ip_address, status, organization_name
+        Returns bytes of the generated workbook.
+        """
+        from io import BytesIO
+
+        if openpyxl is None:
+            raise RuntimeError("openpyxl is not available")
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Audit Logs"
+
+        # Insert logo if available
+        logo_path = os.path.join(settings.UPLOAD_DIR, "logo.png")
+        start_row = 1
+        if os.path.exists(logo_path):
+            try:
+                img = XLImage(logo_path)
+                img.width = 240
+                img.height = 60
+                ws.add_image(img, "A1")
+                start_row = 4
+            except Exception:
+                start_row = 1
+
+        # Title
+        title_row = start_row
+        ws.merge_cells(start_row=title_row, start_column=1, end_row=title_row, end_column=8)
+        ws.cell(row=title_row, column=1, value="ForensiGuard — Audit Logs").font = Font(size=14, bold=True)
+        header_row = title_row + 2
+
+        headers = ["Audit ID", "Time", "User", "Action", "Resource", "IP", "Status", "Organization"]
+        header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+
+        for col_idx, h in enumerate(headers, start=1):
+            cell = ws.cell(row=header_row, column=col_idx, value=h)
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        # Freeze header
+        ws.freeze_panes = ws.cell(row=header_row + 1, column=1)
+
+        # Populate rows
+        r = header_row
+        for entry in rows or []:
+            r += 1
+            ws.cell(row=r, column=1, value=entry.get("id"))
+            ts = entry.get("timestamp")
+            ws.cell(row=r, column=2, value=ts.strftime("%Y-%m-%d %H:%M:%S") if ts else "")
+            ws.cell(row=r, column=3, value=entry.get("user_email"))
+            ws.cell(row=r, column=4, value=entry.get("action"))
+            ws.cell(row=r, column=5, value=entry.get("resource"))
+            ws.cell(row=r, column=6, value=entry.get("ip_address"))
+            ws.cell(row=r, column=7, value=entry.get("status"))
+            ws.cell(row=r, column=8, value=entry.get("organization_name"))
+
+        # Column widths
+        col_widths = [12, 20, 30, 25, 50, 18, 12, 30]
+        for i, w in enumerate(col_widths, start=1):
+            ws.column_dimensions[get_column_letter(i)].width = w
+
+        # Apply thin border around data area
+        from openpyxl.styles import Border, Side
+        thin = Side(border_style="thin", color="CCCCCC")
+        border = Border(left=thin, right=thin, top=thin, bottom=thin)
+        for row in ws.iter_rows(min_row=header_row, max_row=r, min_col=1, max_col=len(headers)):
+            for cell in row:
+                cell.border = border
+
+        out = BytesIO()
+        wb.save(out)
+        out.seek(0)
+        return out.getvalue()

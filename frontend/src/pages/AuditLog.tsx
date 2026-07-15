@@ -46,26 +46,75 @@ export default function AuditLog() {
     badgeFailure: { background: "rgba(239, 68, 68, 0.1)", color: "#EF4444", border: "1px solid rgba(239, 68, 68, 0.2)" }
   };
 
-  const handleExportCsv = () => {
-    const csvRows = [
-      ["Audit ID", "Time", "User", "Action", "Resource", "IP", "Status"],
-      ...logs.map((log) => [log.id, log.timestamp, log.user_email, log.action, log.resource || "", log.ip_address || "", log.status])
-    ];
-    const csvContent = csvRows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "audit_logs.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const filtered = logs.filter(l =>
     l.user_email.toLowerCase().includes(search.toLowerCase()) ||
     l.action.toLowerCase().includes(search.toLowerCase()) ||
     (l.resource || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  // Formatte un timestamp ISO en date/heure lisible en français
+  const formatTimestamp = (raw: string) => {
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return raw;
+    return d.toLocaleString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
+  const handleExportCsv = () => {
+    const now = new Date();
+    // Le point-virgule est le séparateur par défaut d'Excel en locale FR
+    const SEP = ";";
+    const escapeCsv = (value: string | number) => `"${String(value).replace(/"/g, '""')}"`;
+
+    // Bloc d'en-tête récapitulatif : contexte de l'export
+    const metaLines: string[][] = [
+      [t("audit.title") || "Journal d'audit"],
+      [`Exporté le : ${now.toLocaleString("fr-FR")}`],
+      [`Nombre d'entrées : ${filtered.length}${search ? ` (filtré sur "${search}")` : ""}`],
+      [],
+    ];
+
+    const headerRow = [
+      t("audit.auditId") || "ID",
+      t("audit.preciseTime") || "Date / Heure",
+      t("audit.analyst") || "Utilisateur",
+      t("audit.actionCode") || "Action",
+      t("audit.resource") || "Ressource",
+      t("audit.ipAddress") || "Adresse IP",
+      t("audit.status") || "Statut",
+    ];
+
+    const dataRows = filtered.map((log) => [
+      log.id,
+      formatTimestamp(log.timestamp),
+      log.user_email,
+      log.action,
+      log.resource || "—",
+      log.ip_address || "—",
+      log.status === "success" ? (t("common.success") || "Succès") : (t("common.fail") || "Échec"),
+    ]);
+
+    const allRows = [...metaLines, headerRow, ...dataRows];
+    const csvContent = allRows
+      .map((row) => row.map(escapeCsv).join(SEP))
+      .join("\r\n");
+
+    // Ajout du BOM UTF-8 pour un affichage correct des accents dans Excel
+    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const dateStr = now.toISOString().slice(0, 10);
+    a.download = `journal_audit_${dateStr}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div style={s.container}>

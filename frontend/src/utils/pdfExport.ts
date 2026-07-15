@@ -26,6 +26,8 @@ export function exportForensicPdf(report: ForensicReportData) {
         <title>${report.title}</title>
         <style>
           body { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; padding: 24px; line-height: 1.55; background: #f8fafc; }
+          .logo { height: 48px; margin-bottom: 8px; }
+          .page { border: 1px solid #e6eef6; padding: 18px; background: #ffffff; border-radius: 8px; }
           h1 { font-size: 30px; margin: 0 0 4px 0; color: #111827; }
           h2 { font-size: 16px; margin: 0 0 12px 0; color: #111827; }
           .header { border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; }
@@ -43,7 +45,8 @@ export function exportForensicPdf(report: ForensicReportData) {
         </style>
       </head>
       <body>
-        <div class="header">
+        <div class="header page">
+          <img class="logo" src="/uploads/logo.png" alt="ForensiGuard logo" onerror="this.style.display='none'" />
           <h1>${report.title}</h1>
           <div class="subtext">Artifact: ${report.fileName} · Size: ${report.fileSize}</div>
           <div class="subtext">Generated: ${new Date().toLocaleString('en-GB', { timeZone: 'UTC' })} UTC</div>
@@ -76,6 +79,20 @@ export function exportForensicPdf(report: ForensicReportData) {
           <ul>${custodyMarkup}</ul>
         </div>
         <div class="footer">ForensiGuard forensic report intended for internal incident response. Retain as evidence summary and compliance reference.</div>
+        <script>
+          // Add page number when printing
+          (function(){
+            function addPageNumbers(){
+              const total = Math.ceil(document.body.scrollHeight / window.innerHeight);
+              const footers = document.querySelectorAll('.footer');
+              footers.forEach((f, i)=>{
+                const pageNum = i+1;
+                f.textContent = f.textContent + ' — Page ' + pageNum + ' of ' + total;
+              });
+            }
+            window.onload = addPageNumbers;
+          })();
+        </script>
       </body>
     </html>`;
 

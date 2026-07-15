@@ -36,11 +36,11 @@ export default function Landing() {
 
   const trans = {
     en: {
-      meta: {
+        meta: {
         beta: "Beta",
         startTrial: "Start building for free",
         viewDocs: "View documentation",
-        topUp: "Top up with Mobile Money",
+        topUp: "Contact us for enterprise pricing",
         getStarted: "Start for free",
         pricing: "View pricing"
       },
@@ -52,10 +52,10 @@ export default function Landing() {
         about: "About",
         help: "Help"
       },
-      hero: {
+        hero: {
         title1: "Access the world's best",
         title2: "forensic threat engines",
-        subtitle: "One Platform. Fifty-plus engines. Pay the way Africa pays — with Mobile Money."
+        subtitle: "One Platform. Fifty-plus engines. Architecture tailored to your enterprise needs."
       },
       marqueeLabel: "Works with the tools you already use",
       platform: {
@@ -117,7 +117,7 @@ export default function Landing() {
       },
       finalCta: {
         title: "Ready to secure your operations?",
-        desc: "Create an API key, top up with Mobile Money, and scan your first file today."
+        desc: "Create an API key and contact us to design a tailored deployment for your organization."
       },
       footer: {
         desc: "The forensic infrastructure layer built for African security teams.",
@@ -131,7 +131,7 @@ export default function Landing() {
         beta: "Bêta",
         startTrial: "Essai gratuit",
         viewDocs: "Voir la documentation",
-        topUp: "Recharger par Mobile Money",
+        topUp: "Contactez-nous pour les tarifs entreprise",
         getStarted: "Commencer gratuit",
         pricing: "Voir les tarifs"
       },
@@ -143,10 +143,10 @@ export default function Landing() {
         about: "À propos",
         help: "Aide"
       },
-      hero: {
+        hero: {
         title1: "Accédez au meilleur du",
         title2: "tri forensique en Afrique",
-        subtitle: "Une seule plateforme. Cinquante moteurs. Payez par Mobile Money."
+        subtitle: "Une seule plateforme. Cinquante moteurs. Architecture adaptée sur-mesure pour votre entreprise."
       },
       marqueeLabel: "Fonctionne avec les outils que vous utilisez déjà",
       platform: {
@@ -167,9 +167,9 @@ export default function Landing() {
         f4Link: "Voir le dashboard →"
       },
       payments: {
-        kicker: "Paiements",
-        title: "Payez comme l'Afrique paye",
-        desc: "Rechargez votre solde directement avec Mobile Money — sans carte internationale ni friction."
+        kicker: "Déploiement & Tarification",
+        title: "Architecture sur-mesure",
+        desc: "Nous concevons et déployons des architectures adaptées à votre organisation — contactez notre équipe commerciale pour un plan sur-mesure."
       },
       howItWorks: {
         kicker: "Comment ça fonctionne",
@@ -213,7 +213,7 @@ export default function Landing() {
       },
       finalCta: {
         title: "Prêt à sécuriser vos opérations ?",
-        desc: "Générez une clé API, rechargez par Mobile Money et scannez votre premier fichier dès aujourd'hui."
+        desc: "Générez une clé API et contactez notre équipe pour concevoir un déploiement sur-mesure pour votre organisation."
       },
       footer: {
         desc: "L'infrastructure de tri forensique conçue pour les équipes de sécurité en Afrique.",

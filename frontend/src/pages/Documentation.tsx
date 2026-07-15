@@ -181,17 +181,17 @@ const Documentation: React.FC = () => {
         <div style={s.section}>
           <div style={s.sectionTitle}>
             <Banknote size={20} style={{ color: 'var(--brand-cyan)' }} />
-            Mobile Money & Billing
+            Deployment & Pricing
           </div>
           <ul style={{ paddingLeft: '20px' }}>
             <li style={s.listItem}>
-              <strong>Flexible billing</strong>: Mobile Money can be used as a payment method for enterprise or premium seats.
+              <strong>Architecture adaptée</strong>: Nous concevons des déploiements sur-mesure selon les exigences de sécurité, conformité et scalabilité de votre entreprise.
             </li>
             <li style={s.listItem}>
-              <strong>Invoice flow</strong>: Billing events and renewal reminders are surfaced in the admin experience.
+              <strong>Modèles de facturation</strong>: Options flexibles — licence, abonnement géré, ou déploiement privé. Contactez-nous pour un devis.
             </li>
             <li style={s.listItem}>
-              <strong>Trust-first delivery</strong>: The platform keeps payment and operational data separate for audit readiness.
+              <strong>Séparation des responsabilités</strong>: Les données opérationnelles et de facturation peuvent être isolées pour répondre aux exigences d'audit.
             </li>
           </ul>
         </div>

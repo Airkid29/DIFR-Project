@@ -8,7 +8,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, F
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile
 from fastapi.responses import JSONResponse
@@ -830,6 +830,34 @@ def get_audit_logs(db: Session = Depends(get_db), current_user: models.User = De
     if not is_super_admin(current_user) and current_user.account_type == "enterprise":
         query = query.filter(models.AuditLog.organization_name == current_user.organization_name)
     return query.all()
+
+
+@app.get("/api/admin/export/audit.xlsx")
+def export_audit_xlsx(current_user: models.User = Depends(require_role(["Admin", "UltraAdmin", "SuperAdmin"])), db: Session = Depends(get_db)):
+    try:
+        query = db.query(models.AuditLog).order_by(models.AuditLog.timestamp.desc())
+        if not is_super_admin(current_user) and current_user.account_type == "enterprise":
+            query = query.filter(models.AuditLog.organization_name == current_user.organization_name)
+        entries = query.all()
+
+        rows = []
+        for e in entries:
+            rows.append({
+                "id": e.id,
+                "timestamp": e.timestamp,
+                "user_email": e.user_email,
+                "action": e.action,
+                "resource": e.resource,
+                "ip_address": e.ip_address,
+                "status": e.status,
+                "organization_name": e.organization_name,
+            })
+
+        xlsx_bytes = tasks.generate_audit_xlsx(rows=rows)
+        from io import BytesIO
+        return StreamingResponse(BytesIO(xlsx_bytes), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=forensiguard_audit_logs.xlsx"})
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 # --- THREAT INTEL INTEGRATIONS ---
 

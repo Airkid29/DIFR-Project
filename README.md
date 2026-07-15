@@ -1,4 +1,4 @@
-# ForensiGuard
+﻿# ForensiGuard
 
 ForensiGuard is a modern digital forensics investigation platform built as a full-stack MVP.
 It combines a React + Vite frontend with a FastAPI backend, PostgreSQL persistence, Redis/Celery background processing, and YARA-based file triage.
@@ -50,10 +50,10 @@ docker-compose up --build
 
 This starts:
 
-- `db` – PostgreSQL database
-- `redis` – Redis broker/backend
-- `api` – FastAPI backend
-- `worker` – Celery worker for background tasks
+- `db` â€“ PostgreSQL database
+- `redis` â€“ Redis broker/backend
+- `api` â€“ FastAPI backend
+- `worker` â€“ Celery worker for background tasks
 
 The backend API is available at `http://localhost:8000`.
 
@@ -72,15 +72,17 @@ The app proxies `/api` requests to the backend automatically.
 
 ## Default credentials
 
+These credentials are provided for local development and demonstration only. Do not use them in production.
+
 - Email: `r.jenkins@forensiguard.com`
 - Password: `securepassword123`
 - MFA code: `123456` or `000000`
 
 ## Project structure
 
-- `frontend/` – React application with pages, layout, and branding
-- `backend/` – FastAPI application, models, schemas, tasks, and Docker setup
-- `docker-compose.yml` – orchestration for PostgreSQL, Redis, API, and worker
+- `frontend/` â€“ React application with pages, layout, and branding
+- `backend/` â€“ FastAPI application, models, schemas, tasks, and Docker setup
+- `docker-compose.yml` â€“ orchestration for PostgreSQL, Redis, API, and worker
 
 ## Notes for next steps
 
@@ -98,3 +100,4 @@ The app proxies `/api` requests to the backend automatically.
 
 
 Made by Abdoul-Rachid BAWA | June 2026 -- Today
+

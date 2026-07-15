@@ -1,9 +1,20 @@
+import os
 import requests
 
-BASE = 'http://127.0.0.1:8000'
+BASE = os.getenv('FORNSIGUARD_API_URL', 'http://127.0.0.1:8000')
+ADMIN_EMAIL = os.getenv('DEFAULT_ADMIN_EMAIL', 'r.jenkins@forensiguard.com')
+ADMIN_PASSWORD = os.getenv('DEFAULT_ADMIN_PASSWORD')
+
+if not ADMIN_PASSWORD:
+    raise SystemExit(
+        'DEFAULT_ADMIN_PASSWORD must be set in the environment before running this script.'
+    )
 
 # Login
-r = requests.post(f'{BASE}/api/auth/login', json={'email':'r.jenkins@forensiguard.com','password':'securepassword123'})
+r = requests.post(
+    f'{BASE}/api/auth/login',
+    json={'email': ADMIN_EMAIL, 'password': ADMIN_PASSWORD},
+)
 print('login', r.status_code, r.text)
 if r.status_code != 200:
     raise SystemExit('login failed')

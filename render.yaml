@@ -27,6 +27,8 @@ services:
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
+      - key: APP_ENV
+        value: production
       - key: UPLOAD_DIR
         value: /app/uploads
       - key: RENDER_POSTGRES_REGION

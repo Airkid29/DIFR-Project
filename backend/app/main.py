@@ -56,20 +56,40 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+    response.headers[
+        "Content-Security-Policy"
+    ] = (
+        "default-src 'none'; "
+        "base-uri 'self'; "
+        "connect-src 'self'; "
+        "font-src 'self'; "
+        "frame-ancestors 'none'; "
+        "img-src 'self' data:; "
+        "object-src 'none'; "
+        "script-src 'self'; "
+        "style-src 'self'; "
+        "form-action 'self';"
+    )
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
 
 # Enable CORS for frontend API communications
+allowed_origins = settings.CORS_ALLOWED_ORIGINS or [settings.FRONTEND_URL]
+if settings.APP_ENV != "production":
+    for local_origin in ["http://localhost:5173", "http://127.0.0.1:5173"]:
+        if local_origin not in allowed_origins:
+            allowed_origins.append(local_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your actual frontend domain
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 app.add_middleware(GZipMiddleware)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+trusted_hosts = settings.TRUSTED_HOSTS or ["localhost", "127.0.0.1"]
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
 
 @app.on_event("startup")
 def on_startup():
@@ -85,12 +105,17 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 def upload_avatar(request: Request, file: UploadFile = File(...)):
     try:
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-        filename = f"avatar_{uuid.uuid4().hex}_{file.filename}"
+        safe_name = os.path.basename(file.filename)
+        if not safe_name:
+            raise HTTPException(status_code=400, detail="Invalid upload filename.")
+        filename = f"avatar_{uuid.uuid4().hex}_{safe_name}"
         path = os.path.join(settings.UPLOAD_DIR, filename)
         with open(path, "wb") as f:
             f.write(file.file.read())
         public_path = f"{str(request.base_url).rstrip('/')}/uploads/{filename}"
         return JSONResponse({"path": public_path})
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 

@@ -63,7 +63,11 @@ class Settings:
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
     CORS_ALLOWED_ORIGINS: list[str] = _get_env_list("CORS_ALLOWED_ORIGINS", FRONTEND_URL)
     _default_trusted_hosts = ["localhost", "127.0.0.1"]
-    if APP_ENV == "production":
+    render_external_url = os.getenv("RENDER_EXTERNAL_URL", "")
+    render_host = urlparse(render_external_url).hostname or ""
+    if render_host and render_host not in _default_trusted_hosts:
+        _default_trusted_hosts.append(render_host)
+    if APP_ENV == "production" or os.getenv("RENDER") or render_external_url:
         _default_trusted_hosts.append("*.onrender.com")
     frontend_host = urlparse(FRONTEND_URL).hostname or ""
     if frontend_host and frontend_host not in _default_trusted_hosts:

@@ -3,6 +3,7 @@ import uuid
 import datetime
 import threading
 import requests
+from urllib.parse import urlparse
 from typing import List
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -91,10 +92,21 @@ app.add_middleware(GZipMiddleware)
 
 def _build_trusted_hosts() -> list[str]:
     hosts = list(settings.TRUSTED_HOSTS or ["localhost", "127.0.0.1"])
-    if settings.APP_ENV == "production":
+    is_production_like = (
+        settings.APP_ENV == "production"
+        or bool(os.getenv("RENDER"))
+        or bool(os.getenv("RENDER_EXTERNAL_URL"))
+    )
+    if is_production_like:
         for pattern in ("*.onrender.com",):
             if pattern not in hosts:
                 hosts.append(pattern)
+
+    render_external_url = os.getenv("RENDER_EXTERNAL_URL", "")
+    render_host = urlparse(render_external_url).hostname if render_external_url else ""
+    if render_host and render_host not in hosts:
+        hosts.append(render_host)
+
     return hosts
 
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=_build_trusted_hosts())

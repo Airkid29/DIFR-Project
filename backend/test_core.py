@@ -63,3 +63,23 @@ def test_health_endpoint_allows_render_host(monkeypatch):
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_health_endpoint_allows_render_env_without_app_env(monkeypatch):
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.setenv("SECRET_KEY", "test-secret")
+    monkeypatch.setenv("ALLOWED_HOSTS", "localhost,127.0.0.1")
+    monkeypatch.setenv("RENDER", "true")
+    monkeypatch.setenv("RENDER_EXTERNAL_URL", "https://forensiguard-api.onrender.com")
+
+    import app.config
+    import app.main
+
+    importlib.reload(app.config)
+    importlib.reload(app.main)
+
+    with TestClient(app.main.app) as client:
+        response = client.get("/health", headers={"host": "forensiguard-api.onrender.com"})
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}

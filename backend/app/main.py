@@ -88,8 +88,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(GZipMiddleware)
-trusted_hosts = settings.TRUSTED_HOSTS or ["localhost", "127.0.0.1"]
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
+
+def _build_trusted_hosts() -> list[str]:
+    hosts = list(settings.TRUSTED_HOSTS or ["localhost", "127.0.0.1"])
+    if settings.APP_ENV == "production":
+        for pattern in ("*.onrender.com",):
+            if pattern not in hosts:
+                hosts.append(pattern)
+    return hosts
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=_build_trusted_hosts())
 
 @app.on_event("startup")
 def on_startup():

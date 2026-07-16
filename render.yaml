@@ -37,6 +37,8 @@ services:
         value: "false"
       - key: FRONTEND_URL
         sync: false
+      - key: ALLOWED_HOSTS
+        value: localhost,127.0.0.1,*.onrender.com
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET

@@ -1,6 +1,8 @@
+import importlib
 import os
 import hashlib
 import yara
+from fastapi.testclient import TestClient
 from app.tasks import DEFAULT_YARA_RULES
 
 def test_yara_compilation():
@@ -43,3 +45,21 @@ def test_yara_matching(tmp_path):
     matches = rules.match(str(test_file))
     assert len(matches) > 0
     assert matches[0].rule == "CobaltStrike_Beacon_HTTPS"
+
+
+def test_health_endpoint_allows_render_host(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("SECRET_KEY", "test-secret")
+    monkeypatch.setenv("ALLOWED_HOSTS", "localhost,127.0.0.1")
+
+    import app.config
+    import app.main
+
+    importlib.reload(app.config)
+    importlib.reload(app.main)
+
+    with TestClient(app.main.app) as client:
+        response = client.get("/health", headers={"host": "forensiguard-api.onrender.com"})
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}

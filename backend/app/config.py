@@ -62,7 +62,13 @@ class Settings:
     )
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
     CORS_ALLOWED_ORIGINS: list[str] = _get_env_list("CORS_ALLOWED_ORIGINS", FRONTEND_URL)
-    TRUSTED_HOSTS: list[str] = _get_env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
+    _default_trusted_hosts = ["localhost", "127.0.0.1"]
+    if APP_ENV == "production":
+        _default_trusted_hosts.append("*.onrender.com")
+    frontend_host = urlparse(FRONTEND_URL).hostname or ""
+    if frontend_host and frontend_host not in _default_trusted_hosts:
+        _default_trusted_hosts.append(frontend_host)
+    TRUSTED_HOSTS: list[str] = _get_env_list("ALLOWED_HOSTS", ",".join(_default_trusted_hosts))
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
     GITHUB_CLIENT_ID: str = os.getenv("GITHUB_CLIENT_ID", "")

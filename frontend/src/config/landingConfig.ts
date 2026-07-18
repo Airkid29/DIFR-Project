@@ -19,9 +19,9 @@ export const LANDING_CONFIG = {
 
   // Hero Section
   hero: {
-    title: "Detect threats. Respond faster. Stay secure.",
-    subtitle: "Enterprise-grade incident forensics, real-time threat detection, and automated response. All in one platform.",
-    badge: "Digital Forensics & Incident Response Platform"
+    title: "Investigate Smarter. Respond Faster.",
+    subtitle: "Enterprise-grade incident forensics, real-time threat detection, AI-assisted analysis, and automated response. All in one unified platform.",
+    badge: "AI-Powered Cyber Investigation Platform"
   },
 
   // Features

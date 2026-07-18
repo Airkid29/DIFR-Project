@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Layout & Pages
 import Layout from "./components/Layout";
+import CookieConsent from "./components/CookieConsent";
 import { SettingsProvider } from "./context/SettingsContext";
 import Landing from "./pages/Landing";
 import LandingV2 from "./pages/LandingV2";
@@ -37,7 +38,7 @@ const queryClient = new QueryClient({
   }
 });
 
-const AUTH_TOKEN_KEY = "forensiguard_token";
+const AUTH_TOKEN_KEY = "velora_token";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuth = Boolean(localStorage.getItem(AUTH_TOKEN_KEY));
@@ -92,6 +93,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         </BrowserRouter>
+        <CookieConsent />
       </SettingsProvider>
     </QueryClientProvider>
   );

@@ -120,7 +120,7 @@ def init_db():
             print("[*] Production mode detected. Skipping default user seeding.")
 
         # 1. Seed Robert Jenkins (Admin)
-        admin_email = "r.jenkins@forensiguard.com"
+        admin_email = "r.jenkins@velora.io"
         admin = db.query(User).filter(User.email == admin_email).first()
         if default_user_seeding and not admin:
             legacy_admin = db.query(User).filter(User.email == "rachcode@forensiguard.com").first()
@@ -151,7 +151,7 @@ def init_db():
             print("[+] Synced default administrator account.")
 
         # 2. Seed UltraAdmin
-        ultra_email = "ultra.admin@forensiguard.com"
+        ultra_email = "ultra.admin@velora.io"
         ultra = db.query(User).filter(User.email == ultra_email).first()
         if default_user_seeding and not ultra:
             ultra_user = User(

@@ -42,7 +42,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-app = FastAPI(title="ForensiGuard API", version="1.0.0")
+app = FastAPI(title="Velora API", version="1.0.0")
 
 # Rate Limiter
 limiter = Limiter(key_func=get_remote_address)

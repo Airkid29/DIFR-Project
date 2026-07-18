@@ -1,4 +1,4 @@
-const AUTH_TOKEN_KEY = "forensiguard_token";
+const AUTH_TOKEN_KEY = "velora_token";
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") || "";
 

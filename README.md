@@ -1,6 +1,6 @@
-﻿# ForensiGuard
+# Velora
 
-ForensiGuard is a modern digital forensics investigation platform built as a full-stack MVP.
+Velora is a modern digital forensics investigation platform built as a full-stack MVP.
 It combines a React + Vite frontend with a FastAPI backend, PostgreSQL persistence, Redis/Celery background processing, and YARA-based file triage.
 
 ## What was improved
@@ -12,6 +12,8 @@ It combines a React + Vite frontend with a FastAPI backend, PostgreSQL persisten
 - The landing page navigation and section structure were cleaned up for a more consistent user experience.
 - The incidents page now shows a friendly empty state when no matches appear.
 - Frontend logout now removes the auth token from storage.
+- Added cookie consent banner for user privacy
+- Rebranded from ForensiGuard to Velora with new logo assets
 
 ## Architecture
 
@@ -74,7 +76,7 @@ The app proxies `/api` requests to the backend automatically.
 
 These credentials are provided for local development and demonstration only. Do not use them in production.
 
-- Email: `r.jenkins@forensiguard.com`
+- Email: `r.jenkins@velora.io`
 - Password: `securepassword123`
 - MFA code: `123456` or `000000`
 

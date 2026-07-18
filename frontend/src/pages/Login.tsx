@@ -36,7 +36,7 @@ export default function Login() {
         setError(d.detail || t("auth.emailRequired"));
       } else {
         const d = await res.json();
-        localStorage.setItem("forensiguard_token", d.access_token);
+        localStorage.setItem("velora_token", d.access_token);
         navigate("/dashboard");
       }
     } catch {
@@ -65,7 +65,7 @@ export default function Login() {
         setError(d.detail || t("auth.mfaInvalid"));
       } else {
         const d = await res.json();
-        localStorage.setItem("forensiguard_token", d.access_token);
+        localStorage.setItem("velora_token", d.access_token);
         navigate("/dashboard");
       }
     } catch {

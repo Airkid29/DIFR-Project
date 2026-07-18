@@ -63,7 +63,7 @@ class _CeleryStub:
 # (worker process is optional; scans can run in API background threads).
 if Celery is not None:
     broker_url = settings.REDIS_URL if settings.ENABLE_CELERY_WORKER else "memory://"
-    celery_app = Celery("forensiguard_tasks", broker=broker_url, backend=broker_url)
+    celery_app = Celery("velora_tasks", broker=broker_url, backend=broker_url)
 else:
     celery_app = _CeleryStub()
 
@@ -71,7 +71,7 @@ DEFAULT_YARA_RULES = """
 rule CobaltStrike_Beacon_HTTPS {
     meta:
         description = "Detects CobaltStrike beacon HTTPS network strings"
-        author = "ForensiGuard security lab"
+        author = "Velora security lab"
     strings:
         $s1 = "LsaRegisterLogonProcess"
         $s2 = "lsass.exe"
@@ -83,7 +83,7 @@ rule CobaltStrike_Beacon_HTTPS {
 rule Mimikatz_LSASS_Dump {
     meta:
         description = "Detects Mimikatz credentials harvesting indicators"
-        author = "ForensiGuard security lab"
+        author = "Velora security lab"
     strings:
         $m1 = "winsta.dll"
         $m2 = "sekurlsa"
@@ -162,7 +162,7 @@ def compute_hashes_and_yara_scan(job_id: str, filepath: str):
 
         # Log system audit entry
         audit = AuditLog(
-            user_email="system@forensiguard.com",
+            user_email="system@velora.io",
             action="FILE_TRIAGE_SUCCESS",
             resource=f"Job: {job_id} | Hash: {job.sha256}",
             ip_address="127.0.0.1",
@@ -242,7 +242,7 @@ def generate_pdf_report(evidence_id: str, output_path: str):
             pass
 
         # Header text
-        story.append(Paragraph("ForensiGuard Digital Forensic Report", title_style))
+        story.append(Paragraph("Velora Digital Forensic Report", title_style))
         story.append(Paragraph("CONFIDENTIAL", subtitle_style))
         story.append(Paragraph(f"Generated at: {datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC", subtitle_style))
         if ev.organization_name:
@@ -318,7 +318,7 @@ def generate_pdf_report(evidence_id: str, output_path: str):
             canvas_obj.setLineWidth(1)
             canvas_obj.rect(margin/2, margin/2, w - margin, h - margin, stroke=1, fill=0)
             # Footer
-            footer_text = f"ForensiGuard — Generated for {ev.organization_name or 'Unknown Organization'} | {datetime.datetime.utcnow().date.year}"
+            footer_text = f"Velora — Generated for {ev.organization_name or 'Unknown Organization'} | {datetime.datetime.utcnow().date.year}"
             canvas_obj.setFont("Helvetica", 8)
             canvas_obj.setFillColor(colors.HexColor('#9ca3af'))
             canvas_obj.drawString(margin, 12 * mm, footer_text)
@@ -364,7 +364,7 @@ def generate_pdf_report(evidence_id: str, output_path: str):
         # Title
         title_row = start_row
         ws.merge_cells(start_row=title_row, start_column=1, end_row=title_row, end_column=8)
-        ws.cell(row=title_row, column=1, value="ForensiGuard — Audit Logs").font = Font(size=14, bold=True)
+        ws.cell(row=title_row, column=1, value="Velora — Audit Logs").font = Font(size=14, bold=True)
         header_row = title_row + 2
 
         headers = ["Audit ID", "Time", "User", "Action", "Resource", "IP", "Status", "Organization"]

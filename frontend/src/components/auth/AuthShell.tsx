@@ -53,9 +53,9 @@ export function AuthShell({ children, title, subtitle, showSteps, step, showBack
           <div>
             <div style={s.logoWrap}>
               <img 
-                src={theme === "light" ? "/logo-light.png" : "/logo-dark.png"} 
-                alt="ForensiGuard" 
-                style={{ height: "22px", width: "auto" }} 
+                src={theme === "light" ? "/logo-white-velora.png" : "/logo-dark-velora.png"} 
+                alt="Velora" 
+                style={{ height: "26px", width: "auto" }} 
               />
               <span className="beta-badge" style={{
                 fontFamily: "var(--font-mono)",

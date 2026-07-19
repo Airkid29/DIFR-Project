@@ -101,5 +101,5 @@ These credentials are provided for local development and demonstration only. Do 
 - Slack and avatar setup guide: `docs/SLACK_AND_AVATAR_SETUP.md`
 
 
-Made by Abdoul-Rachid BAWA | June 2026 -- Today
+Made by Abdoul-Rachid BAWA, Co-authored by Henry-Joel DENKEY |From June 2026 -- Today
 

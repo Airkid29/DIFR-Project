@@ -23,24 +23,30 @@ const CookieConsent: React.FC = () => {
   if (!showConsent) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-brand-card border-t border-brand-border p-4 md:p-6 z-50">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-brand-text-secondary">
-          <span className="text-brand-text-primary font-semibold">Velora</span> utilise des cookies pour améliorer votre expérience. En continuant, vous acceptez notre politique de confidentialité.
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleDecline}
-            className="px-4 py-2 rounded-lg border border-brand-border text-brand-text-secondary text-sm hover:bg-theme-tint transition-colors cursor-pointer"
-          >
-            Refuser
-          </button>
-          <button
-            onClick={handleAccept}
-            className="px-4 py-2 rounded-lg bg-brand-cyan text-brand-abyssal text-sm font-semibold hover:brightness-110 transition-colors cursor-pointer"
-          >
-            Accepter
-          </button>
+    <div className="fixed bottom-0 left-0 right-0 z-[9999]">
+      <div className="bg-[#1a2235] border-t border-brand-border shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-sm text-[#8AAEE0] leading-relaxed">
+                <span className="text-[#F0F3FA] font-semibold text-base">🍪 Velora</span> utilise des cookies essentiels pour améliorer votre expérience utilisateur et analyser le trafic de notre site. En cliquant sur "Accepter", vous consentez à l'utilisation de ces cookies.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleDecline}
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl border border-brand-border text-[#8AAEE0] text-sm font-medium hover:bg-[#2a3a55] transition-all duration-200 cursor-pointer"
+              >
+                Refuser
+              </button>
+              <button
+                onClick={handleAccept}
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00f2fe] to-[#4a9e7a] text-[#0f1623] text-sm font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-200 cursor-pointer"
+              >
+                Accepter
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
-import { Sun, Moon, Code, Zap, Shield, BarChart, ArrowRight, ExternalLink } from "lucide-react";
+import { Sun, Moon, Code, Zap, Shield, BarChart, ArrowRight, ExternalLink, Menu, X } from "lucide-react";
 import SlackIcon from "../assets/slack-removebg-preview.png";
 import GitHubIcon from "../assets/github-removebg-preview.png";
 import LinkedinIcon from "../assets/linkedin-removebg-preview.png";
@@ -14,6 +14,22 @@ import { api } from "../utils/api";
 export default function Landing() {
   const { theme, toggleTheme, language, toggleLanguage } = useSettings();
   const [activeCodeTab, setActiveCodeTab] = useState<"curl" | "js" | "py">("curl");
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  // Close the mobile nav automatically if the viewport grows past tablet size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) setIsMobileNavOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Lock body scroll while the mobile nav drawer is open
+  useEffect(() => {
+    document.body.style.overflow = isMobileNavOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isMobileNavOpen]);
 
   // Track page visit
   useEffect(() => {
@@ -267,6 +283,8 @@ export default function Landing() {
           -webkit-font-smoothing: antialiased;
           position: relative;
           min-height: 100vh;
+          overflow-x: hidden;
+          width: 100%;
         }
 
         /* Light Mode adaptation of the exact same palette layout */
@@ -389,6 +407,21 @@ export default function Landing() {
           align-items: center;
           gap: 18px;
         }
+        .landing-root .nav-burger {
+          display: none;
+          align-items: center;
+          justify-content: center;
+          width: 34px;
+          height: 34px;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          background: transparent;
+          color: var(--text);
+          cursor: pointer;
+        }
+        .landing-root .mobile-nav-panel {
+          display: none;
+        }
         .landing-root .lang {
           font-family: var(--font-mono);
           font-size: 12.5px;
@@ -448,7 +481,7 @@ export default function Landing() {
           top: -120px;
           left: 50%;
           transform: translateX(-50%);
-          width: 900px;
+          width: min(900px, 150vw);
           height: 520px;
           z-index: 0;
           pointer-events: none;
@@ -992,28 +1025,98 @@ export default function Landing() {
           transform: translateY(0);
         }
 
-        /* Responsive Breakpoints matching template style */
+        /* ============================================================
+           Responsive Breakpoints — mobile-first overrides
+           Base styles above target desktop; these rules scale things
+           down for tablet (<=1024px) and phone (<=768px / <=480px).
+           ============================================================ */
+
+        /* Tablet */
         @media (max-width: 1024px) {
+          .landing-root .wrap { padding: 0 24px; }
           .landing-root .grid-4 { grid-template-columns: repeat(2, 1fr); }
           .landing-root .money-layout { grid-template-columns: 1fr; gap: 40px; }
           .landing-root .flow { grid-template-columns: repeat(2, 1fr); }
           .landing-root .flow-arrow { display: none; }
           .landing-root .foot-top { grid-template-columns: repeat(2, 1fr); }
+          .landing-root .section { padding: 72px 0; }
         }
+
+        /* Phone / small tablet — nav collapses into the burger drawer */
         @media (max-width: 768px) {
           .landing-root .nav-links { display: none; }
-          .landing-root .hero { padding: 80px 0 40px; }
-          .landing-root .hero h1 { font-size: clamp(2rem, 6vw, 3rem); }
+          .landing-root .nav-cta-desktop { display: none; }
+          .landing-root .nav-burger { display: flex; }
+          .landing-root .mobile-nav-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--line);
+            box-shadow: 0 20px 40px -20px rgba(0,0,0,0.5);
+            transform: translateY(-8px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .18s ease, transform .18s ease;
+            z-index: 60;
+          }
+          .landing-root .mobile-nav-panel.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+          }
+          .landing-root .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+          .landing-root .mobile-nav-links a {
+            font-size: 15.5px;
+            color: var(--text);
+            padding: 12px 4px;
+            border-bottom: 1px solid var(--line);
+          }
+
+          .landing-root .hero { padding: 44px 0 32px; }
+          .landing-root .hero h1 { font-size: clamp(2rem, 7vw, 3rem); }
+          .landing-root .hero p.sub { font-size: 16px; padding: 0 8px; }
+          .landing-root .hero-ctas { flex-direction: column; align-items: stretch; gap: 10px; }
           .landing-root .provider-row { justify-content: center; }
-        }
-        @media (max-width: 560px) {
-          .landing-root .wrap { padding: 0 16px; }
-          .landing-root .nav { height: auto; padding: 12px 0; gap: 12px; flex-wrap: wrap; }
+          .landing-root .hero-demo { border-radius: 12px; }
+
+          .landing-root .section { padding: 56px 0; }
+          .landing-root .section-head { margin-bottom: 32px; }
+
           .landing-root .grid-4 { grid-template-columns: 1fr; }
-          .landing-root .flow { grid-template-columns: 1fr; }
-          .landing-root .hero-ctas { flex-direction: column; align-items: stretch; }
-          .landing-root .foot-top { grid-template-columns: 1fr; }
+          .landing-root .fcard { padding: 24px 20px; }
+
+          .landing-root .grid-2 { grid-template-columns: 1fr; gap: 16px; }
+          .landing-root .ucard { padding: 24px; }
+
+          .landing-root .money-grid { gap: 8px; }
+
+          .landing-root .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .landing-root .tab { padding: 12px 16px; white-space: nowrap; }
+          .landing-root pre { padding: 18px; font-size: 12px; }
+
+          .landing-root .final-cta { padding: 64px 0; }
+
+          .landing-root .foot-top { grid-template-columns: 1fr; gap: 32px; margin-bottom: 32px; }
+        }
+
+        /* Small phones */
+        @media (max-width: 480px) {
+          .landing-root .wrap { padding: 0 16px; }
+          .landing-root .nav { height: auto; padding: 12px 0; gap: 12px; }
           .landing-root .brand { gap: 8px; }
+          .landing-root .flow { grid-template-columns: 1fr; }
+          .landing-root .money-grid { grid-template-columns: repeat(2, 1fr); }
+          .landing-root .foot-bottom { text-align: center; justify-content: center; }
         }
       `}</style>
 
@@ -1057,11 +1160,36 @@ export default function Landing() {
               {theme === "light" ? <Moon size={14} /> : <Sun size={14} />}
             </button>
 
-            {/* Start building button */}
-            <Link to="/register" className="btn btn-primary">
+            {/* Start building button (hidden on very small screens, still in the drawer) */}
+            <Link to="/register" className="btn btn-primary nav-cta-desktop">
               {currentStrings.meta.getStarted}
             </Link>
+
+            {/* Mobile nav burger */}
+            <button
+              className="nav-burger"
+              onClick={() => setIsMobileNavOpen((prev) => !prev)}
+              aria-label={isMobileNavOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMobileNavOpen}
+            >
+              {isMobileNavOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
+        </div>
+
+        {/* Mobile nav drawer */}
+        <div className={`mobile-nav-panel ${isMobileNavOpen ? "open" : ""}`}>
+          <nav className="mobile-nav-links">
+            <a href="#features" onClick={() => setIsMobileNavOpen(false)}>{currentStrings.nav.features}</a>
+            <a href="#payment" onClick={() => setIsMobileNavOpen(false)}>{currentStrings.nav.pricing}</a>
+            <a href="#how" onClick={() => setIsMobileNavOpen(false)}>{currentStrings.nav.insights}</a>
+            <Link to="/docs" onClick={() => setIsMobileNavOpen(false)}>{currentStrings.nav.docs}</Link>
+            <a href="#usecases" onClick={() => setIsMobileNavOpen(false)}>{currentStrings.nav.about}</a>
+            <a href="#help" onClick={() => setIsMobileNavOpen(false)}>{currentStrings.nav.help}</a>
+          </nav>
+          <Link to="/register" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={() => setIsMobileNavOpen(false)}>
+            {currentStrings.meta.getStarted}
+          </Link>
         </div>
       </header>
 

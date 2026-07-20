@@ -9,14 +9,12 @@ databases:
     databaseName: velora
     user: velora
     plan: free
-    region: oregon
 
 services:
   - type: web
     name: velora-api
     runtime: docker
     plan: free
-    region: oregon
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /health
@@ -32,7 +30,7 @@ services:
       - key: UPLOAD_DIR
         value: /app/uploads
       - key: RENDER_POSTGRES_REGION
-        value: oregon
+        sync: false
       - key: ENABLE_CELERY_WORKER
         value: "false"
       - key: FRONTEND_URL

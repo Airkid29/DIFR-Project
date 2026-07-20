@@ -2,3 +2,6 @@
 .vscode/
 **/__pycache__/
 *.pyc
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

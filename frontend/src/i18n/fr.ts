@@ -1,6 +1,6 @@
 export const fr = {
   common: {
-    appName: "ForensiGuard",
+    appName: "Velora",
     appTagline: "Plateforme SOC",
     loading: "Chargement...",
     save: "Enregistrer",
@@ -78,7 +78,7 @@ export const fr = {
     backToCredentials: "← Retour aux identifiants",
     forgotPassword: "Mot de passe oublié ?",
     createAccount: "Créer un compte",
-    registerSubtitle: "Inscrivez-vous pour accéder à la plateforme ForensiGuard SOC",
+    registerSubtitle: "Inscrivez-vous pour accéder à la plateforme Velora SOC",
     alreadyHaveAccount: "Vous avez déjà un compte ? Se connecter",
     allFieldsRequired: "Tous les champs sont obligatoires.",
     passwordsMismatch: "Les mots de passe ne correspondent pas.",
@@ -163,9 +163,9 @@ export const fr = {
     getStarted: "Commencer",
     contactSales: "Contacter les ventes",
     ctaTitle: "Prêt à automatiser la réponse aux incidents ?",
-    ctaDesc: "Rejoignez les SOC d'entreprise qui utilisent ForensiGuard pour détecter, enquêter et remédier aux menaces 10× plus vite.",
+    ctaDesc: "Rejoignez les SOC d'entreprise qui utilisent Velora pour détecter, enquêter et remédier aux menaces 10× plus vite.",
     startYourTrial: "Démarrer votre essai gratuit",
-    footerRights: "© 2026 ForensiGuard Inc. Tous droits réservés.",
+    footerRights: "© 2026 Velora Inc. Tous droits réservés.",
     privacy: "Confidentialité",
     terms: "Conditions",
     docs: "Documentation",

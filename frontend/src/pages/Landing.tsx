@@ -97,7 +97,7 @@ export default function Landing() {
         sub: "The real path an artifact takes from ingestion to sealed evidence.",
         step1: "Your agent sends an alert",
         step1Mono: "POST /api/v1/analyze",
-        step2: "ForensiGuard routes it",
+        step2: "Velora routes it",
         step2Mono: "scan: \"yara/virustotal\"",
         step3: "Analyzers respond",
         step4: "Logged & Sealed",
@@ -193,7 +193,7 @@ export default function Landing() {
         sub: "Le chemin réel qu'emprunte un fichier de l'ingestion à la preuve scellée.",
         step1: "Votre agent envoie une alerte",
         step1Mono: "POST /api/v1/analyze",
-        step2: "ForensiGuard l'oriente",
+        step2: "Velora l'oriente",
         step2Mono: "scan: \"yara/virustotal\"",
         step3: "Les moteurs répondent",
         step4: "Consigné & Scellé",
@@ -1128,9 +1128,8 @@ export default function Landing() {
         <div className="wrap nav">
           <div className="brand">
             <img 
-              src={theme === "light" ? "/logo-light.png" : "/logo-dark.png"} 
-              alt="ForensiGuard" 
-              className="mark" 
+              src={theme === "light" ? "/logo-white-velora.png" : "/logo-dark-velora.png"} 
+              alt="Velora" className="mark"  
             />
             <span className="beta-badge">{currentStrings.meta.beta}</span>
           </div>
@@ -1228,7 +1227,7 @@ export default function Landing() {
                 width="100%" 
                 height="100%" 
                 src="https://www.youtube.com/embed/id-DxNv41DM" 
-                title="ForensiGuard Demo" 
+                title="Velora Demo" 
                 frameBorder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                 allowFullScreen
@@ -1432,14 +1431,14 @@ export default function Landing() {
 
             <pre className={activeCodeTab === "curl" ? "active" : ""}>
               <span className="c"># send your first analysis request</span><br />
-              curl https://api.forensiguard.com/v1/analyze \<br />
+              curl https://api.velora.com/v1/analyze \<br />
               &nbsp;&nbsp;-H <span className="s">"Authorization: Bearer $FG_KEY"</span> \<br />
               &nbsp;&nbsp;-d '&#123;<span className="k">"file_url"</span>: <span className="s">"https://bucket/suspicious.bin"</span>, <span className="k">"scan_type"</span>: <span className="s">"yara"</span>&#125;'
             </pre>
 
             <pre className={activeCodeTab === "js" ? "active" : ""}>
               <span className="c">// send your first analysis request</span><br />
-              <span className="k">const</span> res = <span className="k">await</span> fetch(<span className="s">"https://api.forensiguard.com/v1/analyze"</span>, &#123;<br />
+              <span className="k">const</span> res = <span className="k">await</span> fetch(<span className="s">"https://api.velora.com/v1/analyze"</span>, &#123;<br />
               &nbsp;&nbsp;method: <span className="s">"POST"</span>,<br />
               &nbsp;&nbsp;headers: &#123; Authorization: <span className="s">`Bearer $&#123;FG_KEY&#125;`</span>, <span className="s">"Content-Type"</span>: <span className="s">"application/json"</span> &#125;,<br />
               &nbsp;&nbsp;body: JSON.stringify(&#123; file_url: <span className="s">"https://bucket/suspicious.bin"</span>, scan_type: <span className="s">"yara"</span> &#125;)<br />
@@ -1449,7 +1448,7 @@ export default function Landing() {
             <pre className={activeCodeTab === "py" ? "active" : ""}>
               <span className="c"># send your first analysis request</span><br />
               <span className="k">import</span> requests<br />
-              requests.post(<span className="s">"https://api.forensiguard.com/v1/analyze"</span>,<br />
+              requests.post(<span className="s">"https://api.velora.com/v1/analyze"</span>,<br />
               &nbsp;&nbsp;headers=&#123;<span className="s">"Authorization"</span>: <span className="s">f"Bearer &#123;FG_KEY&#125;"</span>&#125;,<br />
               &nbsp;&nbsp;json=&#123;<span className="s">"file_url"</span>: <span className="s">"https://bucket/suspicious.bin"</span>, <span className="s">"scan_type"</span>: <span className="s">"yara"</span>&#125;)
             </pre>
@@ -1480,23 +1479,23 @@ export default function Landing() {
             <div className="foot-brand">
               <div className="brand" style={{ fontSize: "16px" }}>
                 <img 
-                  src={theme === "light" ? "/logo-light.png" : "/logo-dark.png"} 
-                  alt="ForensiGuard" 
+                  src={theme === "light" ? "/logo-white-velora.png" : "/logo-dark-velora.png"} 
+                  alt="Velora" 
                   className="mark" 
                 />
               </div>
               <p>{currentStrings.footer.desc}</p>
               <div className="socials" style={{ display: "flex", gap: "12px" }}>
-                <a href="https://github.com/forensiguard" aria-label="GitHub">
+                <a href="https://github.com/Velora" aria-label="GitHub">
                   <img src={GitHubIcon} alt="GitHub" style={{ width: "24px", height: "24px" }} />
                 </a>
-                <a href="https://twitter.com/forensiguard" aria-label="X">
+                <a href="https://twitter.com/velora" aria-label="X">
                   <img src={XIcon} alt="X" style={{ width: "24px", height: "24px" }} />
                 </a>
-                <a href="https://linkedin.com/company/forensiguard" aria-label="LinkedIn">
+                <a href="https://linkedin.com/company/velora" aria-label="LinkedIn">
                   <img src={LinkedinIcon} alt="LinkedIn" style={{ width: "24px", height: "24px" }} />
                 </a>
-                <a href="https://join.slack.com/t/forensiguard/shared_invite/..." aria-label="Slack">
+                <a href="https://join.slack.com/t/velora/shared_invite/..." aria-label="Slack">
                   <img src={SlackIcon} alt="Slack" style={{ width: "24px", height: "24px" }} />
                 </a>
               </div>
@@ -1521,7 +1520,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="foot-bottom">
-            <span>© {new Date().getFullYear()} ForensiGuard. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} Velora. All rights reserved.</span>
             <span>Moyens de paiments bientot disponibles...</span>
           </div>
         </div>

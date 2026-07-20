@@ -812,10 +812,10 @@ def get_evidence_pdf_report(id: str, db: Session = Depends(get_db), current_user
     assert_org_access_or_super_admin(ev.organization_name, current_user)
 
     temp_dir = tempfile.gettempdir()
-    output_path = os.path.join(temp_dir, f"forensiguard_report_{id}.pdf")
+    output_path = os.path.join(temp_dir, f"velora_report_{ev.id}.pdf")
     
     # Generate PDF Report (can run synchronously for quick small items)
-    tasks.generate_pdf_report(id, output_path)
+    tasks.generate_pdf_report(ev.id, output_path)
 
     # Check if file created
     if not os.path.exists(output_path):
@@ -824,7 +824,7 @@ def get_evidence_pdf_report(id: str, db: Session = Depends(get_db), current_user
     return FileResponse(
         output_path,
         media_type="application/pdf",
-        filename=f"ForensiGuard_Report_{id}.pdf"
+        filename=f"Velora_Report_{ev.id}.pdf",
     )
 
 # --- TIMELINE ENDPOINTS ---
@@ -900,7 +900,7 @@ def export_audit_xlsx(current_user: models.User = Depends(require_role(["Admin",
 
         xlsx_bytes = tasks.generate_audit_xlsx(rows=rows)
         from io import BytesIO
-        return StreamingResponse(BytesIO(xlsx_bytes), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=forensiguard_audit_logs.xlsx"})
+        return StreamingResponse(BytesIO(xlsx_bytes), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=velora_audit_logs.xlsx"})
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -1189,7 +1189,7 @@ def dashboard_stats(db: Session = Depends(get_db), current_user: models.User = D
         recent_threats.append({
             "type": activity.action_type.upper(),
             "details": activity.title,
-            "source": "ForensiGuard",
+            "source": "Velora",
             "confidence": "92%",
         })
 
@@ -1200,7 +1200,7 @@ def dashboard_stats(db: Session = Depends(get_db), current_user: models.User = D
         "avg_triage": avg_triage,
         "incident_volume": incident_volume,
         "recent_threats": recent_threats or [
-            {"type": "INTEL", "details": "No recent threat activity", "source": "ForensiGuard", "confidence": "—"}
+            {"type": "INTEL", "details": "No recent threat activity", "source": "Velora", "confidence": "—"}
         ],
     }
 

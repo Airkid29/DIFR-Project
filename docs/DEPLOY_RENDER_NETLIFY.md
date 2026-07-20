@@ -1,4 +1,4 @@
-# Deploy ForensiGuard — Render (free) + Netlify
+# Deploy Velora — Render (free) + Netlify
 
 ## Stack gratuite
 
@@ -38,9 +38,9 @@ git push origin main
 1. Dashboard Render → **New +** → **Blueprint**
 2. Sélectionnez le repo GitHub `DIFR Project`
 3. Render détecte `render.yaml` et propose 3 ressources :
-   - `forensiguard-db` (PostgreSQL)
-   - `forensiguard-redis` (Redis)
-   - `forensiguard-api` (Web Service Docker)
+   - `velora-db` (PostgreSQL)
+   - `velora-redis` (Redis)
+   - `velora-api` (Web Service Docker)
 4. Cliquez **Apply**
 
 Le premier build prend **5–15 minutes** (compilation de `yara-python`).
@@ -49,10 +49,10 @@ Le premier build prend **5–15 minutes** (compilation de `yara-python`).
 
 Une fois le déploiement vert :
 
-1. Ouvrez le service **forensiguard-api**
-2. Copiez l'URL publique, ex. `https://forensiguard-api.onrender.com`
-3. Testez : `https://forensiguard-api.onrender.com/health` → `{"status":"ok"}`
-4. Docs : `https://forensiguard-api.onrender.com/docs`
+1. Ouvrez le service **velora-api**
+2. Copiez l'URL publique, ex. `https://velora-api.onrender.com`
+3. Testez : `https://velora-api.onrender.com/health` → `{"status":"ok"}`
+4. Docs : `https://velora-api.onrender.com/docs`
 
 ---
 
@@ -64,7 +64,7 @@ Netlify → **Site configuration** → **Environment variables** :
 
 | Key | Value |
 |-----|-------|
-| `VITE_API_URL` | `https://forensiguard-api.onrender.com` |
+| `VITE_API_URL` | `https://velora-api.onrender.com` |
 
 Sans slash final. Remplacez par votre vraie URL Render.
 
@@ -86,7 +86,7 @@ Sans slash final. Remplacez par votre vraie URL Render.
 |----------|----------|
 | « Unable to connect » | `VITE_API_URL` manquant ou incorrect + redéployer Netlify |
 | API lente au 1er appel | Plan gratuit : réveil ~1 min après inactivité |
-| Scan bloqué | Logs Render du service `forensiguard-api` |
+| Scan bloqué | Logs Render du service `velora-api` |
 | Build échoue (mémoire) | Relancer le deploy ou passer en Starter ($7/mois) |
 | `could not translate host name "dpg-..."` | Voir section ci-dessous |
 
@@ -96,8 +96,8 @@ L'API et Postgres ne sont pas dans la même région Render.
 
 **Correctif immédiat :**
 
-1. **forensiguard-db** → **Connections** → copier **External Database URL**
-2. **forensiguard-api** → **Environment** → ajouter `DATABASE_EXTERNAL_URL` = cette URL
-3. **Manual Deploy** sur `forensiguard-api`
+1. **velora-db** → **Connections** → copier **External Database URL**
+2. **velora-api** → **Environment** → ajouter `DATABASE_EXTERNAL_URL` = cette URL
+3. **Manual Deploy** sur `velora-api`
 
 Poussez aussi le dernier `config.py` qui lit `DATABASE_EXTERNAL_URL` en priorité.

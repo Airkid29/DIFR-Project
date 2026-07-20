@@ -123,7 +123,7 @@ def init_db():
         admin_email = "r.jenkins@velora.io"
         admin = db.query(User).filter(User.email == admin_email).first()
         if default_user_seeding and not admin:
-            legacy_admin = db.query(User).filter(User.email == "rachcode@forensiguard.com").first()
+            legacy_admin = db.query(User).filter(User.email == "rachcode@velora.com").first()
             if legacy_admin:
                 legacy_admin.email = admin_email
                 legacy_admin.password_hash = hashed_pw

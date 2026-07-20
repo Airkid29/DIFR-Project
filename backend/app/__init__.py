@@ -1,1 +1,1 @@
-# ForensiGuard Python backend app package.
+# Velora Python backend app package.

@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:15-alpine
-    container_name: forensiguard-db
+    container_name: velora-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: securepassword123
-      POSTGRES_DB: forensiguard
+      POSTGRES_DB: velora
     ports:
       - "5432:5432"
     volumes:
@@ -18,7 +18,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: forensiguard-redis
+    container_name: velora-redis
     ports:
       - "6379:6379"
     healthcheck:
@@ -31,7 +31,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: forensiguard-api
+    container_name: velora-api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./backend:/app
@@ -40,7 +40,7 @@ services:
       - "8000:8000"
     environment:
       - APP_ENV=development
-      - DATABASE_URL=postgresql://postgres:securepassword123@db:5432/forensiguard
+      - DATABASE_URL=postgresql://postgres:securepassword123@db:5432/velora
       - REDIS_URL=redis://redis:6379/0
       - ENABLE_CELERY_WORKER=true
       - FRONTEND_URL=http://localhost:5173
@@ -60,14 +60,14 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: forensiguard-worker
+    container_name: velora-worker
     command: celery -A app.tasks.celery_app worker --loglevel=info
     volumes:
       - ./backend:/app
       - uploads_data:/app/uploads
     environment:
       - APP_ENV=development
-      - DATABASE_URL=postgresql://postgres:securepassword123@db:5432/forensiguard
+      - DATABASE_URL=postgresql://postgres:securepassword123@db:5432/velora
       - REDIS_URL=redis://redis:6379/0
       - ENABLE_CELERY_WORKER=true
     depends_on:

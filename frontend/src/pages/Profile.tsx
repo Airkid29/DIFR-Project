@@ -85,7 +85,7 @@ export default function Profile() {
 
   const handleTestSlack = async () => {
     try {
-      await api.post("/api/integrations/slack/test", { message: "Test de notification Slack depuis ForensiGuard!" });
+      await api.post("/api/integrations/slack/test", { message: "Test de notification Slack depuis Velora!" });
       setSlackMessage("Test de notification envoyé!");
       window.setTimeout(() => setSlackMessage(""), 3200);
     } catch {

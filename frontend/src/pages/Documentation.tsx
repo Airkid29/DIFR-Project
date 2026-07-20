@@ -95,10 +95,10 @@ const Documentation: React.FC = () => {
 
         <h1 style={s.title}>
           <BookOpen size={28} style={{ display: 'inline', marginRight: '12px', color: 'var(--brand-cyan)' }} />
-          ForensiGuard Documentation
+          Velora Documentation
         </h1>
         <p style={s.subtitle}>
-          Everything you need to get started with ForensiGuard
+          Everything you need to get started with Velora.
         </p>
 
         {/* Getting Started Section */}
@@ -133,7 +133,7 @@ const Documentation: React.FC = () => {
             Send your first analysis request using the API:
           </p>
           <div style={s.codeBlock}>
-            curl https://api.forensiguard.com/v1/analyze \<br />
+            curl https://api.Velora.com/v1/analyze \<br />
             &nbsp;&nbsp;-H "Authorization: Bearer YOUR_API_KEY" \<br />
             &nbsp;&nbsp;-d "file_url=https://example.com/suspicious.bin&scan_type=yara"
           </div>

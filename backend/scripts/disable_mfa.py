@@ -5,7 +5,7 @@ from app.models import User
 
 db = SessionLocal()
 try:
-    u = db.query(User).filter(User.email == 'r.jenkins@forensiguard.com').first()
+    u = db.query(User).filter(User.email == 'r.jenkins@velora.com').first()
     if not u:
         print('User not found')
     else:

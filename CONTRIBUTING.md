@@ -1,6 +1,6 @@
-﻿# Contributing to ForensiGuard
+﻿# Contributing to Velora
 
-Thank you for your interest in contributing to ForensiGuard. Contributions are welcome from developers, security researchers, and product collaborators.
+Thank you for your interest in contributing to Velora. Contributions are welcome from developers, security researchers, and product collaborators.
 
 ## How to Contribute
 

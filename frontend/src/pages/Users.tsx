@@ -209,7 +209,7 @@ export default function Users() {
                 <input
                   type="email"
                   style={{ width: "100%", padding: "10px 12px", background: "var(--brand-abyssal)", border: "1px solid var(--brand-border)", borderRadius: 8, color: "var(--brand-text-primary)", fontSize: 12, outline: "none" }}
-                  placeholder="sarah.j@forensiguard.com"
+                  placeholder="sarah.j@velora.com"
                   value={inviteEmail}
                   onChange={e => setInviteEmail(e.target.value)}
                   required

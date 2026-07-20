@@ -276,7 +276,7 @@ export default function Layout() {
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-brand-text-secondary truncate">{user?.email || "rachcode@forensiguard.com"}</p>
+                <p className="text-[10px] text-brand-text-secondary truncate">{user?.email || "rachcode@velora.com"}</p>
               </div>
             )}
           </Link>

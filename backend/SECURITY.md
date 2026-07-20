@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-ForensiGuard is maintained for the current codebase in this repository. There is no formal support lifecycle documented for older releases in this repository.
+Velora is maintained for the current codebase in this repository. There is no formal support lifecycle documented for older releases in this repository.
 
 ## Reporting a Vulnerability
 

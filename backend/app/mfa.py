@@ -6,7 +6,7 @@ def generate_totp_secret() -> str:
     return pyotp.random_base32()
 
 
-def get_totp_uri(secret: str, email: str, issuer: str = "ForensiGuard") -> str:
+def get_totp_uri(secret: str, email: str, issuer: str = "Velora") -> str:
     account = quote(email)
     issuer_enc = quote(issuer)
     return f"otpauth://totp/{issuer_enc}:{account}?secret={secret}&issuer={issuer_enc}&digits=6&period=30&algorithm=SHA1"

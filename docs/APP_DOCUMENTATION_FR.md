@@ -1,9 +1,9 @@
-## Documentation complète de ForensiGuard (FR)
+## Documentation complète de Velora (FR)
 
 Objectif : documentation détaillée couvrant l'architecture, le développement local, le déploiement, la sécurité et les changements de responsivité appliqués à la landing.
 
 1) Vue d'ensemble
-- Nom du projet : ForensiGuard / DIFR (Digital Incident & Forensics Response)
+- Nom du projet : Velora / DIFR (Digital Incident & Forensics Response)
 - Stack : React + TypeScript (frontend), Vite (bundler), FastAPI (backend), SQLAlchemy + PostgreSQL, Redis + Celery (worker), YARA pour tri de fichiers.
 - Rôles principaux : Ingestion → Analyse (YARA, VT) → Stockage preuve → Rapports PDF/Excel → Actions d'IR.
 

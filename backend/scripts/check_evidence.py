@@ -2,7 +2,7 @@ import os
 import requests
 
 BASE = os.getenv('FORNSIGUARD_API_URL', 'http://127.0.0.1:8000')
-ADMIN_EMAIL = os.getenv('DEFAULT_ADMIN_EMAIL', 'r.jenkins@forensiguard.com')
+ADMIN_EMAIL = os.getenv('DEFAULT_ADMIN_EMAIL', 'r.jenkins@velora.com')
 ADMIN_PASSWORD = os.getenv('DEFAULT_ADMIN_PASSWORD')
 
 if not ADMIN_PASSWORD:

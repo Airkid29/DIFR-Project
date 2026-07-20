@@ -6,7 +6,7 @@ import { t } from "../i18n";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<"general" | "integrations" | "yara">("general");
-  const [orgName, setOrgName] = useState("ForensiGuard SOC L1");
+  const [orgName, setOrgName] = useState("Velora SOC L1");
   const [retention, setRetention] = useState("90");
   const [virusTotalKey, setVirusTotalKey] = useState("");
   const [otxKey, setOtxKey] = useState("");
@@ -15,7 +15,7 @@ export default function Settings() {
   const [incidentWebhook, setIncidentWebhook] = useState("");
   const [evidenceWebhook, setEvidenceWebhook] = useState("");
   const [auditWebhook, setAuditWebhook] = useState("");
-  const [slackTestMessage, setSlackTestMessage] = useState("Test notification from ForensiGuard!");
+  const [slackTestMessage, setSlackTestMessage] = useState("Test notification from Velora!");
   const [integrationStatus, setIntegrationStatus] = useState<{ virustotal_configured: boolean; otx_configured: boolean; slack_configured: boolean; slack_webhook_incidents_configured?: boolean; slack_webhook_evidence_configured?: boolean; slack_webhook_audit_configured?: boolean } | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);

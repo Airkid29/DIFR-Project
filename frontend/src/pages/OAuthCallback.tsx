@@ -30,7 +30,7 @@ export default function OAuthCallback() {
 
     completeOAuthCallback(code, state)
       .then((data) => {
-        localStorage.setItem("forensiguard_token", data.access_token);
+        localStorage.setItem("velora_token", data.access_token);
         navigate("/dashboard", { replace: true });
       })
       .catch((err) => {

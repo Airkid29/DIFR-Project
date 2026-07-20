@@ -42,7 +42,7 @@ class Settings:
     DATABASE_URL: str = _normalize_database_url(
         os.getenv("DATABASE_EXTERNAL_URL")
         or os.getenv("DATABASE_URL")
-        or "postgresql://postgres:securepassword123@localhost:5432/forensiguard"
+        or "postgresql://postgres:securepassword123@localhost:5432/velora"
     )
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     SECRET_KEY: str = os.getenv("SECRET_KEY") or (

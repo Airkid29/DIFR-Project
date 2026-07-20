@@ -67,7 +67,7 @@ export default function Evidence() {
 
   const handleDownloadServerPdf = async () => {
     if (!selectedItem) return;
-    const token = localStorage.getItem("forensiguard_token");
+    const token = localStorage.getItem("velora_token");
     const res = await fetch(apiUrl(`/api/evidence/${selectedItem.id}/report`), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
@@ -76,7 +76,7 @@ export default function Evidence() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `ForensiGuard_Report_${selectedItem.id}.pdf`;
+    a.download = `Velora_Report_${selectedItem.id}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   };

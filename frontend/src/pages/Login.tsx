@@ -101,7 +101,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@DFIR-Lab.com"
+              placeholder="john@company.com"
               style={authStyles.fieldInput}
               disabled={loading}
               required
@@ -119,7 +119,7 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+              placeholder="••••••••"
               style={authStyles.fieldInput}
               disabled={loading}
               required

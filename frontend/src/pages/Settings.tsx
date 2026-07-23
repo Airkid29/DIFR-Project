@@ -223,11 +223,11 @@ export default function Settings() {
                 </div>
                 <div style={s.formGroup}>
                   <label style={s.label}>{t("settings.virustotalApiKey")}</label>
-                  <input type="password" style={s.input} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={virusTotalKey} onChange={(e) => setVirusTotalKey(e.target.value)} />
+                  <input type="password" style={s.input} placeholder="••••••••••••••••â€¢â€¢â€¢â€¢" value={virusTotalKey} onChange={(e) => setVirusTotalKey(e.target.value)} />
                 </div>
                 <div style={s.formGroup}>
                   <label style={s.label}>{t("settings.otxApiKey")}</label>
-                  <input type="password" style={s.input} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={otxKey} onChange={(e) => setOtxKey(e.target.value)} />
+                  <input type="password" style={s.input} placeholder="••••••••••••••••â€¢â€¢â€¢â€¢" value={otxKey} onChange={(e) => setOtxKey(e.target.value)} />
                 </div>
                 <div style={s.formGroup}>
                   <label style={s.label}>Global Slack Webhook URL</label>

@@ -1,4 +1,4 @@
-// EVIDENCE PAGE — API-backed with custody transfer
+﻿// EVIDENCE PAGE â€” API-backed with custody transfer
 import React, { useEffect, useState } from "react";
 import { Database, Plus, Search, Download, ArrowRightLeft } from "lucide-react";
 import { api, apiUrl } from "../utils/api";
@@ -55,7 +55,7 @@ export default function Evidence() {
     exportForensicPdf({
       title: "Evidence Audit Report",
       fileName: selectedItem.name,
-      fileSize: "—",
+      fileSize: "â€”",
       threatScore: selectedItem.verified ? 32 : 67,
       severity: selectedItem.verified ? "Verified Evidence" : "Unverified",
       hashes: { md5: selectedItem.sha256_hash.slice(0, 32), sha1: selectedItem.sha256_hash.slice(0, 40), sha256: selectedItem.sha256_hash },
@@ -67,7 +67,7 @@ export default function Evidence() {
 
   const handleDownloadServerPdf = async () => {
     if (!selectedItem) return;
-    const token = localStorage.getItem("velora_token");
+    const token = localStorage.getItem("DFIR-Lab_token");
     const res = await fetch(apiUrl(`/api/evidence/${selectedItem.id}/report`), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
@@ -76,7 +76,7 @@ export default function Evidence() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `Velora_Report_${selectedItem.id}.pdf`;
+    a.download = `DFIR-Lab_Report_${selectedItem.id}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -178,7 +178,7 @@ export default function Evidence() {
                     <div style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <span style={{ ...ps.mono, fontSize: 11, fontWeight: 700, color: "var(--brand-cyan)" }}>{item.id}</span>
                       <span style={{ ...ps.badge, background: "rgba(99,142,203,0.1)", color: "var(--brand-cyan)" }}>{item.category}</span>
-                      {item.verified && <span style={{ ...ps.badge, color: "var(--brand-emerald)" }}>✓ {t("evidence.verified")}</span>}
+                      {item.verified && <span style={{ ...ps.badge, color: "var(--brand-emerald)" }}>âœ“ {t("evidence.verified")}</span>}
                     </div>
                     <h3 style={{ fontWeight: 700, fontSize: 14, color: "var(--brand-text-primary)", marginBottom: 8 }}>{item.name}</h3>
                     <div style={ps.muted}>{t("evidence.custodian")} : {item.custodian}</div>
@@ -211,7 +211,7 @@ export default function Evidence() {
               {selectedItem.status === "transfer_pending" && (
                 <div style={{ marginBottom: 16, padding: 12, borderRadius: 10, border: "1px solid rgba(255, 191, 0, 0.35)", background: "rgba(255, 191, 0, 0.08)", color: "var(--brand-amber)" }}>
                   <strong>Transfert de custody en attente</strong>
-                  <div style={{ fontSize: 12, marginTop: 4 }}>Vous pouvez accepter ou refuser ce transfert avant que la responsabilité de la preuve ne soit mise à jour.</div>
+                  <div style={{ fontSize: 12, marginTop: 4 }}>Vous pouvez accepter ou refuser ce transfert avant que la responsabilité de la preuve ne soit mise à  jour.</div>
                 </div>
               )}
 

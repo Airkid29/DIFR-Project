@@ -1,4 +1,4 @@
-# ForensiGuard — Système de Design UI (Phase 3)
+﻿# ForensiGuard â€” Système de Design UI (Phase 3)
 
 Ce document spécifie les jetons de design (design tokens) et les composants de ForensiGuard pour assurer une esthétique haut de gamme, moderne et cohérente.
 
@@ -31,9 +31,9 @@ Nous utilisons une palette de couleurs HSL raffinée inspirée de l'esthétique 
 ---
 
 ## 2. Typographie
-* **Police Principale & Titres** : `Outfit` (pour les en-têtes et métriques à fort impact visuel) et `Inter` (pour le texte de labeur et les données).
+* **Police Principale & Titres** : `Outfit` (pour les en-têtes et métriques à  fort impact visuel) et `Inter` (pour le texte de labeur et les données).
 * **Police Monospace** : `JetBrains Mono` ou `Fira Code` (pour les hashes, règles YARA, dumps de logs, et lignes de commande).
-* **Échelle des tailles** :
+* **à‰chelle des tailles** :
   * `xs` : 12px (légendes, métadonnées)
   * `sm` : 14px (corps de texte par défaut, étiquettes)
   * `base` : 16px (texte de formulaire, boutons)
@@ -47,7 +47,7 @@ Nous utilisons une palette de couleurs HSL raffinée inspirée de l'esthétique 
 
 ## 3. Grille, Espacement & Rayons (Radius)
 * **Grille de mise en page** : Système de grille de 12 colonnes standard avec gouttières de `24px` (`gap-6` en Tailwind).
-* **Échelle d'espacement** : Basée sur un pas de 4px (`4px`, `8px`, `12px`, `16px`, `24px`, `32px`, `48px`, `64px`).
+* **à‰chelle d'espacement** : Basée sur un pas de 4px (`4px`, `8px`, `12px`, `16px`, `24px`, `32px`, `48px`, `64px`).
 * **Bordures arrondies (Border Radius)** :
   * `radius-sm` : 4px (petits badges, boutons condensés)
   * `radius-md` : 8px (boutons standards, inputs, sélecteurs)
@@ -67,7 +67,7 @@ Nous utilisons une palette de couleurs HSL raffinée inspirée de l'esthétique 
 ### B. Badges de Statut (Status Badges)
 * **Badge Critique** : Fond rouge translucide (`hsl(346, 84%, 55%, 0.1)`), bordure rouge fine, pastille clignotante (ping animation) rouge.
 * **Badge Warning** : Fond ambre translucide, bordure ambre, pastille fixe ambre.
-* **Badge Success** : Fond vert translucide, bordure verte, icône de crochet de validation.
+* **Badge Success** : Fond vert translucide, bordure verte, icà´ne de crochet de validation.
 
 ### C. Champs de Formulaire (Form Controls)
 * Fond sombre légèrement plus foncé que la carte (`hsl(222, 47%, 5%)`).
@@ -77,11 +77,11 @@ Nous utilisons une palette de couleurs HSL raffinée inspirée de l'esthétique 
 ### D. Tableaux (Data Tables)
 * Lignes séparées par une bordure fine inférieure. Effet de survol (`hover:bg-card/50`).
 * En-têtes en majuscules de petite taille, couleur `Text Secondary`.
-* Alignement à gauche pour le texte, à droite pour les actions et métriques chiffrées, centré pour les badges.
+* Alignement à  gauche pour le texte, à  droite pour les actions et métriques chiffrées, centré pour les badges.
 
 ### E. Cartes Métriques (Metric Cards)
 * Fond de carte avec effet de flou de verre (glassmorphic gradient) : dégradé linéaire transparent sur fond sombre, bordure fine réfléchissante.
-* Contient une icône vectorielle stylisée dans le coin supérieur droit, la valeur principale en grand et un indicateur de tendance (ex. +12% vs semaine dernière).
+* Contient une icà´ne vectorielle stylisée dans le coin supérieur droit, la valeur principale en grand et un indicateur de tendance (ex. +12% vs semaine dernière).
 
 ---
 
@@ -89,11 +89,11 @@ Nous utilisons une palette de couleurs HSL raffinée inspirée de l'esthétique 
 Pour garantir une navigation ultra-fluide et premium, toutes les transitions d'écrans et d'éléments interactifs respectent les spécifications de mouvement suivantes :
 
 * **Transitions de Pages (Router)** :
-  * Entrée : Opacité de 0 à 1, translation y de 10px à 0px. Durée: 0.25s, courbe `easeOut`.
+  * Entrée : Opacité de 0 à  1, translation y de 10px à  0px. Durée: 0.25s, courbe `easeOut`.
 * **Panneaux Latéraux (Drawers)** :
   * Glissement depuis la droite (`x: "100%"` vers `0`). Durée: 0.3s, courbe `anticipate`.
 * **Modales** :
-  * Échelle de 0.95 à 1, opacité de 0 à 1. Durée: 0.2s, courbe `easeOut`.
-* **Boutons & Éléments Cliquables** :
+  * à‰chelle de 0.95 à  1, opacité de 0 à  1. Durée: 0.2s, courbe `easeOut`.
+* **Boutons & à‰léments Cliquables** :
   * Survol : Augmentation de la luminosité ou léger décalage vers le haut (`y: -1px`), lueur douce.
-  * Clic : Effet de ressort (`spring` avec `stiffness: 400`, `damping: 15`), réduction d'échelle à `0.98`.
+  * Clic : Effet de ressort (`spring` avec `stiffness: 400`, `damping: 15`), réduction d'échelle à  `0.98`.

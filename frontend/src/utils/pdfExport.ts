@@ -1,4 +1,4 @@
-export interface ForensicReportData {
+﻿export interface ForensicReportData {
   title: string;
   fileName: string;
   fileSize: string;
@@ -46,7 +46,7 @@ export function exportForensicPdf(report: ForensicReportData) {
       </head>
       <body>
         <div class="header page">
-          <img class="logo" src="/uploads/logo.png" alt="Velora logo" onerror="this.style.display='none'" />
+          <img class="logo" src="/uploads/logo.png" alt="DFIR-Lab logo" onerror="this.style.display='none'" />
           <h1>${report.title}</h1>
           <div class="subtext">Artifact: ${report.fileName} · Size: ${report.fileSize}</div>
           <div class="subtext">Generated: ${new Date().toLocaleString('en-GB', { timeZone: 'UTC' })} UTC</div>
@@ -78,7 +78,7 @@ export function exportForensicPdf(report: ForensicReportData) {
           <h2>Chain of custody</h2>
           <ul>${custodyMarkup}</ul>
         </div>
-        <div class="footer">Velora forensic report intended for internal incident response. Retain as evidence summary and compliance reference.</div>
+        <div class="footer">DFIR-Lab forensic report intended for internal incident response. Retain as evidence summary and compliance reference.</div>
         <script>
           // Add page number when printing
           (function(){
@@ -87,7 +87,7 @@ export function exportForensicPdf(report: ForensicReportData) {
               const footers = document.querySelectorAll('.footer');
               footers.forEach((f, i)=>{
                 const pageNum = i+1;
-                f.textContent = f.textContent + ' — Page ' + pageNum + ' of ' + total;
+                f.textContent = f.textContent + ' â€” Page ' + pageNum + ' of ' + total;
               });
             }
             window.onload = addPageNumbers;

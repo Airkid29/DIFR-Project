@@ -1,4 +1,4 @@
-// Landing V2 Configuration
+﻿// Landing V2 Configuration
 // Modifiez ces valeurs pour personnaliser la landing page
 
 export const LANDING_CONFIG = {

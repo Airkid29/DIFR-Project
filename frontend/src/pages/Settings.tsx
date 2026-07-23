@@ -1,4 +1,4 @@
-// SETTINGS PAGE
+﻿// SETTINGS PAGE
 import React, { useState, useEffect } from "react";
 import { Sliders, Key, Server } from "lucide-react";
 import { api } from "../utils/api";
@@ -6,7 +6,7 @@ import { t } from "../i18n";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<"general" | "integrations" | "yara">("general");
-  const [orgName, setOrgName] = useState("Velora SOC L1");
+  const [orgName, setOrgName] = useState("DFIR-Lab SOC L1");
   const [retention, setRetention] = useState("90");
   const [virusTotalKey, setVirusTotalKey] = useState("");
   const [otxKey, setOtxKey] = useState("");
@@ -15,7 +15,7 @@ export default function Settings() {
   const [incidentWebhook, setIncidentWebhook] = useState("");
   const [evidenceWebhook, setEvidenceWebhook] = useState("");
   const [auditWebhook, setAuditWebhook] = useState("");
-  const [slackTestMessage, setSlackTestMessage] = useState("Test notification from Velora!");
+  const [slackTestMessage, setSlackTestMessage] = useState("Test notification from DFIR-Lab!");
   const [integrationStatus, setIntegrationStatus] = useState<{ virustotal_configured: boolean; otx_configured: boolean; slack_configured: boolean; slack_webhook_incidents_configured?: boolean; slack_webhook_evidence_configured?: boolean; slack_webhook_audit_configured?: boolean } | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -75,12 +75,12 @@ export default function Settings() {
       if (path) {
         await api.put("/api/auth/me", { avatar_url: path });
         setAvatarUrl(path);
-        setStatusMessage("Avatar mis à jour.");
+        setStatusMessage("Avatar mis à  jour.");
         setTimeout(() => setStatusMessage(""), 2400);
       }
     } catch (err) {
       console.error(err);
-      setStatusMessage("Échec du téléversement de l'avatar.");
+      setStatusMessage("à‰chec du téléversement de l'avatar.");
     }
   };
 
@@ -223,11 +223,11 @@ export default function Settings() {
                 </div>
                 <div style={s.formGroup}>
                   <label style={s.label}>{t("settings.virustotalApiKey")}</label>
-                  <input type="password" style={s.input} placeholder="••••••••••••••••••••" value={virusTotalKey} onChange={(e) => setVirusTotalKey(e.target.value)} />
+                  <input type="password" style={s.input} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={virusTotalKey} onChange={(e) => setVirusTotalKey(e.target.value)} />
                 </div>
                 <div style={s.formGroup}>
                   <label style={s.label}>{t("settings.otxApiKey")}</label>
-                  <input type="password" style={s.input} placeholder="••••••••••••••••••••" value={otxKey} onChange={(e) => setOtxKey(e.target.value)} />
+                  <input type="password" style={s.input} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={otxKey} onChange={(e) => setOtxKey(e.target.value)} />
                 </div>
                 <div style={s.formGroup}>
                   <label style={s.label}>Global Slack Webhook URL</label>
@@ -242,15 +242,15 @@ export default function Settings() {
                 <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-text-primary)", marginBottom: 8, textTransform: "uppercase" }}>Webhooks Slack dédiés</h4>
                 <p style={{ fontSize: 12, color: "var(--brand-text-secondary)", marginBottom: 16 }}>Créez plusieurs webhooks entrants Slack et mappez-les par contexte : incidents, preuves et audit. Chaque canal reçoit un flux ciblé.</p>
                 <div style={s.formGroup}>
-                  <label style={s.label}>Webhook incidents — #incidents-alerts</label>
+                  <label style={s.label}>Webhook incidents â€” #incidents-alerts</label>
                   <input type="password" style={s.input} placeholder="https://hooks.slack.com/services/..." value={incidentWebhook} onChange={(e) => setIncidentWebhook(e.target.value)} />
                 </div>
                 <div style={s.formGroup}>
-                  <label style={s.label}>Webhook preuves — #evidence-tracking</label>
+                  <label style={s.label}>Webhook preuves â€” #evidence-tracking</label>
                   <input type="password" style={s.input} placeholder="https://hooks.slack.com/services/..." value={evidenceWebhook} onChange={(e) => setEvidenceWebhook(e.target.value)} />
                 </div>
                 <div style={s.formGroup}>
-                  <label style={s.label}>Webhook audit — #security-audit</label>
+                  <label style={s.label}>Webhook audit â€” #security-audit</label>
                   <input type="password" style={s.input} placeholder="https://hooks.slack.com/services/..." value={auditWebhook} onChange={(e) => setAuditWebhook(e.target.value)} />
                 </div>
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>

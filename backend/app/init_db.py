@@ -1,4 +1,4 @@
-import os
+﻿import os
 from sqlalchemy import inspect, text
 from .database import engine, Base
 from .models import User, Incident, Evidence, CustodyHistory, TimelineEvent, AuditLog, YaraJob, ActivityHistory, VisitorLog
@@ -120,10 +120,10 @@ def init_db():
             print("[*] Production mode detected. Skipping default user seeding.")
 
         # 1. Seed Robert Jenkins (Admin)
-        admin_email = "r.jenkins@velora.io"
+        admin_email = "r.jenkins@DFIR-Lab.io"
         admin = db.query(User).filter(User.email == admin_email).first()
         if default_user_seeding and not admin:
-            legacy_admin = db.query(User).filter(User.email == "rachcode@velora.com").first()
+            legacy_admin = db.query(User).filter(User.email == "rachcode@DFIR-Lab.com").first()
             if legacy_admin:
                 legacy_admin.email = admin_email
                 legacy_admin.password_hash = hashed_pw
@@ -151,7 +151,7 @@ def init_db():
             print("[+] Synced default administrator account.")
 
         # 2. Seed UltraAdmin
-        ultra_email = "ultra.admin@velora.io"
+        ultra_email = "ultra.admin@DFIR-Lab.io"
         ultra = db.query(User).filter(User.email == ultra_email).first()
         if default_user_seeding and not ultra:
             ultra_user = User(

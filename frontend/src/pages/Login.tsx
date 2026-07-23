@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiUrl } from "../utils/api";
 import { t } from "../i18n";
@@ -36,7 +36,7 @@ export default function Login() {
         setError(d.detail || t("auth.emailRequired"));
       } else {
         const d = await res.json();
-        localStorage.setItem("velora_token", d.access_token);
+        localStorage.setItem("DFIR-Lab_token", d.access_token);
         navigate("/dashboard");
       }
     } catch {
@@ -65,7 +65,7 @@ export default function Login() {
         setError(d.detail || t("auth.mfaInvalid"));
       } else {
         const d = await res.json();
-        localStorage.setItem("velora_token", d.access_token);
+        localStorage.setItem("DFIR-Lab_token", d.access_token);
         navigate("/dashboard");
       }
     } catch {
@@ -101,7 +101,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@velora.com"
+              placeholder="john@DFIR-Lab.com"
               style={authStyles.fieldInput}
               disabled={loading}
               required
@@ -119,7 +119,7 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               style={authStyles.fieldInput}
               disabled={loading}
               required

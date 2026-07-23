@@ -1,15 +1,15 @@
-# DIFR Project – Rapport ultra détaillé
+﻿# DIFR Project â€“ Rapport ultra détaillé
 
 ## 1. Présentation générale
 
-DIFR Project est une application de démonstration orientée sécurité informatique et analyse forensique. Elle a été conçue pour illustrer un tableau de bord opérationnel, un flux d’analyse de fichiers, une gestion des incidents, et un espace de profil utilisateur dans un contexte de présentation professionnelle.
+DIFR Project est une application de démonstration orientée sécurité informatique et analyse forensique. Elle a été conçue pour illustrer un tableau de bord opérationnel, un flux dâ€™analyse de fichiers, une gestion des incidents, et un espace de profil utilisateur dans un contexte de présentation professionnelle.
 
 ### Objectif du projet
 
 - Montrer un environnement de travail moderne pour la sécurité numérique.
-- Présenter une interface cohérente, claire et prête à être exposée.
-- Simuler un flux d’investigation crédible avec des données de démonstration.
-- Rendre l’application prête à être déployée sur une plateforme comme Netlify.
+- Présenter une interface cohérente, claire et prête à  être exposée.
+- Simuler un flux dâ€™investigation crédible avec des données de démonstration.
+- Rendre lâ€™application prête à  être déployée sur une plateforme comme Netlify.
 
 ### Public visé
 
@@ -32,12 +32,12 @@ DIFR Project est une application de démonstration orientée sécurité informat
 ### Backend
 
 - API Python/FastAPI
-- Base de données et logique d’initialisation
-- Services d’analyse et structures de données dédiées
+- Base de données et logique dâ€™initialisation
+- Services dâ€™analyse et structures de données dédiées
 
 ### Conteneurs
 
-- Docker Compose pour simplifier l’exécution locale
+- Docker Compose pour simplifier lâ€™exécution locale
 - Services backend et frontend isolés
 
 ---
@@ -55,8 +55,8 @@ Le tableau de bord centralise les métriques clés du système :
 
 ### Analyse de fichiers
 
-La page d’analyse permet :
-- l’upload d’un artefact
+La page dâ€™analyse permet :
+- lâ€™upload dâ€™un artefact
 - un scan simulé avec progression
 - calcul de fingerprints
 - évaluation de sévérité
@@ -65,11 +65,11 @@ La page d’analyse permet :
 ### Gestion des incidents
 
 La page incidents offre :
-- une liste d’incidents riche
+- une liste dâ€™incidents riche
 - un filtre par gravité
 - une recherche rapide
-- des statuts d’avancement
-- une interface de création d’incident
+- des statuts dâ€™avancement
+- une interface de création dâ€™incident
 
 ### Profil utilisateur
 
@@ -83,27 +83,27 @@ La page profil présente :
 
 ## 4. Parcours utilisateur
 
-### Parcours 1 – Consultation du tableau de bord
+### Parcours 1 â€“ Consultation du tableau de bord
 
-1. L’utilisateur ouvre l’application.
+1. Lâ€™utilisateur ouvre lâ€™application.
 2. Il consulte les indicateurs prioritaires.
 3. Il observe les alertes et les flux de données simulés.
 
-### Parcours 2 – Analyse d’un fichier
+### Parcours 2 â€“ Analyse dâ€™un fichier
 
-1. L’utilisateur dépose un fichier.
+1. Lâ€™utilisateur dépose un fichier.
 2. Le système affiche un scan progressif.
 3. Il obtient un résumé de risque et des empreintes numériques.
 
-### Parcours 3 – Gestion des incidents
+### Parcours 3 â€“ Gestion des incidents
 
-1. L’utilisateur consulte les incidents.
+1. Lâ€™utilisateur consulte les incidents.
 2. Il filtre et recherche les cas.
 3. Il peut créer un nouveau signalement.
 
-### Parcours 4 – Configuration du profil
+### Parcours 4 â€“ Configuration du profil
 
-1. L’utilisateur visualise ses informations de compte.
+1. Lâ€™utilisateur visualise ses informations de compte.
 2. Il gère sa sécurité MFA.
 3. Il consulte ses derniers événements.
 
@@ -132,12 +132,12 @@ La page profil présente :
 - interface moderne
 - contraste amélioré pour le thème clair
 - hiérarchie visuelle plus lisible
-- textes agrandis et plus faciles à présenter
+- textes agrandis et plus faciles à  présenter
 - données de démonstration enrichies
 
 ### Objectif UX
 
-Offrir une expérience visuelle plus convaincante lors d’une présentation ou d’une démo client.
+Offrir une expérience visuelle plus convaincante lors dâ€™une présentation ou dâ€™une démo client.
 
 ---
 
@@ -147,7 +147,7 @@ Offrir une expérience visuelle plus convaincante lors d’une présentation ou 
 
 - Node.js installé
 - npm disponible
-- accès à un hébergeur compatible Vite
+- accès à  un hébergeur compatible Vite
 
 ### Build local
 
@@ -159,7 +159,7 @@ npm run build
 
 ### Déploiement sur Netlify
 
-1. Connecter le dépôt à Netlify.
+1. Connecter le dépà´t à  Netlify.
 2. Sélectionner le dossier frontend comme répertoire de build.
 3. Définir la commande de build : npm run build.
 4. Définir le dossier de publication : dist.
@@ -167,16 +167,16 @@ npm run build
 ### Notes importantes
 
 - La configuration Vite est prête pour un usage moderne.
-- Le projet est pensé pour être facile à déployer avec une build propre.
+- Le projet est pensé pour être facile à  déployer avec une build propre.
 
 ---
 
-## 8. Éléments à compléter pour la présentation
+## 8. à‰léments à  compléter pour la présentation
 
-Ajouter ici les captures d’écran suivantes :
+Ajouter ici les captures dâ€™écran suivantes :
 
 - capture du tableau de bord
-- capture de la page d’analyse de fichiers
+- capture de la page dâ€™analyse de fichiers
 - capture des incidents
 - capture du profil utilisateur
 - capture du mode clair
@@ -193,8 +193,8 @@ DIFR Project est un prototype de produit centré sécurité et investigations nu
 
 ## 10. Prochaines améliorations possibles
 
-- intégrer une vraie API d’analyse de fichiers
-- connecter les données à une base live
+- intégrer une vraie API dâ€™analyse de fichiers
+- connecter les données à  une base live
 - ajouter des graphiques plus avancés
-- enrichir les workflows d’authentification
+- enrichir les workflows dâ€™authentification
 - améliorer la version mobile

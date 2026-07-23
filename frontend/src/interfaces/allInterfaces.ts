@@ -1,4 +1,4 @@
-/*
+﻿/*
   All extracted TypeScript interfaces from the frontend codebase.
   Each exported interface is prefixed by the source file (folder and file name)
   and includes a comment stating the original interface name and source path.

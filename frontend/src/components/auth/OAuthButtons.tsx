@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { t } from "../../i18n";
 import { authStyles } from "./AuthShell";
 import { startOAuth, type OAuthMode, type OAuthProvider } from "../../utils/oauth";

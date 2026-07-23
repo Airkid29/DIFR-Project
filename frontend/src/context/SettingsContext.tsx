@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+﻿import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type ThemeMode = "dark" | "light";
 type Language = "en" | "fr";
@@ -77,17 +77,17 @@ const translations = {
       incidents: "Incidents",
       analysis: "Analyse de fichiers",
       evidence: "Preuves et chaîne de garde",
-      timeline: "Chronologie d’enquête",
+      timeline: "Chronologie dâ€™enquête",
       users: "Gestion des utilisateurs",
-      audit: "Journal d’audit",
+      audit: "Journal dâ€™audit",
       settings: "Paramètres",
       profile: "Profil"
     },
     auth: {
       welcomeBack: "Bon retour",
-      signInToContinue: "Connectez-vous à votre console d’analyse",
-      twoFactor: "Authentification à deux facteurs",
-      enterCode: "Saisissez votre code d’authentification pour continuer",
+      signInToContinue: "Connectez-vous à  votre console dâ€™analyse",
+      twoFactor: "Authentification à  deux facteurs",
+      enterCode: "Saisissez votre code dâ€™authentification pour continuer",
       email: "Adresse e-mail",
       password: "Mot de passe",
       signIn: "Se connecter",
@@ -103,7 +103,7 @@ const translations = {
       platform: "Plateforme",
       pricing: "Tarifs",
       learnMore: "En savoir plus",
-      startFreeTrial: "Commencer l’essai"
+      startFreeTrial: "Commencer lâ€™essai"
     },
     settings: {
       title: "Paramètres système",

@@ -1,4 +1,4 @@
-import importlib
+﻿import importlib
 import os
 import hashlib
 import yara
@@ -13,7 +13,7 @@ def test_yara_compilation():
 def test_file_hashing(tmp_path):
     # Verify exact hash calculation for static file content
     test_file = tmp_path / "suspicious.bin"
-    test_content = b"Velora security test payload content."
+    test_content = b"DFIR-Lab security test payload content."
     test_file.write_bytes(test_content)
     
     # Calculate md5, sha1, sha256
@@ -59,7 +59,7 @@ def test_health_endpoint_allows_render_host(monkeypatch):
     importlib.reload(app.main)
 
     with TestClient(app.main.app) as client:
-        response = client.get("/health", headers={"host": "velora-api.onrender.com"})
+        response = client.get("/health", headers={"host": "DFIR-Lab-api.onrender.com"})
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
@@ -70,7 +70,7 @@ def test_health_endpoint_allows_render_env_without_app_env(monkeypatch):
     monkeypatch.setenv("SECRET_KEY", "test-secret")
     monkeypatch.setenv("ALLOWED_HOSTS", "localhost,127.0.0.1")
     monkeypatch.setenv("RENDER", "true")
-    monkeypatch.setenv("RENDER_EXTERNAL_URL", "https://velora-api.onrender.com")
+    monkeypatch.setenv("RENDER_EXTERNAL_URL", "https://DFIR-Lab-api.onrender.com")
 
     import app.config
     import app.main
@@ -79,7 +79,7 @@ def test_health_endpoint_allows_render_env_without_app_env(monkeypatch):
     importlib.reload(app.main)
 
     with TestClient(app.main.app) as client:
-        response = client.get("/health", headers={"host": "velora-api.onrender.com"})
+        response = client.get("/health", headers={"host": "DFIR-Lab-api.onrender.com"})
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}

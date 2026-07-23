@@ -1,4 +1,4 @@
-import type React from "react";
+﻿import type React from "react";
 
 /** Theme-aware inline styles for SOC pages (dark + light via CSS variables). */
 export const ps: Record<string, React.CSSProperties> = {

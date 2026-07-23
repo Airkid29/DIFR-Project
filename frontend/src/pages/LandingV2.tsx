@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   ShieldAlert,
   Zap,
@@ -498,7 +498,7 @@ report = response.json()`}
           </div>
 
           <div className="landing-foot-bottom">
-            <span>© 2026 DIFR. All rights reserved.</span>
+            <span>Â© 2026 DIFR. All rights reserved.</span>
             <span>Built for security, by security professionals</span>
           </div>
         </div>

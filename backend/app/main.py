@@ -1,4 +1,4 @@
-import os
+﻿import os
 import uuid
 import datetime
 import threading
@@ -42,7 +42,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-app = FastAPI(title="Velora API", version="1.0.0")
+app = FastAPI(title="DFIR-Lab API", version="1.0.0")
 
 # Rate Limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -190,7 +190,7 @@ def assert_same_org_or_super_admin(target_user: models.User, current_user: model
         if not same_organization(current_user, target_user):
             raise HTTPException(
                 status_code=403,
-                detail="Opération interdite. Cet utilisateur n'appartient pas à votre organisation.",
+                detail="Opération interdite. Cet utilisateur n'appartient pas à  votre organisation.",
             )
     # non-enterprise Admins are allowed to manage all local users by design
 
@@ -202,7 +202,7 @@ def assert_org_access_or_super_admin(resource_org: Optional[str], current_user: 
         if not resource_org or resource_org != current_user.organization_name:
             raise HTTPException(
                 status_code=403,
-                detail="Opération interdite. Cette ressource n'appartient pas à votre organisation.",
+                detail="Opération interdite. Cette ressource n'appartient pas à  votre organisation.",
             )
 
 
@@ -215,7 +215,7 @@ def assert_resource_access(resource_owner_id: Optional[int], resource_org: Optio
     if resource_owner_id is not None and resource_owner_id != current_user.id:
         raise HTTPException(
             status_code=403,
-            detail="Opération interdite. Vous ne pouvez accéder qu'à vos propres ressources.",
+            detail="Opération interdite. Vous ne pouvez accéder qu'à  vos propres ressources.",
         )
 
 
@@ -352,7 +352,7 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
 @app.post("/api/auth/mfa/setup")
 def mfa_setup(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.mfa_enabled:
-        raise HTTPException(status_code=400, detail="L'authentification à deux facteurs est déjà activée.")
+        raise HTTPException(status_code=400, detail="L'authentification à  deux facteurs est déjà  activée.")
     secret = generate_totp_secret()
     current_user.mfa_secret = secret
     db.commit()
@@ -370,7 +370,7 @@ class MfaEnableRequest(BaseModel):
 @app.post("/api/auth/mfa/enable")
 def mfa_enable(request: MfaEnableRequest, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.mfa_enabled:
-        raise HTTPException(status_code=400, detail="L'authentification à deux facteurs est déjà activée.")
+        raise HTTPException(status_code=400, detail="L'authentification à  deux facteurs est déjà  activée.")
     if not current_user.mfa_secret:
         raise HTTPException(status_code=400, detail="Aucun secret TOTP n'est configuré. Démarrez la configuration 2FA d'abord.")
     if not verify_totp_code(current_user.mfa_secret, request.code):
@@ -383,7 +383,7 @@ def mfa_enable(request: MfaEnableRequest, current_user: models.User = Depends(ge
 @app.post("/api/auth/mfa/disable")
 def mfa_disable(request: MfaEnableRequest, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not current_user.mfa_enabled:
-        raise HTTPException(status_code=400, detail="L'authentification à deux facteurs n'est pas activée.")
+        raise HTTPException(status_code=400, detail="L'authentification à  deux facteurs n'est pas activée.")
     if not current_user.mfa_secret or not verify_totp_code(current_user.mfa_secret, request.code):
         raise HTTPException(status_code=400, detail="Code d'authentification multi-facteurs invalide.")
     current_user.mfa_enabled = False
@@ -436,7 +436,7 @@ def oauth_authorize(provider: str, redirect_uri: str):
 @app.post("/api/auth/oauth/callback", response_model=schemas.Token)
 def oauth_callback(request: schemas.OAuthCallbackRequest, db: Session = Depends(get_db)):
     if not oauth_service.verify_oauth_state(request.state, request.provider):
-        raise HTTPException(status_code=400, detail="État OAuth invalide ou expiré.")
+        raise HTTPException(status_code=400, detail="à‰tat OAuth invalide ou expiré.")
 
     try:
         profile = oauth_service.exchange_oauth_code(
@@ -525,7 +525,7 @@ def create_incident(inc: schemas.IncidentCreate, db: Session = Depends(get_db), 
     if slack_webhook:
         send_slack_notification(
             slack_webhook,
-            f"🚨 New Incident Created: {new_id}\nTitle: {inc.title}\nSeverity: {inc.severity}\nCreated by: {current_user.name}",
+            f"ðŸš¨ New Incident Created: {new_id}\nTitle: {inc.title}\nSeverity: {inc.severity}\nCreated by: {current_user.name}",
             context="incidents",
             user=current_user,
             db=db,
@@ -581,7 +581,7 @@ def update_incident(
         db,
         current_user.id,
         "incident",
-        f"Incident mis à jour : {incident_id}",
+        f"Incident mis à  jour : {incident_id}",
         description=f"Statut : {inc.status}, Sévérité : {inc.severity}",
         resource_id=incident_id,
     )
@@ -592,7 +592,7 @@ def update_incident(
         if inc.status == "resolved":
             send_slack_notification(
                 slack_webhook,
-                f"✅ Incident Resolved: {incident_id}\nTitle: {inc.title}\nResolved by: {current_user.name}",
+                f"âœ… Incident Resolved: {incident_id}\nTitle: {inc.title}\nResolved by: {current_user.name}",
                 context="incidents",
                 user=current_user,
                 db=db,
@@ -600,7 +600,7 @@ def update_incident(
         else:
             send_slack_notification(
                 slack_webhook,
-                f"📝 Incident Updated: {incident_id}\nTitle: {inc.title}\nStatus: {inc.status}\nSeverity: {inc.severity}\nUpdated by: {current_user.name}",
+                f"ðŸ“ Incident Updated: {incident_id}\nTitle: {inc.title}\nStatus: {inc.status}\nSeverity: {inc.severity}\nUpdated by: {current_user.name}",
                 context="incidents",
                 user=current_user,
                 db=db,
@@ -677,7 +677,7 @@ def register_evidence(ev: schemas.EvidenceCreate, db: Session = Depends(get_db),
     if slack_webhook:
         send_slack_notification(
             slack_webhook,
-            f"📦 New Evidence Registered: {new_id}\nName: {ev.name}\nCategory: {ev.category}\nCollector: {current_user.name}",
+            f"ðŸ“¦ New Evidence Registered: {new_id}\nName: {ev.name}\nCategory: {ev.category}\nCollector: {current_user.name}",
             context="evidence",
             user=current_user,
             db=db,
@@ -716,7 +716,7 @@ def transfer_custody(id: str, transfer: schemas.CustodyTransfer, db: Session = D
         target_user.id,
         "warning",
         "Transfert de custody en attente",
-        f"{current_user.name} a demandé à vous transférer la preuve {id}.",
+        f"{current_user.name} a demandé à  vous transférer la preuve {id}.",
         link=f"/evidence",
     )
 
@@ -734,7 +734,7 @@ def transfer_custody(id: str, transfer: schemas.CustodyTransfer, db: Session = D
     if slack_webhook:
         send_slack_notification(
             slack_webhook,
-            f"🔄 Evidence Custody Transfer Requested: {id}\nFrom: {old_custodian}\nTo: {target_user.name}\nAction: {transfer.action_taken}\nTransferred by: {current_user.name}",
+            f"ðŸ”„ Evidence Custody Transfer Requested: {id}\nFrom: {old_custodian}\nTo: {target_user.name}\nAction: {transfer.action_taken}\nTransferred by: {current_user.name}",
             context="evidence",
             user=current_user,
             db=db,
@@ -812,7 +812,7 @@ def get_evidence_pdf_report(id: str, db: Session = Depends(get_db), current_user
     assert_org_access_or_super_admin(ev.organization_name, current_user)
 
     temp_dir = tempfile.gettempdir()
-    output_path = os.path.join(temp_dir, f"velora_report_{ev.id}.pdf")
+    output_path = os.path.join(temp_dir, f"DFIR-Lab_report_{ev.id}.pdf")
     
     # Generate PDF Report (can run synchronously for quick small items)
     tasks.generate_pdf_report(ev.id, output_path)
@@ -824,7 +824,7 @@ def get_evidence_pdf_report(id: str, db: Session = Depends(get_db), current_user
     return FileResponse(
         output_path,
         media_type="application/pdf",
-        filename=f"Velora_Report_{ev.id}.pdf",
+        filename=f"DFIR-Lab_Report_{ev.id}.pdf",
     )
 
 # --- TIMELINE ENDPOINTS ---
@@ -859,7 +859,7 @@ def add_timeline_event(event: schemas.TimelineEventCreate, db: Session = Depends
         db,
         current_user.id,
         "timeline",
-        f"Événement ajouté : {event.title}",
+        f"à‰vénement ajouté : {event.title}",
         description=f"Incident {event.incident_id}",
         resource_id=str(new_event.id),
         extra_data={"incident_id": event.incident_id},
@@ -900,7 +900,7 @@ def export_audit_xlsx(current_user: models.User = Depends(require_role(["Admin",
 
         xlsx_bytes = tasks.generate_audit_xlsx(rows=rows)
         from io import BytesIO
-        return StreamingResponse(BytesIO(xlsx_bytes), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=velora_audit_logs.xlsx"})
+        return StreamingResponse(BytesIO(xlsx_bytes), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=DFIR-Lab_audit_logs.xlsx"})
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -1034,7 +1034,7 @@ def lookup_hash_intel_endpoint(request: schemas.ThreatIntelHashLookup, db: Sessi
         db,
         current_user.id,
         "intel",
-        f"Recherche hash : {request.sha256_hash[:16]}…",
+        f"Recherche hash : {request.sha256_hash[:16]}â€¦",
         description="; ".join(messages[:3]) if messages else None,
         resource_id=request.sha256_hash,
         extra_data={"indicator_type": "hash"},
@@ -1189,7 +1189,7 @@ def dashboard_stats(db: Session = Depends(get_db), current_user: models.User = D
         recent_threats.append({
             "type": activity.action_type.upper(),
             "details": activity.title,
-            "source": "Velora",
+            "source": "DFIR-Lab",
             "confidence": "92%",
         })
 
@@ -1200,7 +1200,7 @@ def dashboard_stats(db: Session = Depends(get_db), current_user: models.User = D
         "avg_triage": avg_triage,
         "incident_volume": incident_volume,
         "recent_threats": recent_threats or [
-            {"type": "INTEL", "details": "No recent threat activity", "source": "Velora", "confidence": "—"}
+            {"type": "INTEL", "details": "No recent threat activity", "source": "DFIR-Lab", "confidence": "â€”"}
         ],
     }
 
@@ -1259,7 +1259,7 @@ def change_password(
     )
     db.add(audit)
     db.commit()
-    return {"status": "success", "detail": "Mot de passe mis à jour."}
+    return {"status": "success", "detail": "Mot de passe mis à  jour."}
 
 @app.get("/api/history", response_model=List[schemas.ActivityHistoryResponse])
 def get_activity_history(

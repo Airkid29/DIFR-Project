@@ -1,4 +1,4 @@
-// FILE ANALYSIS PAGE
+﻿// FILE ANALYSIS PAGE
 import React, { useRef, useState } from "react";
 import { UploadCloud, File, AlertTriangle, CheckCircle, Download } from "lucide-react";
 import { api } from "../utils/api";
@@ -297,7 +297,7 @@ export default function FileAnalysis() {
                   )}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {result.matches.length > 0 ? result.matches.map((match) => <div key={match} style={{ fontSize: 12, color: "var(--brand-text-primary)" }}>• {match}</div>) : <div style={{ fontSize: 12, color: "var(--brand-text-secondary)" }}>{t("fileAnalysis.noSignatureMatch")}</div>}
+                  {result.matches.length > 0 ? result.matches.map((match) => <div key={match} style={{ fontSize: 12, color: "var(--brand-text-primary)" }}>â€¢ {match}</div>) : <div style={{ fontSize: 12, color: "var(--brand-text-secondary)" }}>{t("fileAnalysis.noSignatureMatch")}</div>}
                 </div>
               </div>
 
@@ -306,15 +306,15 @@ export default function FileAnalysis() {
                 <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
                   <div>
                     <span style={{ fontSize: 9, fontWeight: 600, color: "var(--brand-text-secondary)", textTransform: "uppercase" }}>MD5</span>
-                    <div style={s.hashBox}>{result.hashes.md5 || "—"}</div>
+                    <div style={s.hashBox}>{result.hashes.md5 || "â€”"}</div>
                   </div>
                   <div>
                     <span style={{ fontSize: 9, fontWeight: 600, color: "var(--brand-text-secondary)", textTransform: "uppercase" }}>SHA-1</span>
-                    <div style={s.hashBox}>{result.hashes.sha1 || "—"}</div>
+                    <div style={s.hashBox}>{result.hashes.sha1 || "â€”"}</div>
                   </div>
                   <div>
                     <span style={{ fontSize: 9, fontWeight: 600, color: "var(--brand-text-secondary)", textTransform: "uppercase" }}>SHA-256</span>
-                    <div style={s.hashBox}>{result.hashes.sha256 || "—"}</div>
+                    <div style={s.hashBox}>{result.hashes.sha256 || "â€”"}</div>
                   </div>
                 </div>
               </div>
@@ -337,7 +337,7 @@ export default function FileAnalysis() {
             <div style={{ borderTop: "1px solid var(--brand-border)", paddingTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-text-primary)" }}>{t("fileAnalysis.operationalNotes")}</div>
               {result.notes.map((note) => (
-                <div key={note} style={{ fontSize: 12, color: "var(--brand-text-secondary)" }}>• {note}</div>
+                <div key={note} style={{ fontSize: 12, color: "var(--brand-text-secondary)" }}>â€¢ {note}</div>
               ))}
             </div>
           )}

@@ -1,4 +1,4 @@
-import { fr, type TranslationKey } from "./fr";
+﻿import { fr, type TranslationKey } from "./fr";
 
 type NestedKeyOf<T, Prefix extends string = ""> = T extends object
   ? {

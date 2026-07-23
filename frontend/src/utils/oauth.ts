@@ -1,4 +1,4 @@
-import { apiUrl } from "./api";
+﻿import { apiUrl } from "./api";
 
 export type OAuthProvider = "google" | "github";
 export type OAuthMode = "login" | "register";
@@ -51,7 +51,7 @@ export async function completeOAuthCallback(
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.detail || "Échec de la connexion OAuth.");
+    throw new Error(data.detail || "à‰chec de la connexion OAuth.");
   }
 
   sessionStorage.removeItem("oauth_mode");

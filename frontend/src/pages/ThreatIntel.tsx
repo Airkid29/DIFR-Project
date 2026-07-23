@@ -1,4 +1,4 @@
-// THREAT INTELLIGENCE LOOKUP PAGE
+﻿// THREAT INTELLIGENCE LOOKUP PAGE
 import React, { useState } from "react";
 import { Search, Globe, Link2, Hash, Server } from "lucide-react";
 import { api } from "../utils/api";

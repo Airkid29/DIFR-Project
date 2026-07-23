@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Link } from "react-router-dom";
 import { t } from "../../i18n";
 import { useSettings } from "../../context/SettingsContext";
@@ -53,10 +53,10 @@ export function AuthShell({ children, title, subtitle, showSteps, step, showBack
           <div>
             <div style={s.logoWrap}>
               <img 
-                src={theme === "light" ? "/logo-white-velora.png" : "/logo-dark-velora.png"} 
-                alt="Velora" 
-                style={{ height: "26px", width: "auto" }} 
-              />
+              src={theme === "light" ? "/dfir-lab-logo-white.png" : "/dfir-lab-logo-dark.png"} 
+              alt="DFIR-Lab" 
+              style={{ height: "26px", width: "auto" }} 
+            />
               <span className="beta-badge" style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "10.5px",
@@ -78,7 +78,7 @@ export function AuthShell({ children, title, subtitle, showSteps, step, showBack
           <div style={s.threatBox}>
             <div style={{ fontSize: 10, fontWeight: 600, color: "var(--brand-text-secondary)", letterSpacing: "0.7px", textTransform: "uppercase", marginBottom: 8 }}>{t("auth.threatLevel")}</div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "var(--brand-crimson)" }}>ÉLEVÉ</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "var(--brand-crimson)" }}>à‰LEVà‰</div>
               <div style={{ fontSize: 10, fontWeight: 700, background: "var(--theme-white-bg-tint)", color: "var(--brand-crimson)", padding: "2px 8px", borderRadius: 99, border: "1px solid var(--brand-border)" }}>72 / 100</div>
             </div>
             <div style={{ height: 4, background: "var(--brand-border)", borderRadius: 2 }}>

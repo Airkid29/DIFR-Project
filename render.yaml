@@ -1,18 +1,18 @@
-# Render Blueprint — free-tier stack for velora API
+﻿# Render Blueprint â€” free-tier stack for DFIR-Lab API
 # Docs: https://render.com/docs/blueprint-spec
 #
 # Free tier: API only (no Redis/Celery). File scans run in background threads.
 # Local Docker uses docker-compose.yml with Redis + Celery enabled.
 
 databases:
-  - name: velora-db
-    databaseName: velora
-    user: velora
+  - name: DFIR-Lab-db
+    databaseName: DFIR-Lab
+    user: DFIR-Lab
     plan: free
 
 services:
   - type: web
-    name: velora-api
+    name: DFIR-Lab-api
     runtime: docker
     plan: free
     dockerfilePath: ./backend/Dockerfile
@@ -21,7 +21,7 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: velora-db
+          name: DFIR-Lab-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true

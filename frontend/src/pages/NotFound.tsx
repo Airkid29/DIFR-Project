@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, TerminalSquare } from "lucide-react";
 
@@ -12,7 +12,7 @@ export default function NotFound() {
           <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--brand-text-primary)" }}>Erreur 404 · Route introuvable</h1>
         </div>
         <p style={{ color: "var(--brand-text-secondary)", lineHeight: 1.7, marginBottom: 20 }}>
-          La ressource que vous recherchez n’est pas présente dans la chaîne d’investigation. Retournez au tableau de bord ou relancez une nouvelle mission.
+          La ressource que vous recherchez nâ€™est pas présente dans la chaîne dâ€™investigation. Retournez au tableau de bord ou relancez une nouvelle mission.
         </p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <button type="button" onClick={() => navigate(-1)} style={{ padding: "10px 16px", borderRadius: 10, border: "1px solid var(--brand-border)", background: "transparent", color: "var(--brand-text-primary)", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}>

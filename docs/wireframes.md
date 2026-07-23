@@ -1,6 +1,6 @@
-# ForensiGuard — Guide des Wireframes Figma-Style (Phase 4)
+﻿# ForensiGuard â€” Guide des Wireframes Figma-Style (Phase 4)
 
-Ce document décrit en détail la structure, le positionnement et l'organisation visuelle des 14 écrans de la plateforme ForensiGuard. Il est rédigé de façon à ce qu'un designer puisse les implémenter directement dans Figma ou qu'un développeur puisse les coder à l'aide de Tailwind CSS.
+Ce document décrit en détail la structure, le positionnement et l'organisation visuelle des 14 écrans de la plateforme ForensiGuard. Il est rédigé de façon à  ce qu'un designer puisse les implémenter directement dans Figma ou qu'un développeur puisse les coder à  l'aide de Tailwind CSS.
 
 ---
 
@@ -30,9 +30,9 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 * **Type** : Landing page une seule page (Single-page marketing).
 * **Grille** : 12 colonnes, marges gauche/droite `120px` sur Desktop, largeur maximale `1280px`.
 
-### Éléments Figma (Haut en Bas) :
+### à‰léments Figma (Haut en Bas) :
 1. **Header (Barre de navigation - 80px)** :
-   * Gauche : Logo ForensiGuard (icône bouclier néon + texte Outfit Bold).
+   * Gauche : Logo ForensiGuard (icà´ne bouclier néon + texte Outfit Bold).
    * Milieu : Liens textuels (Features, Architecture, Pricing, Docs).
    * Droite : Bouton Ghost "Login", Bouton Primary "Start Free Trial".
 2. **Hero Section (Hauteur : 700px)** :
@@ -41,12 +41,12 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
      * Badge `Cyber security automated` en haut (fond cyan translucide, texte cyan).
      * Titre `H1` (Outfit 48px, line-height 1.1) : "Next-Gen Incident Response for Enterprise SOCs".
      * Paragraphe (Inter 16px, gris bleuté) : Description rapide de la capture de preuves et de l'analyse YARA automatisée.
-     * Boutons : Bouton Primary "Start Free Trial" (grand taille, glow cyan) + Bouton Secondary avec icône Play "Watch Demo".
+     * Boutons : Bouton Primary "Start Free Trial" (grand taille, glow cyan) + Bouton Secondary avec icà´ne Play "Watch Demo".
    * Colonne Droite :
-     * Conteneur 3D/Framer Motion simulant l'interface du produit (Timeline d'investigation stylisée avec des nœuds lumineux colorés et des lignes de liaison).
+     * Conteneur 3D/Framer Motion simulant l'interface du produit (Timeline d'investigation stylisée avec des nÅ“uds lumineux colorés et des lignes de liaison).
 3. **Features Grid (Section : 600px)** :
    * Grille de 3 colonnes de cartes interactives (YARA rules scanning, Cryptographic Chain of Custody, Threat Intelligence feeds).
-   * Chaque carte possède une bordure fine translucide, une icône Lucide colorée en haut à gauche et un titre de carte en Outfit 20px.
+   * Chaque carte possède une bordure fine translucide, une icà´ne Lucide colorée en haut à  gauche et un titre de carte en Outfit 20px.
 
 ---
 
@@ -55,20 +55,20 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * **Type** : Centré horizontalement et verticalement sur fond sombre uniforme.
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **Conteneur Principal (Card - 450px x 600px)** :
    * Centré au milieu de l'écran avec une bordure fine `Border` et un léger dégradé radial d'arrière-plan.
    * **En-tête de Carte** :
-     * Logo ForensiGuard centré (Shield icône 48px).
+     * Logo ForensiGuard centré (Shield icà´ne 48px).
      * Titre H2 (Outfit 24px) : "Sign in to ForensiGuard".
      * Sous-titre (Inter 14px, gris) : "Enter your credentials to access the SOC terminal".
-   * **Formulaire d'Identification (Étape 1)** :
-     * Label : "Email Address" + Champ de saisie (input) avec icône enveloppe.
-     * Label : "Password" + Champ de saisie (type password) avec icône cadenas et icône "œil" pour afficher le mot de passe.
+   * **Formulaire d'Identification (à‰tape 1)** :
+     * Label : "Email Address" + Champ de saisie (input) avec icà´ne enveloppe.
+     * Label : "Password" + Champ de saisie (type password) avec icà´ne cadenas et icà´ne "Å“il" pour afficher le mot de passe.
      * Bouton Primary (Largeur 100%) : "Continue" ou "Sign In".
-   * **Saisie du Code MFA (Étape 2 - Affiché après validation de l'étape 1)** :
+   * **Saisie du Code MFA (à‰tape 2 - Affiché après validation de l'étape 1)** :
      * Message d'instruction : "Enter the 6-digit verification code from your authenticator app."
-     * Grille de 6 inputs individuels numérotés de 1 à 6 pour les chiffres du code TOTP.
+     * Grille de 6 inputs individuels numérotés de 1 à  6 pour les chiffres du code TOTP.
      * Lien Ghost : "Use recovery code".
      * Bouton Primary (Largeur 100%) : "Verify Code".
 
@@ -79,7 +79,7 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Layout standard (Sidebar + Top bar + Main Area). Grille 12 colonnes, `gap-6` (24px).
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **Titre de Section & Actions (Barre d'outils - 80px)** :
    * Gauche : Titre H1 "Security Command Center".
    * Droite : Bouton Primary "+ Create Incident", Bouton Secondary "Upload Artifact".
@@ -101,13 +101,13 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Layout standard. Zone principale contenant un tableau plein écran.
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **Filtres et Recherche (Barre supérieure de tableau)** :
-   * Gauche : Input de recherche locale avec icône loupe ("Search incidents...").
+   * Gauche : Input de recherche locale avec icà´ne loupe ("Search incidents...").
    * Droite : Sélecteur de statut (Dropdown: All, Open, Triage, Resolved), Sélecteur de Sévérité (Dropdown: All, Critical, High, Medium, Low), Bouton "Export CSV".
 2. **Tableau des Incidents (Data Table)** :
    * Colonnes :
-     * `[ ]` (Case à cocher globale).
+     * `[ ]` (Case à  cocher globale).
      * `ID` (Code mono-espacé ex: `INC-2026-004`).
      * `Title` (Texte principal en gras, ex: "Brute Force on SSH Service").
      * `Severity` (Badge coloré selon criticité : Rouge pour Critical, Orange pour High, etc.).
@@ -125,14 +125,14 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Centré horizontalement dans la zone principale. Largeur maximale de la carte principale : `800px`.
 
-### Éléments Figma :
-1. **Zone de Dépôt de Fichier (Drag & Drop Zone - Hauteur: 300px)** :
+### à‰léments Figma :
+1. **Zone de Dépà´t de Fichier (Drag & Drop Zone - Hauteur: 300px)** :
    * Bordure en pointillés turquoise avec coins arrondis.
    * Fond très sombre avec un subtil effet de transparence.
-   * Icône Lucide `UploadCloud` de 64px de large de couleur turquoise au centre.
+   * Icà´ne Lucide `UploadCloud` de 64px de large de couleur turquoise au centre.
    * Texte : "Drag and drop suspicious files here, or click to browse".
    * Légende inférieure (12px) : "Max file size: 100MB. Supports raw binaries, PE, ELF, PDF, docx, logs."
-2. **File d'Attente de Traitement (Processing Queue - Sous la zone de dépôt)** :
+2. **File d'Attente de Traitement (Processing Queue - Sous la zone de dépà´t)** :
    * Liste des fichiers récemment déposés.
    * Pour chaque fichier : Nom du fichier, Taille, Barre de progression horizontale, Bouton "Cancel".
    * Indication visuelle de l'état : En attente, Analyse YARA en cours, Recherche Threat Intel.
@@ -144,14 +144,14 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Layout standard. Zone principale divisée en une barre latérale gauche d'index et une zone de rapport au format document (type A4 ou conteneur centré).
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **En-tête de Rapport** :
    * Titre H1 "Forensic Analysis Report".
    * Badge de sévérité de la menace (ex: "MALICIOUS" rouge vif ou "SUSPICIOUS" orange).
    * Métadonnées : Date du scan, Nom de l'analyste, ID de l'artéfact.
 2. **Section : Empreintes Numériques (Hashes Card)** :
-   * Grille à 2 colonnes avec fond sombre.
-   * `MD5` : `a12c89f...` (Bouton "Copy" discret à droite).
+   * Grille à  2 colonnes avec fond sombre.
+   * `MD5` : `a12c89f...` (Bouton "Copy" discret à  droite).
    * `SHA-1` : `e59a34...`
    * `SHA-256` : `9f86d08...`
 3. **Section : Détection YARA (YARA Matches Card)** :
@@ -168,9 +168,9 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Layout standard. Deux onglets : "Register New Evidence" et "Evidence Repository".
 
-### Éléments Figma (Onglet "Register New Evidence") :
+### à‰léments Figma (Onglet "Register New Evidence") :
 1. **Formulaire d'Enregistrement de Preuve** :
-   * Grille de saisie à double colonne.
+   * Grille de saisie à  double colonne.
    * Colonne 1 :
      * Nom de la preuve (ex: "RAM Dump - WebServer01").
      * Catégorie (Dropdown: RAM Dump, Disk Image, Log File, Network Capture, Physical Device).
@@ -178,10 +178,10 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
    * Colonne 2 :
      * Collecteur (Nom de l'analyste, prérempli avec sélection modifiable).
      * Hash d'Intégrité Source (Input SHA-256 obligatoire pour validation).
-     * Description détaillée / État physique du média.
+     * Description détaillée / à‰tat physique du média.
 2. **Chaîne de Possession Initiale** :
    * Formulaire de signature numérique et déclaration de prise en charge.
-   * Bouton Primary en bas à droite : "Generate Chain of Custody & Register".
+   * Bouton Primary en bas à  droite : "Generate Chain of Custody & Register".
 
 ---
 
@@ -190,17 +190,17 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Layout standard. Ligne de temps interactive verticale occupant toute la hauteur.
 
-### Éléments Figma :
-1. **Barre de Contrôle (Haut)** :
-   * Titre "Investigation Timeline — INC-2026-004".
+### à‰léments Figma :
+1. **Barre de Contrà´le (Haut)** :
+   * Titre "Investigation Timeline â€” INC-2026-004".
    * Bouton Primary "Add Timeline Event", Bouton Secondary "Import Log File".
    * Filtres rapides sous forme de pilules (badges cliquables) : `Network`, `Registry`, `Auth`, `Process`, `Malware`.
 2. **Ligne Temporelle (Timeline Track)** :
-   * Ligne verticale grise de 2px centrée ou alignée à gauche.
-   * Les nœuds d'événements sont disposés le long de la ligne, triés par horodatage décroissant.
-   * **Format d'une Carte d'Événement** :
+   * Ligne verticale grise de 2px centrée ou alignée à  gauche.
+   * Les nÅ“uds d'événements sont disposés le long de la ligne, triés par horodatage décroissant.
+   * **Format d'une Carte d'à‰vénement** :
      * Gauche de la ligne : Horodatage précis (ex: `2026-06-27 03:17:29.412`).
-     * Sur la ligne : Icône de type d'événement dans un cercle coloré (ex: icône réseau bleue, icône d'authentification orange).
+     * Sur la ligne : Icà´ne de type d'événement dans un cercle coloré (ex: icà´ne réseau bleue, icà´ne d'authentification orange).
      * Droite de la ligne : Titre de l'événement (ex: "Unauthorized SSH Login from IP 192.168.1.50"), Description textuelle courte, Auteur ou Source de la donnée, Badge d'importance (High, Medium, Low).
 
 ---
@@ -210,17 +210,17 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Modale flottante centrée, avec flou d'arrière-plan sur toute l'application. Largeur : `650px`.
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **Barre d'Entrée (Search Input)** :
    * Hauteur : 60px.
-   * Icône Loupe à gauche (24px, gris bleuté).
+   * Icà´ne Loupe à  gauche (24px, gris bleuté).
    * Input texte sans bordure, grande taille de police (18px) : "Search incidents, hashes, rules, settings..."
-   * Raccourci d'annulation affiché à droite : `ESC`.
+   * Raccourci d'annulation affiché à  droite : `ESC`.
 2. **Liste de Résultats Catégorisés (Sous l'input)** :
    * Catégorie `Incidents` (ex. "INC-2026-004: Brute Force on web server").
    * Catégorie `Files` (ex. "mimikatz.exe (SHA-256: 4f129...)").
    * Catégorie `Actions` (ex. "Create New Incident", "Go to User Settings").
-   * Chaque ligne sélectionnée possède un arrière-plan cyan translucide et un indicateur `Enter` à droite.
+   * Chaque ligne sélectionnée possède un arrière-plan cyan translucide et un indicateur `Enter` à  droite.
 
 ---
 
@@ -229,7 +229,7 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Layout standard. Tableau de gestion des membres.
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **Barre supérieure d'action** :
    * Titre: "User Management".
    * Bouton Primary : "+ Invite New Member".
@@ -246,9 +246,9 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ## 11. Paramètres (Settings)
 
 ### Layout & Grille :
-* Layout standard. Menu latéral gauche interne (Tabs) et contenu à droite.
+* Layout standard. Menu latéral gauche interne (Tabs) et contenu à  droite.
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **Menu Onglets Latéral (Vertical Tabs)** :
    * General, Integrations (VirusTotal, Slack, Jira), YARA Rulesets, Billing.
 2. **Panneau d'Intégration API (Contenu Actif)** :
@@ -263,14 +263,14 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Panneau latéral droit coulissant (Drawer) ou page dédiée. Modélisé ici sous forme de tiroir (Drawer) coulissant de `400px` de large.
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **En-tête de Panneau** :
    * Titre: "Notifications".
    * Bouton Ghost: "Mark all as read".
 2. **Liste de Cartes de Notification (Verticale)** :
    * Chaque notification est une petite carte avec une bordure fine et un fond variable selon l'état de lecture.
-   * *Notification Critique* : Icône d'alerte rouge, titre "Critical YARA Match", message "File malware.exe matched rule CobaltStrike_Beacon", horodatage "2m ago".
-   * *Notification Info* : Icône de tâche bleue, message "PDF Report for Incident INC-2026-004 generated successfully", bouton de téléchargement direct sous le texte.
+   * *Notification Critique* : Icà´ne d'alerte rouge, titre "Critical YARA Match", message "File malware.exe matched rule CobaltStrike_Beacon", horodatage "2m ago".
+   * *Notification Info* : Icà´ne de tà¢che bleue, message "PDF Report for Incident INC-2026-004 generated successfully", bouton de téléchargement direct sous le texte.
 
 ---
 
@@ -279,7 +279,7 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Layout standard. Grand tableau chronologique filtrable.
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **Filtres de Journal d'Audit** :
    * Sélecteur de Plage de Dates, Sélecteur d'Utilisateurs, Sélecteur de type d'action.
 2. **Tableau de Logs** :
@@ -297,12 +297,12 @@ Pour tous les écrans connectés (du Tableau de bord au Profil), la structure es
 ### Layout & Grille :
 * Layout standard, zone centrale divisée en sections de carte.
 
-### Éléments Figma :
+### à‰léments Figma :
 1. **Section : Personal Information** :
-   * Édition du Nom, Prénom, Email, Téléphone. Bouton "Save Profile".
+   * à‰dition du Nom, Prénom, Email, Téléphone. Bouton "Save Profile".
 2. **Section : Multi-Factor Authentication (MFA)** :
    * Statut actuel : "Status: Active (TOTP Authenticator)".
-   * Si désactivé : Bouton Primary "Setup MFA" qui déclenche une modale avec QR Code et champ de validation à 6 chiffres.
+   * Si désactivé : Bouton Primary "Setup MFA" qui déclenche une modale avec QR Code et champ de validation à  6 chiffres.
    * Bouton : "View Recovery Codes".
 3. **Section : Session History** :
-   * Tableau des sessions actives de l'utilisateur (Navigateur, OS, Date d'activation, IP, bouton "Revoke Session" pour déconnecter à distance).
+   * Tableau des sessions actives de l'utilisateur (Navigateur, OS, Date d'activation, IP, bouton "Revoke Session" pour déconnecter à  distance).

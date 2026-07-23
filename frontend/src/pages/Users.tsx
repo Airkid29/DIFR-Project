@@ -1,4 +1,4 @@
-// USERS PAGE
+﻿// USERS PAGE
 import React, { useState } from "react";
 import { Plus, Search, ShieldCheck, ShieldAlert, UserMinus } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -190,7 +190,7 @@ export default function Users() {
           <div style={{ position: "relative", background: "var(--brand-card)", border: "1px solid var(--brand-border)", borderRadius: 12, padding: 20, maxWidth: 420, width: "100%", zIndex: 10 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid var(--brand-border)" }}>
               <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 16, color: "var(--brand-text-primary)" }}>{t("users.modalTitle")}</h3>
-              <button onClick={() => setIsInviteOpen(false)} style={{ background: "none", border: "none", color: "var(--brand-text-secondary)", cursor: "pointer", fontSize: 20 }}>×</button>
+              <button onClick={() => setIsInviteOpen(false)} style={{ background: "none", border: "none", color: "var(--brand-text-secondary)", cursor: "pointer", fontSize: 20 }}>à—</button>
             </div>
             <form style={{ display: "flex", flexDirection: "column", gap: 16 }} onSubmit={handleInviteSubmit}>
               <div>
@@ -209,7 +209,7 @@ export default function Users() {
                 <input
                   type="email"
                   style={{ width: "100%", padding: "10px 12px", background: "var(--brand-abyssal)", border: "1px solid var(--brand-border)", borderRadius: 8, color: "var(--brand-text-primary)", fontSize: 12, outline: "none" }}
-                  placeholder="sarah.j@velora.com"
+                  placeholder="sarah.j@DFIR-Lab.com"
                   value={inviteEmail}
                   onChange={e => setInviteEmail(e.target.value)}
                   required

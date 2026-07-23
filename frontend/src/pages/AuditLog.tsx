@@ -1,4 +1,4 @@
-// AUDIT LOG PAGE
+﻿// AUDIT LOG PAGE
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Download } from "lucide-react";
@@ -95,9 +95,9 @@ export default function AuditLog() {
       formatTimestamp(log.timestamp),
       log.user_email,
       log.action,
-      log.resource || "—",
-      log.ip_address || "—",
-      log.status === "success" ? (t("common.success") || "Succès") : (t("common.fail") || "Échec"),
+      log.resource || "â€”",
+      log.ip_address || "â€”",
+      log.status === "success" ? (t("common.success") || "Succès") : (t("common.fail") || "à‰chec"),
     ]);
 
     const allRows = [...metaLines, headerRow, ...dataRows];

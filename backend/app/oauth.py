@@ -1,4 +1,4 @@
-import secrets
+﻿import secrets
 from typing import Any, Dict
 from urllib.parse import urlencode
 
@@ -178,7 +178,7 @@ def upsert_oauth_user(db: Session, profile: Dict[str, Any]) -> models.User:
     existing_email = db.query(models.User).filter(models.User.email == email).first()
     if existing_email:
         if existing_email.oauth_provider and existing_email.oauth_provider != provider:
-            raise ValueError("Cet e-mail est déjà associé à un autre mode de connexion.")
+            raise ValueError("Cet e-mail est déjà  associé à  un autre mode de connexion.")
         existing_email.oauth_provider = provider
         existing_email.oauth_subject = subject
         existing_email.name = name

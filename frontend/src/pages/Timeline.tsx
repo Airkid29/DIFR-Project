@@ -1,4 +1,4 @@
-// TIMELINE PAGE — API-backed with incident linking
+﻿// TIMELINE PAGE â€” API-backed with incident linking
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Plus, Clock } from "lucide-react";
@@ -97,7 +97,7 @@ export default function Timeline() {
         <label style={{ ...ps.label, marginBottom: 0 }}>{t("timeline.linkedIncident")}</label>
         <select style={ps.select} value={incidentId} onChange={(e) => setIncidentId(e.target.value)}>
           {incidents.map((inc) => (
-            <option key={inc.id} value={inc.id}>{inc.id} — {inc.title}</option>
+            <option key={inc.id} value={inc.id}>{inc.id} â€” {inc.title}</option>
           ))}
         </select>
         <span style={ps.muted}>{t("common.filter")} :</span>
@@ -159,14 +159,14 @@ export default function Timeline() {
             <div style={ps.card}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                 <span style={{ fontSize: 10, fontWeight: 700, color: "var(--brand-cyan)", textTransform: "uppercase" }}>{t(`common.${selectedEvent.category}`)}</span>
-                <button type="button" onClick={() => setSelectedEvent(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--brand-text-secondary)" }}>×</button>
+                <button type="button" onClick={() => setSelectedEvent(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--brand-text-secondary)" }}>à—</button>
               </div>
               <h3 style={{ fontWeight: 700, color: "var(--brand-text-primary)", marginBottom: 12 }}>{selectedEvent.title}</h3>
               <div style={{ ...ps.input, ...ps.mono, fontSize: 11, whiteSpace: "pre-wrap", marginBottom: 12 }}>{selectedEvent.details}</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <div style={{ ...ps.card, padding: 10 }}>
                   <span style={ps.label}>{t("common.source")}</span>
-                  <p style={{ fontSize: 11, color: "var(--brand-text-primary)" }}>{selectedEvent.source || "—"}</p>
+                  <p style={{ fontSize: 11, color: "var(--brand-text-primary)" }}>{selectedEvent.source || "â€”"}</p>
                 </div>
                 <div style={{ ...ps.card, padding: 10 }}>
                   <span style={ps.label}>{t("incidents.caseId")}</span>

@@ -1,4 +1,4 @@
-// INCIDENTS PAGE — API-backed with interactive detail panel
+﻿// INCIDENTS PAGE â€” API-backed with interactive detail panel
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Search, Clock, Database, X, ChevronRight } from "lucide-react";

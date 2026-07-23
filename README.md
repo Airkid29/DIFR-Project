@@ -1,6 +1,6 @@
-# Velora
+﻿# DFIR-Lab
 
-Velora is a modern digital forensics investigation platform built as a full-stack MVP.
+DFIR-Lab is a modern digital forensics investigation platform built as a full-stack MVP.
 It combines a React + Vite frontend with a FastAPI backend, PostgreSQL persistence, Redis/Celery background processing, and YARA-based file triage.
 
 ## What was improved
@@ -13,7 +13,7 @@ It combines a React + Vite frontend with a FastAPI backend, PostgreSQL persisten
 - The incidents page now shows a friendly empty state when no matches appear.
 - Frontend logout now removes the auth token from storage.
 - Added cookie consent banner for user privacy
-- Rebranded from ForensiGuard to Velora with new logo assets
+- Rebranded from ForensiGuard to DFIR-Lab with new logo assets
 
 ## Architecture
 
@@ -52,10 +52,10 @@ docker-compose up --build
 
 This starts:
 
-- `db` â€“ PostgreSQL database
-- `redis` â€“ Redis broker/backend
-- `api` â€“ FastAPI backend
-- `worker` â€“ Celery worker for background tasks
+- `db` à¢â‚¬â€œ PostgreSQL database
+- `redis` à¢â‚¬â€œ Redis broker/backend
+- `api` à¢â‚¬â€œ FastAPI backend
+- `worker` à¢â‚¬â€œ Celery worker for background tasks
 
 The backend API is available at `http://localhost:8000`.
 
@@ -76,15 +76,15 @@ The app proxies `/api` requests to the backend automatically.
 
 These credentials are provided for local development and demonstration only. Do not use them in production.
 
-- Email: `r.jenkins@velora.io`
+- Email: `r.jenkins@DFIR-Lab.io`
 - Password: `securepassword123`
 - MFA code: `123456` or `000000`
 
 ## Project structure
 
-- `frontend/` â€“ React application with pages, layout, and branding
-- `backend/` â€“ FastAPI application, models, schemas, tasks, and Docker setup
-- `docker-compose.yml` â€“ orchestration for PostgreSQL, Redis, API, and worker
+- `frontend/` à¢â‚¬â€œ React application with pages, layout, and branding
+- `backend/` à¢â‚¬â€œ FastAPI application, models, schemas, tasks, and Docker setup
+- `docker-compose.yml` à¢â‚¬â€œ orchestration for PostgreSQL, Redis, API, and worker
 
 ## Notes for next steps
 

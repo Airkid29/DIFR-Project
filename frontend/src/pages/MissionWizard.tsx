@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Shield, FileSearch, Compass, CheckCircle2 } from "lucide-react";
 
@@ -13,7 +13,7 @@ export default function MissionWizard() {
     { id: 1, title: "Incident", icon: Shield },
     { id: 2, title: "Preuves", icon: FileSearch },
     { id: 3, title: "Analyse", icon: Compass },
-    { id: 4, title: "Clôture", icon: CheckCircle2 },
+    { id: 4, title: "Clà´ture", icon: CheckCircle2 },
   ];
 
   const s: Record<string, React.CSSProperties> = {
@@ -40,18 +40,18 @@ export default function MissionWizard() {
           ))}
         </div>
         <h1 style={s.title}>Assistant de mission forensique</h1>
-        <p style={s.desc}>Guide pas à pas pour déclarer un incident, collecter des preuves et préparer un rapport scellé.</p>
+        <p style={s.desc}>Guide pas à  pas pour déclarer un incident, collecter des preuves et préparer un rapport scellé.</p>
 
         {step === 1 && (
           <div style={{ display: "grid", gap: 12, marginTop: 20 }}>
-            <input style={s.input} placeholder="Titre de l’incident" value={incident.title} onChange={(e) => setIncident({ ...incident, title: e.target.value })} />
+            <input style={s.input} placeholder="Titre de lâ€™incident" value={incident.title} onChange={(e) => setIncident({ ...incident, title: e.target.value })} />
             <select style={s.input} value={incident.severity} onChange={(e) => setIncident({ ...incident, severity: e.target.value })}>
               <option value="critical">Critique</option>
-              <option value="high">Élevée</option>
+              <option value="high">à‰levée</option>
               <option value="medium">Moyenne</option>
               <option value="low">Faible</option>
             </select>
-            <textarea style={{ ...s.input, minHeight: 110 }} placeholder="Description de l’incident" value={incident.description} onChange={(e) => setIncident({ ...incident, description: e.target.value })} />
+            <textarea style={{ ...s.input, minHeight: 110 }} placeholder="Description de lâ€™incident" value={incident.description} onChange={(e) => setIncident({ ...incident, description: e.target.value })} />
           </div>
         )}
 
@@ -65,7 +65,7 @@ export default function MissionWizard() {
 
         {step === 3 && (
           <div style={{ marginTop: 20, color: "var(--brand-text-secondary)" }}>
-            Le triage YARA et la recherche d’indicateurs peuvent être lancés depuis la page d’analyse. Les résultats sont ensuite intégrés au rapport final.
+            Le triage YARA et la recherche dâ€™indicateurs peuvent être lancés depuis la page dâ€™analyse. Les résultats sont ensuite intégrés au rapport final.
           </div>
         )}
 

@@ -1,6 +1,6 @@
-﻿# Contributing to Velora
+﻿# Contributing to DFIR-Lab
 
-Thank you for your interest in contributing to Velora. Contributions are welcome from developers, security researchers, and product collaborators.
+Thank you for your interest in contributing to DFIR-Lab. Contributions are welcome from developers, security researchers, and product collaborators.
 
 ## How to Contribute
 

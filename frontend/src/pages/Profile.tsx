@@ -1,4 +1,4 @@
-// PROFILE PAGE — API-backed with password change
+﻿// PROFILE PAGE â€” API-backed with password change
 import React, { useEffect, useState } from "react";
 import { User, ShieldCheck, Clock3, KeyRound, Building2 } from "lucide-react";
 import SlackIcon from "../assets/slack-removebg-preview.png";
@@ -85,7 +85,7 @@ export default function Profile() {
 
   const handleTestSlack = async () => {
     try {
-      await api.post("/api/integrations/slack/test", { message: "Test de notification Slack depuis Velora!" });
+      await api.post("/api/integrations/slack/test", { message: "Test de notification Slack depuis DFIR-Lab!" });
       setSlackMessage("Test de notification envoyé!");
       window.setTimeout(() => setSlackMessage(""), 3200);
     } catch {

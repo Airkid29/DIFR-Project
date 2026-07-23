@@ -1,4 +1,4 @@
-// ACTIVITY HISTORY PAGE
+﻿// ACTIVITY HISTORY PAGE
 import React, { useEffect, useState } from "react";
 import { Clock, FileSearch, ShieldAlert, Database, Globe, FileText } from "lucide-react";
 import { api } from "../utils/api";

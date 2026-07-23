@@ -159,7 +159,7 @@ export default function Layout() {
   });
 
   const handleLogout = () => {
-    localStorage.removeItem("velora_token");
+    localStorage.removeItem("DFIR-Lab_token");
     navigate("/");
   };
 
@@ -193,10 +193,10 @@ export default function Layout() {
             <Link to="/dashboard" className="flex items-center space-x-3 overflow-hidden">
               {isSidebarOpen ? (
                 <img 
-                src={theme === "light" ? "/logo-white-velora.png" : "/logo-dark-velora.png"} 
-                alt="Velora" 
-                style={{ height: "24px", width: "auto" }} 
-              />
+              src={theme === "light" ? "/dfir-lab-logo-white.png" : "/dfir-lab-logo-dark.png"} 
+              alt="DFIR-Lab" 
+              style={{ height: "24px", width: "auto" }} 
+            />
               ) : (
                 <div className="p-2 bg-brand-cyan rounded-lg text-white shadow-sm">
                   <ShieldCheck className="h-4.5 w-4.5" />
@@ -276,7 +276,7 @@ export default function Layout() {
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-brand-text-secondary truncate">{user?.email || "rachcode@velora.com"}</p>
+                <p className="text-[10px] text-brand-text-secondary truncate">{user?.email || "rachcode@DFIR-Lab.com"}</p>
               </div>
             )}
           </Link>

@@ -1,4 +1,4 @@
-# Slack Channel Setup and Avatar Upload Guide
+﻿# Slack Channel Setup and Avatar Upload Guide
 
 ## English
 

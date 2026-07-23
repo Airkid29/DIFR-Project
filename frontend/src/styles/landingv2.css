@@ -1,4 +1,4 @@
-/* Landing V2 - Modern Design System */
+﻿/* Landing V2 - Modern Design System */
 
 .landing-v2 {
   --landing-ink: var(--brand-abyssal);
@@ -780,7 +780,7 @@
 }
 
 .landing-ucard li:before {
-  content: "—";
+  content: "â€”";
   color: var(--landing-gold);
   flex-shrink: 0;
 }

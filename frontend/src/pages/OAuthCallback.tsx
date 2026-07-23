@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { t } from "../i18n";
 import { completeOAuthCallback } from "../utils/oauth";
@@ -30,7 +30,7 @@ export default function OAuthCallback() {
 
     completeOAuthCallback(code, state)
       .then((data) => {
-        localStorage.setItem("velora_token", data.access_token);
+        localStorage.setItem("DFIR-Lab_token", data.access_token);
         navigate("/dashboard", { replace: true });
       })
       .catch((err) => {

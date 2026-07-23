@@ -1,4 +1,4 @@
-// DASHBOARD PAGE - SIMPLIFIED
+﻿// DASHBOARD PAGE - SIMPLIFIED
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldAlert, Cpu, Database, Clock, TrendingUp, TrendingDown, AlertTriangle, Play, Sparkles, ArrowRight } from "lucide-react";

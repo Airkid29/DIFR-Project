@@ -27,6 +27,9 @@ import UltraAdmin from "./pages/UltraAdmin";
 import Documentation from "./pages/Documentation";
 import MissionWizard from "./pages/MissionWizard";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Careers from "./pages/Careers";
 
 // Initialize Query Client for TanStack Query API calls
 const queryClient = new QueryClient({
@@ -63,6 +66,9 @@ export default function App() {
             <Route path="register" element={isAuth ? <Navigate to="/dashboard" replace /> : <Register />} />
             <Route path="auth/callback" element={<OAuthCallback />} />
             <Route path="docs" element={<Documentation />} />
+            <Route path="privacy" element={<PrivacyPolicy />} />
+            <Route path="terms" element={<TermsOfService />} />
+            <Route path="careers" element={<Careers />} />
 
           {/* Secure application shell */}
           <Route

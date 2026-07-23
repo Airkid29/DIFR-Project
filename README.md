@@ -1,4 +1,4 @@
-﻿# DFIR-Lab
+﻿# DFIR-LAB   [![Netlify Status](https://api.netlify.com/api/v1/badges/e3c92d91-d57b-443c-a169-6c8bc53eada4/deploy-status)](https://app.netlify.com/projects/dfir-lab/deploys)
 
 DFIR-Lab is a modern digital forensics investigation platform built as a full-stack MVP.
 It combines a React + Vite frontend with a FastAPI backend, PostgreSQL persistence, Redis/Celery background processing, and YARA-based file triage.

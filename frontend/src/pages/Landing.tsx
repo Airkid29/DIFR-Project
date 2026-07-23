@@ -1509,14 +1509,14 @@ export default function Landing() {
             <div className="foot-col">
               <h5>{currentStrings.footer.col2}</h5>
               <a href="#usecases">{currentStrings.nav.about}</a>
-              <a href="#">Careers</a>
+              <Link to="/careers">Careers</Link>
               <a href="#">Blog</a>
             </div>
             <div className="foot-col">
               <h5>{currentStrings.footer.col3}</h5>
               <a href="#help">Help center</a>
-              <a href="#">Privacy</a>
-              <a href="#">Terms</a>
+              <Link to="/privacy">Privacy</Link>
+              <Link to="/terms">Terms</Link>
             </div>
           </div>
           <div className="foot-bottom">

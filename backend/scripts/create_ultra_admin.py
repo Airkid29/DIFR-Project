@@ -13,41 +13,67 @@ from app.models import User
 from app.main import pwd_context
 
 
+def prompt_value(prompt: str, env_key: str, default: str | None = None, required: bool = True) -> str:
+    value = os.getenv(env_key, default or "").strip()
+    if value:
+        return value
+
+    if os.getenv("APP_ENV", "development").lower() == "production" and required:
+        raise RuntimeError(
+            f"Missing required environment variable {env_key}. "
+            "Set it before running this bootstrap script in production."
+        )
+
+    while True:
+        value = input(prompt).strip()
+        if value:
+            return value
+        print("La valeur ne peut pas être vide.")
+
+
+def prompt_password(env_key: str) -> str:
+    password = os.getenv(env_key, "").strip()
+    if password:
+        return password
+
+    app_env = os.getenv("APP_ENV", "development").lower()
+    if app_env == "production":
+        raise RuntimeError(
+            f"Missing required environment variable {env_key}. "
+            "Set ULTRA_ADMIN_PASSWORD before running in production."
+        )
+
+    while True:
+        password = getpass("Mot de passe (ne sera pas affiché): ").strip()
+        if len(password) >= 8:
+            break
+        print("Le mot de passe doit contenir au moins 8 caractères.")
+
+    confirm = getpass("Confirmer le mot de passe: ").strip()
+    while password != confirm:
+        print("Les mots de passe ne correspondent pas.")
+        password = getpass("Mot de passe: ").strip()
+        confirm = getpass("Confirmer le mot de passe: ").strip()
+
+    return password
+
+
 def main():
     print("=" * 60)
     print("DFIR-Lab UltraAdmin User Creator")
     print("=" * 60)
 
-    # Get user input
-    name = input("Nom complet de l'UltraAdmin: ").strip()
-    while not name:
-        name = input("Le nom ne peut pas être vide. Nom complet: ").strip()
+    name = prompt_value("Nom complet de l'UltraAdmin: ", "ULTRA_ADMIN_NAME")
+    email = prompt_value("Email de l'UltraAdmin: ", "ULTRA_ADMIN_EMAIL")
+    password = prompt_password("ULTRA_ADMIN_PASSWORD")
 
-    email = input("Email de l'UltraAdmin: ").strip()
-    while not email:
-        email = input("L'email ne peut pas être vide. Email: ").strip()
-
-    password = getpass("Mot de passe (ne sera pas affiché): ").strip()
-    while len(password) < 8:
-        print("Le mot de passe doit contenir au moins 8 caractères.")
-        password = getpass("Mot de passe: ").strip()
-
-    password_confirm = getpass("Confirmer le mot de passe: ").strip()
-    while password != password_confirm:
-        print("Les mots de passe ne correspondent pas.")
-        password = getpass("Mot de passe: ").strip()
-        password_confirm = getpass("Confirmer le mot de passe: ").strip()
-
-    # Create user in database
     db = SessionLocal()
     try:
-        # Check if user already exists
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
             print(f"Erreur: Un utilisateur avec l'email {email} existe déjà !")
             sys.exit(1)
 
-        # Create new user
         hashed_password = pwd_context.hash(password)
         new_user = User(
             name=name,
@@ -65,7 +91,7 @@ def main():
 
         print("\n" + "=" * 60)
         print("✓ SUCCÈS !")
-        print(f"Utilisateur UltraAdmin créé avec succès !")
+        print("Utilisateur UltraAdmin créé avec succès !")
         print(f"  - ID: {new_user.id}")
         print(f"  - Nom: {new_user.name}")
         print(f"  - Email: {new_user.email}")

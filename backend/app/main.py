@@ -121,34 +121,6 @@ os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 
-@app.post("/api/uploads/avatar")
-def upload_avatar(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    try:
-        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-        # Validate file type (OWASP - Unrestricted File Upload)
-        allowed_types = {'image/png', 'image/jpeg', 'image/jpg', 'image/gif'}
-        if file.content_type not in allowed_types:
-            raise HTTPException(status_code=400, detail="Type de fichier non autorisé.")
-        # Validate file size (max 5MB)
-        MAX_SIZE = 5 * 1024 * 1024
-        content = file.file.read()
-        if len(content) > MAX_SIZE:
-            raise HTTPException(status_code=413, detail="Fichier trop volumineux (max 5MB).")
-        # Generate safe filename
-        safe_filename = f"avatar_{uuid.uuid4().hex}_{os.path.basename(file.filename or 'avatar.jpg')}"
-        path = os.path.join(settings.UPLOAD_DIR, safe_filename)
-        with open(path, "wb") as f:
-            f.write(content)
-        # Generate public URL
-        base_url = str(request.base_url).rstrip('/')
-        public_path = f"{base_url}/uploads/{safe_filename}"
-        return JSONResponse({"path": public_path})
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-
-
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
@@ -206,6 +178,34 @@ def assert_same_org_or_super_admin(target_user: models.User, current_user: model
                 detail="Opération interdite. Cet utilisateur n'appartient pas à  votre organisation.",
             )
     # non-enterprise Admins are allowed to manage all local users by design
+
+
+@app.post("/api/uploads/avatar")
+def upload_avatar(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    try:
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+        # Validate file type (OWASP - Unrestricted File Upload)
+        allowed_types = {'image/png', 'image/jpeg', 'image/jpg', 'image/gif'}
+        if file.content_type not in allowed_types:
+            raise HTTPException(status_code=400, detail="Type de fichier non autorisé.")
+        # Validate file size (max 5MB)
+        MAX_SIZE = 5 * 1024 * 1024
+        content = file.file.read()
+        if len(content) > MAX_SIZE:
+            raise HTTPException(status_code=413, detail="Fichier trop volumineux (max 5MB).")
+        # Generate safe filename
+        safe_filename = f"avatar_{uuid.uuid4().hex}_{os.path.basename(file.filename or 'avatar.jpg')}"
+        path = os.path.join(settings.UPLOAD_DIR, safe_filename)
+        with open(path, "wb") as f:
+            f.write(content)
+        # Generate public URL
+        base_url = str(request.base_url).rstrip('/')
+        public_path = f"{base_url}/uploads/{safe_filename}"
+        return JSONResponse({"path": public_path})
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 def assert_org_access_or_super_admin(resource_org: Optional[str], current_user: models.User):

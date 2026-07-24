@@ -74,11 +74,12 @@ The app proxies `/api` requests to the backend automatically.
 
 ## Default credentials
 
-These credentials are provided for local development and demonstration only. Do not use them in production.
+These credentials are provided for local development and demonstration only. **Do not use them in production.**
 
-- Email: `r.jenkins@DFIR-Lab.io`
-- Password: `securepassword123`
-- MFA code: `123456` or `000000`
+Configure them via environment variables:
+- `DEFAULT_ADMIN_EMAIL` (default: `admin@example.com`)
+- `ULTRA_ADMIN_EMAIL` (default: `ultra@example.com`)
+- `DEFAULT_ADMIN_PASSWORD` (required only if `SEED_DEFAULT_USERS=true`)
 
 ## Project structure
 

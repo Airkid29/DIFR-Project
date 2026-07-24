@@ -42,8 +42,12 @@ class Settings:
     DATABASE_URL: str = _normalize_database_url(
         os.getenv("DATABASE_EXTERNAL_URL")
         or os.getenv("DATABASE_URL")
-        or "postgresql://postgres:securepassword123@localhost:5432/DFIR-Lab"
+        or ("postgresql://postgres:postgres@localhost:5432/dfir_lab" if APP_ENV != "production" else "")
     )
+    if APP_ENV == "production" and not DATABASE_URL:
+        raise EnvironmentError(
+            "DATABASE_URL must be configured when APP_ENV=production."
+        )
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     SECRET_KEY: str = os.getenv("SECRET_KEY") or (
         secrets.token_urlsafe(32) if APP_ENV != "production" else ""
@@ -77,6 +81,8 @@ class Settings:
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
     GITHUB_CLIENT_ID: str = os.getenv("GITHUB_CLIENT_ID", "")
     GITHUB_CLIENT_SECRET: str = os.getenv("GITHUB_CLIENT_SECRET", "")
+    ALLOWED_EMAILS: list[str] = _get_env_list("ALLOWED_EMAILS", "")
+    ALLOWED_EMAIL_DOMAINS: list[str] = _get_env_list("ALLOWED_EMAIL_DOMAINS", "")
 
 
 settings = Settings()

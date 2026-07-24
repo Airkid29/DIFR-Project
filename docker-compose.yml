@@ -1,17 +1,17 @@
-﻿services:
+services:
   db:
     image: postgres:15-alpine
     container_name: DFIR-Lab-db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: securepassword123
-      POSTGRES_DB: DFIR-Lab
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-dfir_lab}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -40,8 +40,8 @@
       - "8000:8000"
     environment:
       - APP_ENV=development
-      - DATABASE_URL=postgresql://postgres:securepassword123@db:5432/DFIR-Lab
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-dfir_lab}}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - ENABLE_CELERY_WORKER=true
       - FRONTEND_URL=http://localhost:5173
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
@@ -67,8 +67,8 @@
       - uploads_data:/app/uploads
     environment:
       - APP_ENV=development
-      - DATABASE_URL=postgresql://postgres:securepassword123@db:5432/DFIR-Lab
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-dfir_lab}}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - ENABLE_CELERY_WORKER=true
     depends_on:
       redis:

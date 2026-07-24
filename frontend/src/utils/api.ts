@@ -66,7 +66,7 @@ export const api = {
   put: (url: string, body?: any) =>
     request(url, {
       method: "PUT",
-      body: JSON.stringify(body),
+      body: body instanceof FormData ? body : JSON.stringify(body),
     }),
   patch: (url: string, body?: any) =>
     request(url, {

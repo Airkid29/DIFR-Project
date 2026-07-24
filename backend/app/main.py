@@ -122,17 +122,26 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 
 
 @app.post("/api/uploads/avatar")
-def upload_avatar(request: Request, file: UploadFile = File(...)):
+def upload_avatar(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     try:
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-        safe_name = os.path.basename(file.filename)
-        if not safe_name:
-            raise HTTPException(status_code=400, detail="Invalid upload filename.")
-        filename = f"avatar_{uuid.uuid4().hex}_{safe_name}"
-        path = os.path.join(settings.UPLOAD_DIR, filename)
+        # Validate file type (OWASP - Unrestricted File Upload)
+        allowed_types = {'image/png', 'image/jpeg', 'image/jpg', 'image/gif'}
+        if file.content_type not in allowed_types:
+            raise HTTPException(status_code=400, detail="Type de fichier non autorisé.")
+        # Validate file size (max 5MB)
+        MAX_SIZE = 5 * 1024 * 1024
+        content = file.file.read()
+        if len(content) > MAX_SIZE:
+            raise HTTPException(status_code=413, detail="Fichier trop volumineux (max 5MB).")
+        # Generate safe filename
+        safe_filename = f"avatar_{uuid.uuid4().hex}_{os.path.basename(file.filename or 'avatar.jpg')}"
+        path = os.path.join(settings.UPLOAD_DIR, safe_filename)
         with open(path, "wb") as f:
-            f.write(file.file.read())
-        public_path = f"{str(request.base_url).rstrip('/')}/uploads/{filename}"
+            f.write(content)
+        # Generate public URL
+        base_url = str(request.base_url).rstrip('/')
+        public_path = f"{base_url}/uploads/{safe_filename}"
         return JSONResponse({"path": public_path})
     except HTTPException:
         raise
@@ -143,6 +152,10 @@ def upload_avatar(request: Request, file: UploadFile = File(...)):
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "DFIR-Lab API", "version": "1.0.0"}
 
 # HELPER: JWT token generator
 def create_access_token(data: dict):
@@ -397,6 +410,21 @@ def register(request: schemas.UserRegister, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Type de compte invalide.")
     if request.account_type == "enterprise" and not (request.organization_name or "").strip():
         raise HTTPException(status_code=400, detail="Le nom de l'organisation est requis pour un compte Entreprise.")
+    
+    # Check email whitelist (OWASP - Broken Access Control)
+    if settings.ALLOWED_EMAILS or settings.ALLOWED_EMAIL_DOMAINS:
+        email_lower = request.email.lower()
+        email_domain = email_lower.split('@')[-1]
+        allowed = False
+        if settings.ALLOWED_EMAILS and email_lower in [e.lower() for e in settings.ALLOWED_EMAILS]:
+            allowed = True
+        if not allowed and settings.ALLOWED_EMAIL_DOMAINS:
+            for domain in settings.ALLOWED_EMAIL_DOMAINS:
+                if email_domain == domain.lower() or email_domain.endswith(f".{domain.lower()}"):
+                    allowed = True
+                    break
+        if not allowed:
+            raise HTTPException(status_code=403, detail="Cet e-mail n'est pas autorisé à s'inscrire.")
 
     existing = db.query(models.User).filter(models.User.email == request.email).first()
     if existing:
@@ -436,7 +464,7 @@ def oauth_authorize(provider: str, redirect_uri: str):
 @app.post("/api/auth/oauth/callback", response_model=schemas.Token)
 def oauth_callback(request: schemas.OAuthCallbackRequest, db: Session = Depends(get_db)):
     if not oauth_service.verify_oauth_state(request.state, request.provider):
-        raise HTTPException(status_code=400, detail="à‰tat OAuth invalide ou expiré.")
+        raise HTTPException(status_code=400, detail="État OAuth invalide ou expiré.")
 
     try:
         profile = oauth_service.exchange_oauth_code(
@@ -859,7 +887,7 @@ def add_timeline_event(event: schemas.TimelineEventCreate, db: Session = Depends
         db,
         current_user.id,
         "timeline",
-        f"à‰vénement ajouté : {event.title}",
+        f"Événement ajouté : {event.title}",
         description=f"Incident {event.incident_id}",
         resource_id=str(new_event.id),
         extra_data={"incident_id": event.incident_id},
@@ -1034,7 +1062,7 @@ def lookup_hash_intel_endpoint(request: schemas.ThreatIntelHashLookup, db: Sessi
         db,
         current_user.id,
         "intel",
-        f"Recherche hash : {request.sha256_hash[:16]}â€¦",
+        f"Recherche hash : {request.sha256_hash[:16]}…",
         description="; ".join(messages[:3]) if messages else None,
         resource_id=request.sha256_hash,
         extra_data={"indicator_type": "hash"},
@@ -1200,7 +1228,7 @@ def dashboard_stats(db: Session = Depends(get_db), current_user: models.User = D
         "avg_triage": avg_triage,
         "incident_volume": incident_volume,
         "recent_threats": recent_threats or [
-            {"type": "INTEL", "details": "No recent threat activity", "source": "DFIR-Lab", "confidence": "â€”"}
+            {"type": "INTEL", "details": "No recent threat activity", "source": "DFIR-Lab", "confidence": "—"}
         ],
     }
 

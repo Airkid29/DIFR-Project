@@ -120,10 +120,10 @@ def init_db():
             print("[*] Production mode detected. Skipping default user seeding.")
 
         # 1. Seed Robert Jenkins (Admin)
-        admin_email = "r.jenkins@DFIR-Lab.io"
+        admin_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@example.com")
         admin = db.query(User).filter(User.email == admin_email).first()
         if default_user_seeding and not admin:
-            legacy_admin = db.query(User).filter(User.email == "rachcode@DFIR-Lab.com").first()
+            legacy_admin = db.query(User).filter(User.email == os.getenv("LEGACY_ADMIN_EMAIL", "")).first()
             if legacy_admin:
                 legacy_admin.email = admin_email
                 legacy_admin.password_hash = hashed_pw
@@ -132,7 +132,7 @@ def init_db():
                 print("[+] Updated legacy administrator email to the documented default.")
             else:
                 admin_user = User(
-                    name="Robert Jenkins",
+                    name=os.getenv("DEFAULT_ADMIN_NAME", "Administrator"),
                     email=admin_email,
                     password_hash=hashed_pw,
                     role="Admin",
@@ -151,11 +151,11 @@ def init_db():
             print("[+] Synced default administrator account.")
 
         # 2. Seed UltraAdmin
-        ultra_email = "ultra.admin@DFIR-Lab.io"
+        ultra_email = os.getenv("ULTRA_ADMIN_EMAIL", "ultra@example.com")
         ultra = db.query(User).filter(User.email == ultra_email).first()
         if default_user_seeding and not ultra:
             ultra_user = User(
-                name="Ultra Administrator",
+                name=os.getenv("ULTRA_ADMIN_NAME", "Ultra Administrator"),
                 email=ultra_email,
                 password_hash=hashed_pw,
                 role="UltraAdmin",

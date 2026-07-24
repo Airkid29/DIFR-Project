@@ -1,4 +1,4 @@
-﻿// SETTINGS PAGE
+// SETTINGS PAGE
 import React, { useState, useEffect } from "react";
 import { Sliders, Key, Server } from "lucide-react";
 import { api } from "../utils/api";
@@ -75,12 +75,12 @@ export default function Settings() {
       if (path) {
         await api.put("/api/auth/me", { avatar_url: path });
         setAvatarUrl(path);
-        setStatusMessage("Avatar mis à  jour.");
+        setStatusMessage("Avatar mis à jour.");
         setTimeout(() => setStatusMessage(""), 2400);
       }
     } catch (err) {
       console.error(err);
-      setStatusMessage("à‰chec du téléversement de l'avatar.");
+      setStatusMessage("Échec du téléversement de l'avatar.");
     }
   };
 

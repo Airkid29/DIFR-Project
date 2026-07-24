@@ -1,4 +1,4 @@
-﻿// EVIDENCE PAGE â€” API-backed with custody transfer
+// EVIDENCE PAGE â€” API-backed with custody transfer
 import React, { useEffect, useState } from "react";
 import { Database, Plus, Search, Download, ArrowRightLeft } from "lucide-react";
 import { api, apiUrl } from "../utils/api";
@@ -55,7 +55,7 @@ export default function Evidence() {
     exportForensicPdf({
       title: "Evidence Audit Report",
       fileName: selectedItem.name,
-      fileSize: "â€”",
+      fileSize: "—",
       threatScore: selectedItem.verified ? 32 : 67,
       severity: selectedItem.verified ? "Verified Evidence" : "Unverified",
       hashes: { md5: selectedItem.sha256_hash.slice(0, 32), sha1: selectedItem.sha256_hash.slice(0, 40), sha256: selectedItem.sha256_hash },
